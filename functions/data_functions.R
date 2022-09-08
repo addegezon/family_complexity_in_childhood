@@ -118,7 +118,7 @@ format_data <- function(dt) {
             eval(partner) := 1
         ][ # Those with no separation i
             (get(separation) == 0 & (get(divorce) == 0 | is.na(get(divorce)))) |
-                (get(divorce) == 0 & (get(separation) == 0 | is.na(get(separation))))
+                (get(divorce) == 0 & (get(separation) == 0 | is.na(get(separation)))),
             eval(split) := 0
         ][  # Those with separation i
             get(separation) == 1 | get(divorce) == 1,
