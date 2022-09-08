@@ -110,13 +110,15 @@ format_data <- function(dt) {
         split_ym <- paste0("ISPLIT_YM", i)
 
         dt[ # Those with no partner i
-            get(union) == 0 & get(marriage) == 0,
+            (get(union) == 0 & (get(marriage) == 0 | is.na(get(marriage)))) |
+                (get(marriage) == 0 & (get(union) == 0 | is.na(get(union)))),
             eval(partner) := 0
         ][  # Those with partner i
             get(union) == 1 | get(marriage) == 1,
             eval(partner) := 1
         ][ # Those with no separation i
-            get(separation) == 0 & get(divorce) == 0,
+            (get(separation) == 0 & (get(divorce) == 0 | is.na(get(divorce)))) |
+                (get(divorce) == 0 & (get(separation) == 0 | is.na(get(separation))))
             eval(split) := 0
         ][  # Those with separation i
             get(separation) == 1 | get(divorce) == 1,
@@ -492,6 +494,9 @@ gen_sibling_states <- function(dt){
         fullsibling_state <- paste0("FULLSIBLING_STATE", month)
         dt[, eval(fullsibling_state) := 0]
 
+        halfsibling_state <- paste0("HALFSIBLING_STATE", month)
+        dt[, eval(halfsibling_state) := 0]
+
         for(i in 1:16) {
             sibling_ym <- paste0("IKID_YM", i)
             parent_sibling <- paste0("PARENT_KID_", i)
@@ -502,6 +507,10 @@ gen_sibling_states <- function(dt){
                    PARTNER_STATE0 != 0,
                 eval(fullsibling_state) := get(fullsibling_state) + 1  
                 
+            ][
+                birth_ym + months(month) >= get(sibling_ym) &
+                    (PARTNER_STATE0 != get(parent_sibling) | PARTNER_STATE0 == 0),
+                eval(halfsibling_state) := get(halfsibling_state) + 1
             ]
         }
 

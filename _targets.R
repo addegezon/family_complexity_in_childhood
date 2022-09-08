@@ -81,7 +81,7 @@ list(
     # Generate union states
     tar_target(
         children_unions,
-        gen_union_states(children_filtered[20000:50000]),
+        gen_union_states(children_filtered),
         format = "fst_dt"
     ),
 
