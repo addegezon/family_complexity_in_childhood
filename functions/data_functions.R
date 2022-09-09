@@ -65,6 +65,15 @@ format_data <- function(dt) {
         levels(dt[,COUNTRY]),
         value = TRUE
     )
+    # Drop additional countries due to short union history
+    # drop_countries <- c(
+    #                     grep(
+    #                         "^Bulgaria|^Georgia|^Italy|^Netherlands.+FFS$|^Romania",
+    #                         levels(dt[,COUNTRY]),
+    #                         value = TRUE
+    #                     ),
+    #                     drop_countries
+    #                 )
     dt <- dt[!COUNTRY %in% drop_countries]
 
     # Merge all year and month columns into one date column

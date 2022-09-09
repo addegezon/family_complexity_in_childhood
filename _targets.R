@@ -85,12 +85,17 @@ list(
         format = "fst_dt"
     ),
 
-    tar_target(
-        children_siblings,
-        gen_sibling_states(children_unions),
-        format = "fst_dt"
-    )
+    # tar_target(
+    #     children_siblings,
+    #     gen_sibling_states(children_unions),
+    #     format = "fst_dt"
+    # ),
 
     ##
     # Descriptive statistics
+
+    tar_target(
+        table_1,
+        format_table(children_filtered)
+    )
 )
