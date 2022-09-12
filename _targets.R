@@ -8,7 +8,9 @@ tar_option_set(
         "data.table",
         "fst",
         "haven",
-        "lubridate"
+        "lubridate",
+        "TraMineR",
+        "cluster"
     )
 )
 
@@ -75,8 +77,8 @@ list(
         format = "fst_dt"
     ),
 
-    ## Sequence generation
-    #
+    ## 
+    # Sequence generation
 
     # Generate union states
     tar_target(
@@ -90,6 +92,47 @@ list(
     #     gen_sibling_states(children_unions),
     #     format = "fst_dt"
     # ),
+
+    # Identify intact families
+    tar_target(
+        intact_families,
+        identify_intact(children_unions),
+        format = "fst_dt"
+    ),
+    # Define family sequence
+    # use only non-intact trajectories
+    tar_target(
+        family_sequence,
+        seqdef(
+            intact_families[intact == 0],
+            var = paste0("FAMILY_STATE", 0:179),
+            id = intact_families[intact == 0, childID],
+            start = 0,
+            cnames = "Month"
+        )
+    ),
+
+    ##
+    # Clustering
+
+    # Calculate sequence distances
+    tar_target(
+        family_om,
+        seqdist(
+            family_sequence,
+            method ="OM",
+            sm = "TRATE"
+        )
+    ),
+
+    # Cluster using Ward
+    tar_target(
+        family_clusters,
+        agnes(
+            family_om,
+            diss = TRUE,
+            method ="ward")
+    ),
 
     ##
     # Descriptive statistics

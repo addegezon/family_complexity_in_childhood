@@ -61,7 +61,7 @@ format_data <- function(dt) {
 
     # Drop countries
     drop_countries <- grep(
-        "^Austria|^Germany|^UK|^USA|^Uruguay|^Kazakhstan|^Spain.+2018$",
+        "^Austria|^Canada|^Germany|^Moldova|^Russia|^UK|^USA|^Uruguay|^Kazakhstan|^Spain.+2018$",
         levels(dt[,COUNTRY]),
         value = TRUE
     )
@@ -421,7 +421,7 @@ tag_parents <- function(dt){
 # Generate partnership history
 gen_union_states <- function(dt){
     library(TraMineR)
-
+    library(lubridate)
     # Cycle through each month
     for (month in 0:179){
         
@@ -469,26 +469,26 @@ gen_union_states <- function(dt){
         ]
     }
 
-    # Add family state DSS column
-    sequence_columns <- grep(
-                            "FAMILY_STATE",
-                            colnames(dt),
-                            value=TRUE
-                        )
-    # Define sequence object
-    dt.seq <- seqdef(dt, var = sequence_columns)
+    # # Add family state DSS column
+    # sequence_columns <- grep(
+    #                         "FAMILY_STATE",
+    #                         colnames(dt),
+    #                         value=TRUE
+    #                     )
+    # # Define sequence object
+    # dt.seq <- seqdef(dt, var = sequence_columns)
 
-    # Save sequence as DSS-string
-    dss <- as.data.table(
-            seqformat(
-                dt.seq,
-                to ="DSS",
-                compress=TRUE
-            )
-        )
+    # # Save sequence as DSS-string
+    # dss <- as.data.table(
+    #         seqformat(
+    #             dt.seq,
+    #             to ="DSS",
+    #             compress=TRUE
+    #         )
+    #     )
 
-    # Bind the DSS to the data.table
-    dt <- cbind(dt, dss)
+    # # Bind the DSS to the data.table
+    # dt <- cbind(dt, dss)
 
     return(dt)
 }
@@ -526,4 +526,27 @@ gen_sibling_states <- function(dt){
     }
 
     return(dt)
+}
+
+##
+# Analysis functions
+
+# Find intact family trajectories
+identify_intact <- function(dt){
+
+    partner_cols <- paste0("FAMILY_STATE", 0:179)
+    dt[,
+        intact := apply(
+            .SD,
+            1,
+            function(x)
+            if (all(x == "OP")) {
+                1
+            } else 0
+        ),
+        .SDcols = partner_cols
+    ]
+
+    return(dt)
+
 }
