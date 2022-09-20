@@ -289,6 +289,12 @@ tag_children <- function(dt){
         ':='(drop = TRUE, drop_reason = "Missing birth date")
     ]
 
+    # Mark those born before 1980
+    dt[
+        year(birth_ym) < 1980,
+        ':='(drop = TRUE, drop_reason = "Born before 1980")
+    ]
+
     # Mark those born before mother 
     dt[
         birth_ym < IBORN_YM,
@@ -532,19 +538,34 @@ gen_sibling_states <- function(dt){
 # Analysis functions
 
 # Find intact family trajectories
-identify_intact <- function(dt){
+define_subsamples <- function(dt, size = 5000){
 
+    # Full sample
+    dt[,
+        full_sample := TRUE
+    ]
+
+    # Complex families
     partner_cols <- paste0("FAMILY_STATE", 0:179)
     dt[,
-        intact := apply(
+        complex_sample := apply(
             .SD,
             1,
             function(x)
-            if (all(x == "OP")) {
-                1
-            } else 0
+            if (any(x != "OP")) {
+                TRUE
+            } else FALSE
         ),
         .SDcols = partner_cols
+    ]
+
+    # Random subsample
+    dt[
+        sample(.N, size),
+        random_sample := TRUE
+    ][
+        is.na(random_sample),
+        random_sample := FALSE
     ]
 
     return(dt)

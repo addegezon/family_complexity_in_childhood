@@ -1,4 +1,5 @@
 library(targets)
+library(tarchetypes)
 source("functions/data_functions.R")
 source("functions/figure_functions.R")
 
@@ -93,45 +94,56 @@ list(
     #     format = "fst_dt"
     # ),
 
-    # Identify intact families
+    # Generate subsamples
     tar_target(
-        intact_families,
-        identify_intact(children_unions),
+        final_data,
+        define_subsamples(children_unions),
         format = "fst_dt"
     ),
-    # Define family sequence
-    # use only non-intact trajectories
-    tar_target(
-        family_sequence,
-        seqdef(
-            intact_families[intact == 0],
-            var = paste0("FAMILY_STATE", 0:179),
-            id = intact_families[intact == 0, childID],
-            start = 0,
-            cnames = "Month"
+
+    # Define family sequence and distance matrix for full, complex and random subsample
+    tarchetypes::tar_map(
+        values = list(sample = c("full_sample", "complex_sample", "random_sample"),
+                        sample_name = c("full", "complex", "random")),
+        names = sample_name,
+
+        # Define family sequence
+        tar_target(
+            family_sequence,
+            seqdef(
+                final_data[get(sample) == TRUE],
+                var = paste0("FAMILY_STATE", 0:179),
+                id = final_data[get(sample) == TRUE, childID],
+                start = 0
+            )
+        ),
+
+        # Create distance matrix
+        tar_target(
+            family_om,
+            seqdist(
+                family_sequence,
+                method ="OM",
+                sm = "TRATE"
+            )
         )
     ),
 
     ##
     # Clustering
-
-    # Calculate sequence distances
-    tar_target(
-        family_om,
-        seqdist(
-            family_sequence,
-            method ="OM",
-            sm = "TRATE"
-        )
-    ),
-
+    
+    tarchetypes::tar_map(
+    values = list(family_om = rlang::syms(c("family_om_complex", "family_om_random")),
+                    sample_name = c("complex", "random")),
+    names = sample_name,
     # Cluster using Ward
-    tar_target(
-        family_clusters,
-        agnes(
-            family_om,
-            diss = TRUE,
-            method ="ward")
+        tar_target(
+            family_clusters,
+            agnes(
+                family_om,
+                diss = TRUE,
+                method ="ward")
+        )
     ),
 
     ##
