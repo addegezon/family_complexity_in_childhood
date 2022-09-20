@@ -246,5 +246,3 @@ joint_plot <- function(
 
     return(grid_legend)
 }
-
-scale_
