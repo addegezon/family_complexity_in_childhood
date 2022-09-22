@@ -90,20 +90,40 @@ format_table <- function(dt){
 # Plots
 
 plot_colors <- function(){
-    library(wesanderson)
-    cols <- c(
-        "OP" = wes_palette("Royal2")[3],
-        "Single" = wes_palette("Royal2")[4],
-        "Step" = wes_palette("Royal2")[5]
-    )
+    # library(wesanderson)
+    # cols <- c(
+    #     "OP" = wes_palette("Royal2")[3],
+    #     "Single" = wes_palette("Royal2")[4],
+    #     "Step" = wes_palette("Royal2")[5]
+    # )
 
-    return(scale_fill_manual(values = cols))
+    library(prismatic)
+
+    col_scheme <- c(
+        "#1E00BE",
+        "#8D90F5",
+        "#3CA651",
+        "#70DC69",
+        "#91289B",
+        "#F0C3E6",
+        "#FFBE2D",
+        "#FFDC82"
+    ) |> 
+    clr_rotate(10) |>
+    clr_alpha(alpha = 0.7)
+
+    named_scheme <- c("OP" = col_scheme[1], "Single" = col_scheme[2], "Step" = col_scheme[3])
+
+    return(scale_fill_manual(values = named_scheme))
 }
 
 plot_theme <- function(){
 
     p_theme = theme(
-        text = element_text(family="Graphik")
+        text = element_text(family="Helvetica", colour = "#5D00BBFF"),
+        axis.text = element_text(family="Helvetica", colour = "#5D00BBFF"),
+        panel.grid = element_blank(),
+        panel.border = element_rect(color = "#5D00BBFF", fill = NA)
     )
 
     return(p_theme)
@@ -147,40 +167,57 @@ plot_medoid <- function(dt, medoids){
             axis.text.y = element_blank(),
             axis.ticks.y = element_blank(),
             legend.position = "none",
-            panel.grid = element_blank()
+            panel.grid = element_blank(),
+            plot.margin = margin(c(0,0,5,0))
         ) 
 
     return(medoid_plot)
 
 }
 
-triple_plot <- function(dt, sequence, medoids, index){
+triple_plot <- function(dt, sequence, medoids, groups, index){
 
     #Create medoid plot
     medoid_plot <- plot_medoid(dt, medoids[index])
 
     # Create chronogram
     chronogram <- ggseqdplot(sequence[groups == index,]) + 
+        ggtitle(
+            paste0(
+                index,
+                " (n = ",
+                nrow(sequence[groups == index,]),
+                ")"
+            )
+        ) +
         plot_theme() + 
         plot_colors() +
         theme(
+            title = element_text(size = 10),
             legend.position = "none",
             axis.ticks.x=element_blank(),
-            axis.title.x = element_blank(),
+            axis.title.x.bottom = element_blank(),
             axis.text.x = element_blank(),
-            axis.title.y = element_blank()
-        ) + plot_theme()
+            axis.title.y = element_blank(),
+            plot.margin = margin(c(5,0,0,0))
+        )
 
     # Create modal plot
-    modal <- ggseqmsplot(sequence[groups == index,]) + 
+    modal <- ggseqmsplot(sequence[groups == index,]) +
+        scale_y_continuous(
+            breaks = c(0, 0.5, 1),
+            labels = c(0, 0.5, 1),
+            limits = c(0,1)
+        ) +
         plot_theme() + 
         plot_colors() +
         theme(
             legend.position = "none",
             axis.ticks.x=element_blank(),
-            axis.title.x = element_blank(),
-            axis.text.x = element_blank()
-        ) + plot_theme()
+            axis.title.y = element_blank(),
+            axis.text.x = element_blank(),
+            plot.margin = margin(c(5,10,0,10))
+        )
 
     return(
         list(chronogram, modal, medoid_plot)
@@ -192,15 +229,17 @@ joint_plot <- function(
                     sequence,
                     diss,
                     cluster,
+                    groups,
                     no_of_clusters = 6
                 ){
     library(egg)
     library(cowplot)
     library(ggseqplot)
     library(TraMineR)
-
+    library(cluster)
+ 
     # Define groups
-    groups <- cutree(cluster, k = no_of_clusters)
+    # groups <- cutree(cluster, k = no_of_clusters)
 
     # Find medoids
     medoids <- disscenter(
@@ -213,7 +252,7 @@ joint_plot <- function(
     p_list <- lapply(
         sort(unique(groups)),
         function(index){
-            triple_plot(dt, sequence, medoids, index)
+            triple_plot(dt, sequence, medoids, groups, index)
         }
     )
 
@@ -235,7 +274,7 @@ joint_plot <- function(
         )
     )
 
-    grid_arranged <- plot_grid(plotlist = arranged_list, scale = 0.9)
+    grid_arranged <- plot_grid(plotlist = arranged_list, scale = 1)
 
     grid_legend <- plot_grid(
         grid_arranged,

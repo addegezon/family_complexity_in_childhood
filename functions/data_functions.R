@@ -537,8 +537,96 @@ gen_sibling_states <- function(dt){
 ##
 # Analysis functions
 
+# Define analytical groups from cluster analysis
+define_analytical_groups <- function(dt){
+
+    family_cols <- paste0("FAMILY_STATE", 0:179)
+
+    # 1. Only OP
+    dt[
+        dt[, 
+            apply(
+                .SD,
+                1,
+                function(x) {
+                    all(x == "OP")
+                }
+            ),
+            .SDcols = family_cols],
+        family_group := "Only OP"
+    ]
+    # 2. Early single
+    dt[
+        dt[, 
+            apply(
+                .SD,
+                1,
+                function(x) {
+                    match("Single", x) < 12*3
+                }
+            ),
+            .SDcols = family_cols],
+        family_group := "Early Single"
+    ]
+    # 3. Mid single
+    dt[
+        dt[, 
+            apply(
+                .SD,
+                1,
+                function(x) {
+                    match("Single", x) >= 12*3 & all(x[0:(12*3-1)] == "OP")
+                }
+            ),
+            .SDcols = family_cols],
+        family_group := "Mid Single"
+    ]
+    # 4. Late single
+    dt[
+        dt[, 
+            apply(
+                .SD,
+                1,
+                function(x) {
+                    match("Single", x) >= 12*7 & all(x[0:12*7] == "OP")
+                }
+            ),
+            .SDcols = family_cols],
+        family_group := "Late Single"
+    ]
+    # 5. Early step
+    dt[
+        dt[, 
+            apply(
+                .SD,
+                1,
+                function(x) {
+                    match("Step", x) <= 12*5
+                }
+            ),
+            .SDcols = family_cols],
+        family_group := "Early Step"
+    ]
+    # 6. Late step
+    dt[
+        dt[, 
+            apply(
+                .SD,
+                1,
+                function(x) {
+                    match("Step", x) > 12*5
+                }
+            ),
+            .SDcols = family_cols],
+        family_group := "Late Step"
+    ]
+
+    dt[is.na(family_group), family_group := "Other"]
+
+    return(dt)
+}
 # Find intact family trajectories
-define_subsamples <- function(dt, size = 5000){
+define_subsamples <- function(dt, size = 10000){
 
     # Full sample
     dt[,

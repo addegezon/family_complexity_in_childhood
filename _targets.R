@@ -101,10 +101,13 @@ list(
         format = "fst_dt"
     ),
 
-    # Define family sequence and distance matrix for full, complex and random subsample
+    # Define family sequence and distance matrix for 
+    # full, complex and random subsample
     tarchetypes::tar_map(
-        values = list(sample = c("full_sample", "complex_sample", "random_sample"),
-                        sample_name = c("full", "complex", "random")),
+        values = list(
+            sample = c("full_sample", "complex_sample", "random_sample"),
+            sample_name = c("full", "complex", "random")
+        ),
         names = sample_name,
 
         # Define family sequence
@@ -130,8 +133,9 @@ list(
     ),
 
     ##
-    # Clustering
+    # Clustering and analysis
     
+    # Create clusters
     tarchetypes::tar_map(
     values = list(family_om = rlang::syms(c("family_om_complex", "family_om_random")),
                     sample_name = c("complex", "random")),
@@ -145,6 +149,49 @@ list(
                 method ="ward")
         )
     ),
+
+    # Generate sequence plots
+    tar_target(
+        p_cluster_random,
+        joint_plot(
+            final_data[random_sample == TRUE],
+            family_sequence_random,
+            family_om_random,
+            family_clusters_random,
+            groups = cutree(family_clusters_random, k = 6)
+        )
+    ),
+
+    tar_target(
+        p_cluster_complex,
+        joint_plot(
+            final_data[complex_sample == TRUE],
+            family_sequence_complex,
+            family_om_complex,
+            family_clusters_complex,
+            groups = cutree(family_clusters_complex, k = 7)
+        )
+    ),
+
+    # Define analytical groups
+    tar_target(
+        family_groups,
+        define_analytical_groups(final_data),
+        format = "fst_dt"
+    ),
+
+    tar_target(
+        p_analytical_complex,
+        joint_plot(
+            final_data[complex_sample == TRUE],
+            family_sequence_complex,
+            family_om_complex,
+            family_clusters_complex,
+            groups = family_groups[complex_sample == TRUE, family_group]
+        )
+    ),
+
+    
 
     ##
     # Descriptive statistics
