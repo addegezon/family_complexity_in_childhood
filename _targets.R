@@ -126,8 +126,7 @@ list(
             family_om,
             seqdist(
                 family_sequence,
-                method ="OM",
-                sm = "TRATE"
+                method ="DHD"
             )
         )
     ),

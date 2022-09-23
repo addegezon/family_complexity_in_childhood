@@ -120,7 +120,7 @@ plot_colors <- function(){
 
 # Theme for all sequence plots
 plot_theme <- function(){
-    library(ggthemes)
+
     library(ggplot2)
     p_theme = theme(
         text = element_text(family="Helvetica", colour = "#5D00BBFF"),
