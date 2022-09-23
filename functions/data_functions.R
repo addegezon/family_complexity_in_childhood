@@ -639,10 +639,11 @@ define_subsamples <- function(dt, size = 10000){
         complex_sample := apply(
             .SD,
             1,
-            function(x)
-            if (any(x != "OP")) {
-                TRUE
-            } else FALSE
+            function(x) {
+                if (any(x != "OP")) {
+                    TRUE
+                } else FALSE
+            }
         ),
         .SDcols = partner_cols
     ]
