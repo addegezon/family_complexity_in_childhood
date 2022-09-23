@@ -1,4 +1,5 @@
 data/
 _targets/
-writing/
 scratch.R
+.DS_Store
+.vscode/

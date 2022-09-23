@@ -89,6 +89,7 @@ format_table <- function(dt){
 ##
 # Plots
 
+# Colors for sequence plots
 plot_colors <- function(){
     # library(wesanderson)
     # cols <- c(
@@ -110,25 +111,29 @@ plot_colors <- function(){
         "#FFDC82"
     ) |> 
     clr_rotate(10) |>
-    clr_alpha(alpha = 0.7)
+    clr_alpha(alpha = 1)
 
     named_scheme <- c("OP" = col_scheme[1], "Single" = col_scheme[2], "Step" = col_scheme[3])
 
     return(scale_fill_manual(values = named_scheme))
 }
 
+# Theme for all sequence plots
 plot_theme <- function(){
-
+    library(ggthemes)
+    library(ggplot2)
     p_theme = theme(
         text = element_text(family="Helvetica", colour = "#5D00BBFF"),
         axis.text = element_text(family="Helvetica", colour = "#5D00BBFF"),
         panel.grid = element_blank(),
+        panel.background = element_rect(fill = "white"),
         panel.border = element_rect(color = "#5D00BBFF", fill = NA)
     )
 
     return(p_theme)
 }
 
+# Create medoid plot
 plot_medoid <- function(dt, medoids){
     library(ggplot2)
 
@@ -155,8 +160,8 @@ plot_medoid <- function(dt, medoids){
         geom_raster() +
         scale_x_continuous(
             expand = c(0, 0),
-            breaks = c(0, 12*3, 12*6, 12*9, 12*12),
-            labels = c("0", "3","6" , "9", "12"),
+            breaks = c(0, 12*3, 12*6, 12*9, 12*12, 12*15),
+            labels = c("0", "3","6" , "9", "12", "15"),
             name = "Age (years)"
         ) + 
         scale_y_continuous(expand = c(0, 0)) +
@@ -175,6 +180,7 @@ plot_medoid <- function(dt, medoids){
 
 }
 
+# Create three sequence plots
 triple_plot <- function(dt, sequence, medoids, groups, index){
 
     #Create medoid plot
@@ -193,7 +199,7 @@ triple_plot <- function(dt, sequence, medoids, groups, index){
         plot_theme() + 
         plot_colors() +
         theme(
-            title = element_text(size = 10),
+            title = element_text(size = 8),
             legend.position = "none",
             axis.ticks.x=element_blank(),
             axis.title.x.bottom = element_blank(),
@@ -224,11 +230,11 @@ triple_plot <- function(dt, sequence, medoids, groups, index){
     )
 }
 
+# Function for joining together the three main sequence plots
 joint_plot <- function(
                     dt,
                     sequence,
                     diss,
-                    cluster,
                     groups,
                     no_of_clusters = 6
                 ){
@@ -237,9 +243,6 @@ joint_plot <- function(
     library(ggseqplot)
     library(TraMineR)
     library(cluster)
- 
-    # Define groups
-    # groups <- cutree(cluster, k = no_of_clusters)
 
     # Find medoids
     medoids <- disscenter(
@@ -248,9 +251,22 @@ joint_plot <- function(
         medoids.index="first"
     )
 
+    if ("Only OP" %in% groups){
+        grp_order <- c(
+            "Only OP",
+            "Early Single",
+            "Late Step",
+            "Mid Single",
+            "Late Single",
+            "Early Step"
+        )
+    } else {
+        grp_order <- sort(unique(groups))
+    }
+
     # Loop over cluster groups
     p_list <- lapply(
-        sort(unique(groups)),
+        grp_order,
         function(index){
             triple_plot(dt, sequence, medoids, groups, index)
         }
@@ -284,4 +300,12 @@ joint_plot <- function(
     )
 
     return(grid_legend)
+}
+
+
+# Plot drops during data cleaning
+plot_drops <- function(dt_par, dt_kid){
+
+
+    return(plot)
 }
