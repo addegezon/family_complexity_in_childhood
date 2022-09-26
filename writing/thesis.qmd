@@ -148,7 +148,8 @@ As a proof of concept, I also include an analysis of the association between fam
 
 _yadidida etik osv_
 
-In order for the research to be both transparent and reproducible, all code for generating this thesis is available as a reproduction package at <https://github.com/addegezon/family_complexity_in_childhood>
+In order for the research to be both transparent and reproducible, all code for generating this thesis is available as a reproduction package at Github.^[<https://github.com/addegezon/family_complexity_in_childhood>]
+
 # Results
 
 Here is a descriptive table 1:
