@@ -67,7 +67,7 @@ format_table <- function(dt){
         "{Country}" = COUNTRY,
         "{Survey}" = survey,
         "{Survey years}" = paste0(svy_min, " - ", svy_max),
-        "{Mother cohorts}" = paste0(mother_min, " - ", mother_max),
+        # "{Mother cohorts}" = paste0(mother_min, " - ", mother_max),
         "{Child cohorts}" = paste0(child_min, " - ", child_max),
         "{N. children}" = format(n_kids)
         ) 
@@ -79,7 +79,7 @@ format_table <- function(dt){
         "latex_tabular",
         booktabs = TRUE,
         fmt = identity,
-        align = "llcccr",
+        align = "llccr",
         hrule = nrow(table)
     )
 

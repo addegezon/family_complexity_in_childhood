@@ -14,20 +14,19 @@ format:
         \usepackage{ragged2e}
         \usepackage[british]{babel}
         \usepackage{setspace}
-        \usepackage{hyperref}
+        \usepackage[colorlinks]{hyperref}
     include-before-body:
       text: |
         \onehalfspacing
         \RaggedRight
-        \hypersetup{allcolors=black}
+        \hypersetup{linkcolor=black, urlcolor=blue}
         \tableofcontents
         \listoftables
         \listoffigures
-    colorlinks: true
     latex-engine: xelatex
 link-citations: yes
-mainfont: "Happy Time at the IKOB"
-bibliography: "bibliography.bib"
+mainfont: "Happy Times at the IKOB New Game Plus Edition"
+bibliography: "https://raw.githubusercontent.com/addegezon/bibliography/main/bibliography.bib"
 ---
 
 ```{r}
@@ -49,7 +48,7 @@ knitr::opts_chunk$set(out.width="100%", dev="pdf")
 
 The European family dynamics of the late 20th and early 21st century has undergone large changes as compared to previous decades. In particular through increasing family complexity. Divorce, remarriage and multipartner fertility have all increased since the "golden age" of marriage in the 1950's. [@sobotka_changing_2008; @thomson_family_2014]. The result is a multitude of family forms and, in extension, uncertainties regarding the organization of family life. These processes has variously been labeled as the deinstitutionalization of marriage [@cherlin_deinstitutionalization_2004] or as the de-standardization of the life course [@bruckner_-standardization_2005]. One of the most succesfull explantory frameworks describing these changes is the Second Demographic Transition Theory [@lesthaeghe_second_2014].
 
-From the amassed family demography literature, the majority of attention has been placed on investigating the family complexity generating processes of divorce, repartnering and mulipartner fertility from the adult perspective. Since it has been proposed that family transitions have a negative effect on the well-being of children [@fomby_family_2007] and because there is some evidence of this effect [@hadfield_changes_2018], it is important to understand to what extent children experience these and what the trends are. As have been shown, children's exposure to divorce events do not always mirror those of adults [@kalmijn_new_2021]. In Europe, Kalmijn and Leopold found that the separation surge has not been as strong for children as for adults, and barely present for children of highly educated parents. Demographic studies that have been conducted on children's experience of family disruption and parental repartnering [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014] have primarily looked at the degree to which children experience particular events. Albeit important, this does not fully capture the accumulated experience of family complexity over childhood. 
+From the amassed family demography literature, the majority of attention has been placed on investigating the family complexity generating processes of divorce, repartnering and multipartner fertility from the adult perspective. Since it has been proposed that family transitions have a negative effect on the well-being of children [@fomby_family_2007] and because there is some evidence of this effect [@hadfield_changes_2018], it is important to understand to what extent children experience these and what the trends are. As have been shown, children's exposure to divorce events do not always mirror those of adults [@kalmijn_new_2021]. In Europe, Kalmijn and Leopold found that the separation surge has not been as strong for children as for adults, and barely present for children of highly educated parents. Demographic studies that have been conducted on children's experience of family disruption and parental repartnering [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014] have primarily looked at the degree to which children experience particular events. Albeit important, this does not fully capture the accumulated experience of family complexity over childhood. 
 
 The objective of this thesis is describe children's family trajectories and to classify these trajectories according to the most common types of childhood family experiences. This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History dataset. Analysis will be performed by an exploratory sequence analysis, from which I will derive an analytical definition of the most common family trajectories of European children. As a proof-of-concept I will also use these defined trajectories to examine how differences in childhood family structure are associated with the risk of nest leaving using a Cox proportional hazards regression. Before describing the methods in greater detail, I will outline the main theoretical frameworks of this thesis as well as previous research on children's experiences of family complexity. This discussion will draw from both the demographic literature as well as studies on child wellbeing. In the end I will present the results of my analysis and put them into context in the discussion and conclusion sections.
 
@@ -69,9 +68,26 @@ Finally, a central idea in the life course framework is that of *linked lives*. 
 
 ## Causes and consequences of family complexity
 
-The second main scholarly context of this thesis is in the field of family complexity. Complexity in this domain has been defined as the combination of family structure and sibling composition during childhood [@manning_family_2014]. Where a "simple" family may be defined as a household with both parents present and a few number of full-siblings, a complex family may consists of step-parents as well as half- and step-siblings. The four main demographic drivers of complexity are birth to lone mothers, separation and divorce, repartnering, and multi-partner fertility [@thomson_family_2014]. These events are primarily driven by the adults involved but clearly have consequences for the family life of children. Thus, we see how the concepts of family complexity and linked lives are tied together. The variety of childhood family structures have been extensivley documented in the US context, but less so in Europe. I will first summarize these rich findings from the US, then turn the European context and finally discuss some of the literature on the consequences of childhood family complexity. 
+The second main scholarly context of this thesis is in the field of family complexity. Complexity in this domain has been defined as the combination of family structure and sibling composition during childhood [@manning_family_2014]. Where a "simple" family may be defined as a household with both parents present and a few number of full-siblings, a complex family may consists of step-parents as well as half- and step-siblings. The four main demographic drivers of complexity are birth to lone mothers, separation and divorce, repartnering, and multi-partner fertility [@thomson_family_2014]. These events are primarily driven by the adults involved but clearly have consequences for the family life of children. Thus, we see how the concepts of family complexity and linked lives are tied together. The variety of childhood family structures have been extensively documented in the US context, but less so in Europe. I will first summarize these rich findings from the US, then turn the European context and finally discuss some of the literature on the consequences of childhood family complexity. 
 
-Using data from the Survey of Income and Programme Participation (SIPP), @manning_family_2014 describe changes in family complexity for US children over the period 1996-2009. The share of children who at the time of interview were living in a complex household --- defined as living with either a step-parent, single parent, or full- or half-sibling --- increased from 30.8 to 33.6 percent. The authors found that family complexity was especially prevalent in families where neither parent had a college degree as well as for Black children. However, the steepest increase in complexity during the observation period was found among Hispanic children. Further analysis of the SIPP showed that in 2008, the income-to-needs ratio for children in complex families was 2.0, contrasted to 3.0 in simple families [@brown_family_2015]. Further, 28.3 percent of complex families received public assistance (compared to 17.4 percent of simple families), on average. Similar ethnic differences were found by @blau_demographic_2008, where --- in the 1979 cohort of the National Longitudinal Survey of Youth --- children of Black mothers spent on average 34.1% of their childhood living with both their biological mother and father, compared with 72.8% for whites and 64.1% for Hispanics. Children to Black mothers also had, on average, more stepfathers than other groups.
+Using data from the Survey of Income and Programme Participation (SIPP), @manning_family_2014 describe changes in family complexity for US children over the period 1996-2009. The share of children who at the time of interview were living in a complex household --- defined as living with either a step-parent, single parent, or full- or half-sibling --- increased from 30.8 to 33.6 percent. The authors found that family complexity was especially prevalent in families where neither parent had a college degree as well as for Black children. However, the steepest increase in complexity during the observation period was found among Hispanic children. Further analysis of the SIPP showed that in 2008, the income-to-needs ratio for children in complex families was 2.0, contrasted to 3.0 in simple families [@brown_family_2015]. Further, 28.3 percent of complex families received public assistance (compared to 17.4 percent of simple families), on average. Similar ethnic differences were found by @blau_demographic_2008, where --- in the 1979 cohort of the National Longitudinal Survey of Youth --- children of Black mothers spent on average 34.1% of their childhood living with both their biological mother and father, compared with 72.8% for whites and 64.1% for Hispanics. Children to Black mothers also had, on average, more stepfathers than other groups. Accounting for historical changes in family structure, @fomby_continuity_2022 found that complexity increased during the late 20^th^ century but arrived at a state of "stable complexity" in the 2010s, where household composition also became increasingly similar between non-Hispanic Black and White children. 
+
+In Europe, similar patterns have been observed where children from socio-economically disadvantaged groups experience family disruptions to a larger degree. In Sweden, children are more likely to experience parental separation if their parent are less-educated [@kennedy_childrens_2010]. This is also echoed in @kalmijn_new_2021, where similar results were found also for Belgium, Czech Republic, Estonia, France, Hungary, Norway and the United Kingdom. They also found the this differential risk of parental divorce has been increasing since the 1980's. When it comes to stepfamily formation, @turunen_entering_2011 found no effect of parental education on the risk of entering a stepfamily after having lived with a single parent (either due to separation or being borne to a lone parent). Thus, the risk of entering a complex family seems to be largely dependent on the different separation risks that children experience.
+
+It is important to note that there are large cross-national variations in risks of parental divorce and stepfamily formation in Europe. Using life-table methods, @andersson_life-table_2017 describe these risks for a large set of European countries. From their descriptives we can see that the risk of parental separation by age 15 is highest in parts of Eastern and Northern Europe (Russia 42%, Estonia 36%, Lithuania 35% but also France 35%) while its the lowest in Southern Europe and other parts of Eastern Europe (Georgia 10%, Bulgaria 12%, Spain 12% and Italy 12%).
+
+
+Europe: @thomson_childbearing_2014 @thomson_childbearing_2021 @turunen_entering_2011 
+
+Cohabitation and instability: @cancian_evolution_2011 @rally_cohabitation_2004
+
+Outcomes: @perkins_changes_nodate @fomby_family_2007 @laftman_national_2017 @van_houdt_family_2018
+
+Explanations: @cavanagh_family_2019 @fomby_family_2017 @cavanagh_family_2008 @mostafa_impact_2018
+
+JPC: @fransson_psychological_2016 @steinbach_joint_2021
+
+Family profiles: @pearce_increasing_2018 @johnston_two_2020 @mitchell_pathways_2013
 
 ## Operationalizing family complexity over the life course
 
@@ -83,7 +99,7 @@ However, a fair amount of critique has been leveled against the clustering techn
 
 The criticism leveled towards this methods is focused on two main areas: firstly, on the perceived lack of substantial results produced by the methodology and secondly, and perhaps more importantly, on the relationship between methodological assumptions and social processes. Both @wu_comments_2000 and @levine_but_2000 criticize SA for not delivering on early promises and that substantial results and new areas of research have not been borne out of SA. As summarized in @liao_sequence_2022, there is a large variety of sociological articles being published using SA which would render that point of contention moot, but it does emphasis the importance of scrutinizing the SA methodology and if it is a valid tool for modeling or describing social processes.
 
-@wu_comments_2000 offers a critique of SA where the most pressing is if a discrete sequence with events coupled with substitution and indel costs is a good model of life trajectories. The main problem lies in determining costs, as each cost is an assumption the researcher has to make, and that costs in the OM algorithm are symmetric. This symmetric assumption means that transition from state $s_j \rightarrow s_k$ carries the same cost as transition from $s_k \rightarrow s_j$. But the question posed by Wu, is if the transitions between social states, such as employment and employment, are symmetrical in their probabilities or not. Which would imply that sequence representation through OM is not isomorphic to the social processes they purport to represent. Further, Wu argues that as determining substitution and indels costs is up to the discretion of the researcher, it introduces more assumptions and potential biases in the analysis than proponents of SA had up to then acknowledged. This is a valid criticism but loses some of its relevance if we consider SA a exploratory or descriptive analysis method, rather than as a substitute to statistical modelling.
+@wu_comments_2000 offers a critique of SA where the most pressing is if a discrete sequence with events coupled with substitution and indel costs is a good model of life trajectories. The main problem lies in determining costs, as each cost is an assumption the researcher has to make, and that costs in the OM algorithm are symmetric. This symmetric assumption means that transition from state $s_j \rightarrow s_k$ carries the same cost as transition from $s_k \rightarrow s_j$. But the question posed by Wu, is if the transitions between social states, such as employment and employment, are symmetrical in their probabilities or not. Which would imply that sequence representation through OM is not isomorphic to the social processes they purport to represent. Further, Wu argues that as determining substitution and indel costs is up to the discretion of the researcher, it introduces more assumptions and potential biases in the analysis than proponents of SA had up to then acknowledged. This is a valid criticism but loses some of its relevance if we consider SA a exploratory or descriptive analysis method, rather than as a substitute to statistical modeling.
 
 [@stovel_ascription_1996]
 
@@ -101,7 +117,7 @@ I start of by excluding several countries from the dataset. Germany is excluded 
 
 I then have __xx__ total observations from 15 different countries. I clean the data in several steps. I remove all men from the sample. __MOTIVATION__. Next, I remove childless women and respondents with missing birth information. I remove those where there is missing information on time of union or dissolution, overlapping relationships and those where a union dissolution is reported to have occurred before the union start.
 
-In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have __xx__ children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 14, I remove those in the sample who have not turned 15 at the time of interview as well as those who left home or died before their 15^th^ birthday. In total 40,934 children remained in the sample. For a visual overview of the data funnel at each step see Figure __x__ in the Appendix. 
+In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have __xx__ children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 14, I remove those in the sample who have not turned 15 at the time of interview as well as those who left home or died before their 15^th^ birthday. In order to capture the experiences of children after the advent of the SDT, I remove all children born before 1980. In total 40,934 children remained in the sample. For a visual overview of the data funnel at each step see Figure __x__ in the Appendix. 
 
 ## Sequence generation
 
@@ -138,7 +154,7 @@ knitr::kable(
 
 ## Analysis
 
-As a first exploratory analysis,  I draw a random sample of 10,000 individuals from the final data set and calculate a dissimilarity matrix using an dynamic Hamming distance (DHD) algorithm. DHD puts more restrictions on the data than OM by requiring the sequences are of the same lengths, which they all are in this study. This allows the DHD to calculate dissimilarities within using indels, thus requiring less input in terms of determining indel costs. The substitution costs are derived from the transition rates in the data, and thus reflects transition probabilities in this particular dataset. 
+As a first exploratory analysis,  I draw a random sample of 10,000 individuals from the final data set and calculate a dissimilarity matrix using an dynamic Hamming distance (DHD) algorithm. DHD puts more restrictions on the data than OM by requiring the sequences are of the same lengths, which they all are in this study. This allows the DHD to calculate dissimilarities without using indels, thus requiring less input in terms of determining indel costs. The substitution costs are derived from the transition rates in the data, and thus reflects transition probabilities in this particular dataset. 
 
 This dissimilarity matrix is the used to cluster the sequences, which is done using Ward's method..._explaining Ward's method_...
 
@@ -169,12 +185,12 @@ tar_read(table_1)
 
 Here are the visualized clusters using sequence state distribution, modal and medoid plot:
 
-```{r complex_cluster}
+```{r random_cluster}
 #| echo: false
 #| warnings: false
 #| fig.height: 7
 #| fig.width: 5
-#| fig.cap: "Here are the complex clusters"
+#| fig.cap: "Here are the random clusters"
 
 tar_read(p_cluster_random)
 ```
@@ -186,14 +202,8 @@ tar_read(p_cluster_random)
 #| fig.width: 5
 #| fig.cap: "Here are the analytical clusters"
 
-# tar_read(p_analytical_random)
+tar_read(p_analytical_random)
 ```
-
-And now I explain what we see in these graphs.
-
-Then the question is, how much is attributable to these other covariates?
-
-Not much!
 
 # Discussion
 
