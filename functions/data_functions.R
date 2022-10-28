@@ -91,7 +91,6 @@ format_data <- function(dt) {
                         format = "%Y %m %d"
                     )]
 
-    
     # Remove old date cols
     old_date_cols <- grep(
                         "Y[0-9]+?$|[^Y]M[0-9]+?$",
@@ -339,10 +338,16 @@ tag_children <- function(dt){
 }
 
 # Tag parents to be dropped
-tag_parents <- function(dt){
+tag_parents <- function(dt) {
 
     # Mark men
-    dt <- dt[SEX == "Male", ':='(drop = TRUE, drop_reason = "Remove men")]
+    dt <- dt[
+        SEX == "Male",
+        ':='(
+            drop = TRUE,
+            drop_reason = "Remove men"
+        )
+    ]
 
     # Mark childless women
     kid_cols <- paste0("KID_", 1:16)
@@ -378,10 +383,13 @@ tag_parents <- function(dt){
         # Mark those with missing info on date of partnership dissolution
         dt <- dt[
                 !is.na(get(partner)) & 
-                get(split) == 1 & 
-                is.na(get(split_ym)) &
-                is.na(drop),
-                ':='(drop = TRUE, drop_reason = "Missing partnership dates")
+                    get(split) == 1 & 
+                    is.na(get(split_ym)) &
+                    is.na(drop),
+                ':='(
+                    drop = TRUE,
+                    drop_reason = "Missing partnership dates"
+                )
             ]
     }
 
@@ -392,8 +400,13 @@ tag_parents <- function(dt){
         split_ym <- paste0("ISPLIT_YM", i)
         
         dt[
-            (get(split_ym) > get(next_partner)) & get(split) == 1 & is.na(drop),
-            ':='(drop = TRUE, drop_reason = "Overlapping relationships")
+            (get(split_ym) > get(next_partner)) & 
+                get(split) == 1 & 
+                is.na(drop),
+            ':='(
+                drop = TRUE,
+                drop_reason = "Overlapping relationships"
+            )
         ]
 
     }
@@ -524,7 +537,8 @@ gen_sibling_states <- function(dt){
                 
             ][
                 birth_ym + months(month) >= get(sibling_ym) &
-                    (PARTNER_STATE0 != get(parent_sibling) | PARTNER_STATE0 == 0),
+                    (PARTNER_STATE0 != 
+                        get(parent_sibling) | PARTNER_STATE0 == 0),
                 eval(halfsibling_state) := get(halfsibling_state) + 1
             ]
         }

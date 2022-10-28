@@ -1,5 +1,5 @@
 ---
-title: "Mapping Complex Family Trajectories in the Childhood Life-Course"
+title: "Childhood Family Structure and Sibling Composition in 15 European Countries: A Sequence Analysis Approach to Family Complexity"
 author: "Andreas Gustafsson"
 date: \today
 format: 
@@ -15,6 +15,13 @@ format:
         \usepackage[british]{babel}
         \usepackage{setspace}
         \usepackage[colorlinks]{hyperref}
+        \usepackage{titling}
+        \pretitle{\begin{flushleft}\Large}
+        \posttitle{\end{flushleft}}
+        \preauthor{\begin{flushleft}}
+        \postauthor{\end{flushleft}}
+        \predate{\begin{flushleft}}
+        \postdate{\end{flushleft}}
     include-before-body:
       text: |
         \onehalfspacing
@@ -23,6 +30,7 @@ format:
         \tableofcontents
         \listoftables
         \listoffigures
+        
     latex-engine: xelatex
 link-citations: yes
 mainfont: "Happy Times at the IKOB New Game Plus Edition"
@@ -71,6 +79,8 @@ Finally, a central idea in the life course framework is that of *linked lives*. 
 
 ## Causes and consequences of family complexity
 
+<!-- complexity in "family complexity" sense, but also in Elzinga (2010) sense -->
+
 The second main scholarly context of this thesis is in the field of family complexity. Complexity in this domain has been defined as the combination of family structure and sibling composition during childhood [@manning_family_2014]. Where a "simple" family may be defined as a household with both parents present and a few number of full-siblings, a complex family may consists of step-parents as well as half- and step-siblings. The four main demographic drivers of complexity are birth to lone mothers, separation and divorce, repartnering, and multi-partner fertility [@thomson_family_2014]. These events are primarily driven by the adults involved but clearly have consequences for the family life of children. Thus, we see how the concepts of family complexity and linked lives are tied together. The variety of childhood family structures have been extensively documented in the US context, but less so in Europe. I will first summarize these rich findings from the US, then turn the European context and finally discuss some of the literature on the consequences of childhood family complexity. 
 
 Using data from the Survey of Income and Programme Participation (SIPP), @manning_family_2014 describe changes in family complexity for US children over the period 1996-2009. The share of children who at the time of interview were living in a complex household --- defined as living with either a step-parent, single parent, or full- or half-sibling --- increased from 30.8 to 33.6 percent. The authors found that family complexity was especially prevalent in families where neither parent had a college degree as well as for Black children. However, the steepest increase in complexity during the observation period was found among Hispanic children. Further analysis of the SIPP showed that in 2008, the income-to-needs ratio for children in complex families was 2.0, contrasted to 3.0 in simple families [@brown_family_2015]. Further, 28.3 percent of complex families received public assistance (compared to 17.4 percent of simple families), on average. Similar ethnic differences were found by @blau_demographic_2008, where --- in the 1979 cohort of the National Longitudinal Survey of Youth --- children of Black mothers spent on average 34.1% of their childhood living with both their biological mother and father, compared with 72.8% for whites and 64.1% for Hispanics. Children to Black mothers also had, on average, more stepfathers than other groups. Accounting for historical changes in family structure, @fomby_continuity_2022 found that complexity increased during the late 20^th^ century but arrived at a state of "stable complexity" in the 2010s, where household composition also became increasingly similar between non-Hispanic Black and White children. 
@@ -87,7 +97,7 @@ Outcomes: @perkins_changes_nodate @fomby_family_2007 @laftman_national_2017 @van
 
 Explanations: @cavanagh_family_2019 @fomby_family_2017 @cavanagh_family_2008 @mostafa_impact_2018 @fransson_psychological_2016
 
-Family profiles: @pearce_increasing_2018 @johnston_two_2020 @mitchell_pathways_2013
+Family profiles: @pearce_increasing_2018 @johnston_two_2020 @mitchell_pathways_2013 @cavanagh_family_2008 @andersson_childrens_2002
 
 ## Operationalizing family complexity over the life course
 
@@ -101,27 +111,34 @@ The criticism leveled towards this methods is focused on two main areas: firstly
 
 @wu_comments_2000 offers a critique of SA where the most pressing is if a discrete sequence with events coupled with substitution and indel costs is a good model of life trajectories. The main problem lies in determining costs, as each cost is an assumption the researcher has to make, and that costs in the OM algorithm are symmetric. This symmetric assumption means that transition from state $s_j \rightarrow s_k$ carries the same cost as transition from $s_k \rightarrow s_j$. But the question posed by Wu, is if the transitions between social states, such as employment and employment, are symmetrical in their probabilities or not. Which would imply that sequence representation through OM is not isomorphic to the social processes they purport to represent. Further, Wu argues that as determining substitution and indel costs is up to the discretion of the researcher, it introduces more assumptions and potential biases in the analysis than proponents of SA had up to then acknowledged. This is a valid criticism but loses some of its relevance if we consider SA a exploratory or descriptive analysis method, rather than as a substitute to statistical modeling.
 
-[@stovel_ascription_1996]
 
-Critique of clustering: @warren_different_2015
+Problems with clustering: @warren_different_2015 @han_comparing_2017 @von_luxburg_clustering_2010
 
 ## Previous research on children's family sequencing
 
 # Data and Methods
 
+## Analytical strategy
+
+Before describing the data material and the details of the analysis, I will outline the analytical strategy of this paper and how it relates to the research question, previous studies and the strengths and weaknesses of SA. The first step consists of defining family states and generating individual family sequences. As the data does not track both original parents of a child, I will only follow the mother's partnership trajectory with the assumption that children are residing at least part time with their mother during their childhood. Thus, join physical custody is not taken into account, and the family trajectories on the father's side are not measured. This is a strategy which has been previously employed in the literature [eg. @blau_demographic_2008]. There are also findings from the UK which show that children's family complexity (measured with a compound complexity index) are similar between father's and mother's family lives over childhood [@rowold_cohort_2022]. Although an analysis solely on the mother's side is a limitation, we can proceed as long as we keep it in mind. Having constructed the parent structure sequence, I compute sequence dissimilarities and generate clusters for the full study population. The final number of clusters are selected using both cluster quality criteria and the sociological significance of the cluster division.
+
+Although the problems of external validity of clustering typologies have been recognized for a long time and methods for ameliorating this deficit have been developed within the bioinformatics literature [for an overview see @von_luxburg_clustering_2010], few SA studies within the social sciences have taken this issue to heart. In order to improve the validity of the typology, I will use a parametric bootstrap technique proposed by @studer_validating_2021 to aide with the selection of the final clusters.
+
+Once the family typology is in place, I will show the proportion of the different family types for each country in the study, thus providing a descriptive of how children's family trajectories vary across European countries. This will mirror the work of van Winkle [-@van_winkle_family_2018, Table A5], but from the perspective of children. I will also show how the different typologies are associated with having full- and maternal half-siblings, on a country by country basis. Apart from mapping the relationship between family trajectories and sibling composition, it will also be one of the first cross-European analyses on half-sibling prevalence. This will further contribute to the understanding of the relationship between parental union history and sibling composition as well as showing the differences and similarities between European countries.
+
 ## Data
 
-In this section I will outline the data used as well as the analytical strategy used to provide descriptive statistics on children's experiences of family transitions. The data comes from birth and union histories in the Harmonized Histories data set [@perelli-harris_harmonized_2010]. This data set is compiled from a set of national surveys, primarily the Generations and Gender Survey, but also with other nationally representative surveys on partnerships and childbearing. The data is based on individual retrospective reports on partnership and childbearing histories.
+The data used in this study comes from the birth and union histories in the Harmonized Histories data set [@perelli-harris_harmonized_2010]. This data set is compiled from a set of national surveys, primarily the Generations and Gender Survey, but also with other nationally representative surveys on partnerships and childbearing. The data is based on individual retrospective reports on partnership and childbearing histories.
 
 I start of by excluding several countries from the dataset. Germany is excluded due to its poor family history data, the UK and USA are excluded due to oversampling respondents with low socioeconomic status. Uruguay, Kazakhstan and Canada are removed as they are not European countries. The Spanish SFS in 2018 is removed due to missing survey interview month.
 
-I then have __xx__ total observations from 15 different countries. I clean the data in several steps. I remove all men from the sample. __MOTIVATION__. Next, I remove childless women and respondents with missing birth information. I remove those where there is missing information on time of union or dissolution, overlapping relationships and those where a union dissolution is reported to have occurred before the union start.
+I then have __xx__ total observations from 15 different countries. I clean the data in several steps. I remove all men from the sample. Next, I remove childless women and respondents with missing birth information. I remove those where there is missing information on time of union or dissolution, overlapping relationships and those where a union dissolution is reported to have occurred before the union start.
 
-In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have __xx__ children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 14, I remove those in the sample who have not turned 15 at the time of interview as well as those who left home or died before their 15^th^ birthday. In order to capture the experiences of children after the advent of the SDT, I remove all children born before 1980. In total 40,934 children remained in the sample. For a visual overview of the data funnel at each step see Figure __x__ in the Appendix. 
+In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have __xx__ children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 15, I remove those in the sample who have not turned 16 at the time of interview as well as those who left home or died before their 16^th^ birthday. In order to capture the experiences of children after the advent of the SDT, I remove all children born before 1980. In total 40,934 children remained in the sample. For a visual overview of the data funnel at each step see Figure __x__ in the Appendix. 
 
 ## Sequence generation
 
-For each child a family history was constructed on the maternal side, which is composed of the mother's partner history during the child's first 15 years of life. In order to construct this history, a STate-Sequence format [STS, @gabadinho_analyzing_2011] is used. This means that for each month of the child's life a column is generated which is filled with values describing the mother's union status and the child's number of siblings. The process time for analysis is from birth until turning 15, with monthly precision. In STS format this is represented by 180 consecutive states, one for each month. 
+For each child a family history was constructed on the maternal side, which is composed of the mother's partner history during the child's first 15 years of life. In order to construct this history, a STate-Sequence format [STS, @gabadinho_analyzing_2011] is used. This means that for each month of the child's life a column is generated which is filled with values describing the mother's union status and the child's number of siblings. The process time for analysis is from birth until turning 16, with monthly precision. In STS format this is represented by 180 consecutive states, one for each month. 
 
 Firstly, union spells were constructed. As there is no information on who is the father of the child if a mother was partnered at time of birth, that partner was assumed to be the other main parent. Then for each month, the representative state was coded as either *Single*, *Original parents* or *Step* depending on the mother's partner status. The state is coded as *Single* if the mother is not in a union during the month. It is coded as *Original parents* if the mother is still in a relationship with the same partner as at the time of birth. Finally, state state is coded as *Step* if the mother is with a different partner than at time of birth. All consecutive partners are assumed to be new, i.e. no re-partnering with a former partner is assumed to occur. I do not distinguish between opposite-sex and same-sex partnerships, and the original parents are not necessarily the same as the biological parents, but simply constitute the partnership that the child is born into. Formally, the maternal union sequence can be described as the vector $\textbf{S}$ where  
 
@@ -164,7 +181,6 @@ I provide a visual summary of the sequence clusters by a set of three plots for 
 
 Given the results of this exploratory analysis, I define _n_ groups analytically. These should correspond well with the results of the Ward clusters but also be of sociological significance. 
 
-As a proof of concept, I also include an analysis of the association between family taxonomy and age at nest leaving. This is done by using the defined family trajectories as the main independent variable in a Cox proportional hazards regression, also controlling for country, parity, mother's level of education, and year of birth. 
 
 ## Ethical considerations
 
