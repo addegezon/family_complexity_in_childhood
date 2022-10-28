@@ -34,14 +34,17 @@ bibliography: "https://raw.githubusercontent.com/addegezon/bibliography/main/bib
 #| warning: false
 #| echo: false
 
-# include library and function source
+# include library and targets source
 library(targets)
 library(fst)
 library(ggplot2)
 library(forcats)
 library(data.table)
 tar_config_set(store = "../_targets/")
-knitr::opts_chunk$set(out.width="100%", dev="pdf")
+knitr::opts_chunk$set(
+  out.width="100%",
+  dev="pdf"
+)
 ```
 
 # Introduction
