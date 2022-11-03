@@ -11,7 +11,8 @@ tar_option_set(
         "haven",
         "lubridate",
         "TraMineR",
-        "cluster"
+        "cluster",
+        "WeightedCluster"
     )
 )
 
@@ -78,7 +79,7 @@ list(
         format = "fst_dt"
     ),
 
-    ## 
+    ##
     # Sequence generation
 
     # Generate union states
@@ -88,108 +89,157 @@ list(
         format = "fst_dt"
     ),
 
-    # tar_target(
-    #     children_siblings,
-    #     gen_sibling_states(children_unions),
-    #     format = "fst_dt"
-    # ),
+    tar_target(
+        children_siblings,
+        gen_sibling_states(children_unions),
+        format = "fst_dt"
+    ),
 
     # Generate subsamples
     tar_target(
         final_data,
-        define_subsamples(children_unions),
+        define_subsamples(children_siblings),
         format = "fst_dt"
     ),
 
-    # Define family sequence and distance matrix for 
-    # full, complex and random subsample
-    tarchetypes::tar_map(
-        values = list(
-            sample = c("full_sample", "complex_sample", "random_sample"),
-            sample_name = c("full", "complex", "random")
-        ),
-        names = sample_name,
-
-        # Define family sequence
-        tar_target(
-            family_sequence,
-            seqdef(
-                final_data[get(sample) == TRUE],
-                var = paste0("FAMILY_STATE", 0:179),
-                id = final_data[get(sample) == TRUE, childID],
-                start = 0
-            )
-        ),
-
-        # Create distance matrix
-        tar_target(
-            family_om,
-            seqdist(
-                family_sequence,
-                method ="DHD"
-            )
-        )
-    ),
-
-    ##
-    # Clustering and analysis
-    
-    # Create clusters
-    tarchetypes::tar_map(
-        values = list(
-            family_om = rlang::syms(
-                c("family_om_complex", "family_om_random")
-            ),
-            sample_name = c("complex", "random")
-        ),
-        names = sample_name,
-        # Cluster using Ward
-        tar_target(
-            family_clusters,
-            agnes(
-                family_om,
-                diss = TRUE,
-                method ="ward")
-        )
-    ),
-
-    # Generate sequence plots
+    # Define family sequence
     tar_target(
-        p_cluster_random,
-        joint_plot(
-            final_data[random_sample == TRUE],
-            family_sequence_random,
-            family_om_random,
-            groups = cutree(family_clusters_random, k = 6)
-        )
-    ),
-
-    tar_target(
-        p_cluster_complex,
-        joint_plot(
-            final_data[complex_sample == TRUE],
-            family_sequence_complex,
-            family_om_complex,
-            groups = cutree(family_clusters_complex, k = 7)
-        )
-    ),
-
-    # Define analytical groups
-    tar_target(
-        family_groups,
-        define_analytical_groups(final_data),
-        format = "fst_dt"
-    ),
-
-    tar_target(
-        p_analytical_random,
-        joint_plot(
+        family_sequence,
+        seqdef(
             final_data[full_sample == TRUE],
-            family_sequence_full,
-            family_om_full,
-            groups = family_groups[full_sample == TRUE, family_group]
+            var = paste0("FAMILY_STATE", 0:179),
+            id = final_data[full_sample == TRUE, childID],
+            start = 0
         )
     ),
+    
+    # Create distance matrix
+    tar_target(
+        family_diss,
+        seqdist(
+            family_sequence,
+            method = "DHD"
+        )
+    ),
+
+    # Cluster using Ward
+    tar_target(
+        family_clusters,
+        hclust(
+            as.dist(family_diss),
+            method = "ward.D2"
+        )
+    ),
+
+    # Computing cluster quality measures
+    tar_target(
+        cluster_quality,
+        as.clustrange(
+            family_clusters,
+            diss = family_diss,
+            ncluster = 10
+        )
+    ),
+
+    # Compute cluster quality measure for the null model
+    tar_target(
+        bootstrap_cluster_quality,
+        seqnullcqi(
+            family_sequence,
+            cluster_quality,
+            R = 10,
+            model = c("combined"),
+            seqdist.args = list(method = "DHD"),
+            hclust.method = "ward.D2"
+        )
+    ),
+
+    # Compute cluster quality measure for the null model
+    tar_target(
+        bootstrap_cqi_r100,
+        seqnullcqi(
+            family_sequence,
+            cluster_quality,
+            R = 100,
+            model = c("combined"),
+            seqdist.args = list(method = "DHD"),
+            hclust.method = "ward.D2"
+        )
+    ),
+
+
+    # # Define family sequence and distance matrix for 
+    # # full, complex and random subsample
+    # tarchetypes::tar_map(
+    #     values = list(
+    #         sample = c("full_sample", "complex_sample", "random_sample"),
+    #         sample_name = c("full", "complex", "random")
+    #     ),
+    #     names = sample_name,
+
+    #     # Define family sequence
+    #     tar_target(
+    #         family_sequence,
+    #         seqdef(
+    #             final_data[get(sample) == TRUE],
+    #             var = paste0("FAMILY_STATE", 0:179),
+    #             id = final_data[get(sample) == TRUE, childID],
+    #             start = 0
+    #         )
+    #     ),
+
+    #     # Create distance matrix
+    #     tar_target(
+    #         family_om,
+    #         seqdist(
+    #             family_sequence,
+    #             method ="DHD"
+    #         )
+    #     )
+    # ),
+
+    # ##
+    # # Clustering and analysis
+    
+    # # Create clusters
+    # tarchetypes::tar_map(
+    #     values = list(
+    #         family_om = rlang::syms(
+    #             c("family_om_complex", "family_om_random")
+    #         ),
+    #         sample_name = c("complex", "random")
+    #     ),
+    #     names = sample_name,
+    #     # Cluster using Ward
+    #     tar_target(
+    #         family_clusters,
+    #         agnes(
+    #             family_om,
+    #             diss = T RUE,
+    #             method ="ward")
+    #     )
+    # ),
+
+    # # Generate sequence plots
+    # tar_target(
+    #     p_cluster_random,
+    #     joint_plot(
+    #         final_data[random_sample == TRUE],
+    #         family_sequence_random,
+    #         family_om_random,
+    #         groups = cutree(family_clusters_random, k = 6)
+    #     )
+    # ),
+
+    # tar_target(
+    #     p_cluster_complex,
+    #     joint_plot(
+    #         final_data[complex_sample == TRUE],
+    #         family_sequence_complex,
+    #         family_om_complex,
+    #         groups = cutree(family_clusters_complex, k = 7)
+    #     )
+    # ),
 
     ##
     # Descriptive statistics
