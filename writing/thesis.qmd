@@ -142,9 +142,9 @@ For each child a family history was constructed on the maternal side, which is c
 
 Firstly, union spells were constructed. As there is no information on who is the father of the child if a mother was partnered at time of birth, that partner was assumed to be the other main parent. Then for each month, the representative state was coded as either *Single*, *Original parents* or *Step* depending on the mother's partner status. The state is coded as *Single* if the mother is not in a union during the month. It is coded as *Original parents* if the mother is still in a relationship with the same partner as at the time of birth. Finally, state state is coded as *Step* if the mother is with a different partner than at time of birth. All consecutive partners are assumed to be new, i.e. no re-partnering with a former partner is assumed to occur. I do not distinguish between opposite-sex and same-sex partnerships, and the original parents are not necessarily the same as the biological parents, but simply constitute the partnership that the child is born into. Formally, the maternal union sequence can be described as the vector $\textbf{S}$ where  
 
-```{=tex}
-\[\textbf{S} = (s_1,s_2,s_3, \cdots, s_{180}) | s_n \in \{\textrm{Original parents, Single, Step} \} \] 
-```
+$$
+\textbf{S} = (s_1,s_2,s_3, \cdots, s_{180}) | s_n \in \{\textrm{Original parents, Single, Step} \}
+$${#eq-sequence-example}
 
 An example sequence of a child's first year where the mother is first partnered for 2 months, then single for 7 and finally repartnered for 3 months is visible in @tbl-state-ex.
 
@@ -175,11 +175,11 @@ To determine sibling composition I use a simple binary indicator if each child h
 
 Having constructed the maternal union sequence, I calculate a dissimilarity matrix using an dynamic Hamming distance (DHD) algorithm. DHD puts more restrictions on the data than OM by requiring the sequences are of the same lengths. This also allows the DHD to calculate dissimilarities without using indels. One of the benefits of this approach is that indels warp time in the data, and thus reduces sensitivity to sequence timing [@lesnard_setting_2010]. Another benefit is that indel costs needn't be defined which reduces the amount of decisions, an potentially biases, when generating the dissimilarity matix. The substituion costs are derived from the transition rates in the data and thus reflects transition probabilities in this particular sample. This is the most data-centric approach possible for defining substituion costs and also reduces potential researcher biases, with the drawback of potentilly reducing the external validity of the final clustering solution. 
 
+This dissimilarity matrix is used to cluster the sequences, which is done using Ward's method. This an agglomerative hierarchical clustering algorithm that produces cluster by minimizing the within-cluster variance, using the squared dissimilarity distances as inputs [@murtagh_wards_2014]. Being an agglomaritive method, it starts with $k$ number of clusters where each observation in the sample is its own cluster, thus $k = N$ in the first step. The algorithm then progessibly merges clusters until there is only one cluster containing all $N$ observations. Larger clusters are formed in steps by merging the two clusters with the shortest distance, where distance is defined by the increase in sum-of-squares if the clusters are merged. Given that this clustering method produces solution between $1$ and $N$ clusters, a choice regarding the final number of clusters needs to be made. This choice will be based on sociological relevance and cluster quality indices.
 
-This dissimilarity matrix is used to cluster the sequences, which is done using Ward's method.
+In choosing the number of clusters, it is of interest to maximize internal cluster homogeneity as well as between-cluster differences, and a common measure of this proporety is the Average Silhouette Width (ASW), introduced by @kaufman_finding_1990. This measure produces a value between -1 and 1, where a larger value indicates a stronger structure. I also use Hubert's C (HC), which captures the discrepancy between the partition obtained and the theoretically best partition, given the particular number of groups and their distances [@hubert_general_1976]. HC is defined in the range $[0,1]$ and a smaller value indicates a better partitioning. The issue with assessing cluster quality is that, unlike in traditional statistical modelling, there is no null model to compare the results with. So, even though @kaufman_finding_1990 propose an interpretation of the ASW measure, it cannot be generalized to all cluster applications. A potential solution to this issue is to use parametric bootstrapping to generate null-model _like_ distributions, cluster them, calculate a cluster quality index and compare it to the quality index value of the clusters from the actual data [@hennig_flexible_2015]. This has recently been applied to SA [@studer_validating_2021] and to my knowledge, this study will be one of the first to apply this technique.  
 
-
-Cluster selection, evaluation of number of clusters etc...
+Both of these measures are used within SA and are calculated using the **WeightedCluster** package in R [@studer_weightedcluster_2021].
 
 I provide a visual summary of the sequence clusters by a set of three plots for each cluster. First, a state distribution plot which shows the relative frequency of each state in the population by month. Second, a modal plot which shows the relative frequency of the most common state for each time point. Third, a medoid plot which shows the sequence which lies closest to all other sequences within the cluster. It can be seen as a "median" sequence, or as the most typical trajectory within the cluster group.
 
@@ -198,28 +198,6 @@ Here is a descriptive table 1:
 #| results: "asis"
 
 tar_read(table_1)
-```
-
-Here are the visualized clusters using sequence state distribution, modal and medoid plot:
-
-```{r random_cluster}
-#| echo: false
-#| warnings: false
-#| fig.height: 7
-#| fig.width: 5
-#| fig.cap: "Here are the random clusters"
-
-tar_read(p_cluster_random)
-```
-
-```{r complex_analytical}
-#| echo: false
-#| warnings: false
-#| fig.height: 7
-#| fig.width: 5
-#| fig.cap: "Here are the analytical clusters"
-
-tar_read(p_analytical_random)
 ```
 
 # Discussion
