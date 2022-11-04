@@ -344,10 +344,8 @@
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.14.3",
+      "Version": "1.14.5",
       "Source": "Repository",
-      "Repository": "DT",
-      "Hash": "70b8f1ae499f3d365d8b9a7d30cc8d47",
       "Requirements": []
     },
     "datawizard": {
