@@ -91,12 +91,6 @@ format_table <- function(dt){
 
 # Colors for sequence plots
 plot_colors <- function(){
-    # library(wesanderson)
-    # cols <- c(
-    #     "OP" = wes_palette("Royal2")[3],
-    #     "Single" = wes_palette("Royal2")[4],
-    #     "Step" = wes_palette("Royal2")[5]
-    # )
 
     library(prismatic)
 
@@ -308,4 +302,408 @@ plot_drops <- function(dt_par, dt_kid){
 
 
     return(plot)
+}
+
+
+########
+## SEQNULLCQI - WORK IN PROGRESS
+
+ggcqdensity <- function(
+    bcq,
+    stat,
+    quant = NULL,
+    norm = FALSE,
+    seg = TRUE,
+    fill_col = "#E69F00",
+    ...
+){
+
+    # Get CQI measures
+    cq <- bcq$clustrange
+
+    # Get distribution
+    sumcqi <- normstatcqi(
+        bcq,
+        stat = stat,
+        norm = norm
+    )
+
+    # Calculate range of CQI values
+    allrange <- range(
+        c(
+            sumcqi$origstat,
+            sumcqi$alldatamax
+        )
+    )
+
+    # Get clusters
+    kvals <- cq$kvals
+
+    # Calculate density
+    dens <- density(sumcqi$alldatamax)
+
+    # Initiate empty density plot
+    density_plot <- ggplot(
+        data.frame(x = sumcqi$alldatamax)
+    ) + 
+        aes(x = x) + 
+        scale_x_continuous(limits = allrange)
+
+    # Add line segments if seg == TRUE
+    if(seg) {
+        adj <- (seq_along(kvals) - 1) / (length(kvals) - 1) * 0.6 + 0.2
+
+        # Create data.frame holding line segment values
+        segments <- data.frame(
+            x = sumcqi$origstat,
+            y = rep(0, length(kvals)),
+            x_end = sumcqi$origstat,
+            y_end  = max(dens$y) * adj,
+            lbl = kvals
+        )
+
+        # Add line segments to the density plot as well as
+        # corresponding number of clusters in solution
+        density_plot <- density_plot +
+            geom_segment(
+                data = segments,
+                aes(
+                    x = x,
+                    y = y,
+                    xend = x_end,
+                    yend  = y_end
+                ),
+                alpha = 0.5
+            ) +
+            ggrepel::geom_text_repel(
+                data = segments,
+                aes(
+                    x = x,
+                    y = y_end,
+                    label = lbl
+                )
+            )
+    } 
+
+    # Fill confidence interval under density curve if value has been
+    # supplied for quant
+    if(!is.null(quant)){
+
+        # Get the minimum and maximum x-values
+        minmax <- confcqi(
+            sumcqi$alldatamax,
+            quant,
+            bcq$R
+        )
+
+        # Create data.frame with values to fill
+        fill_values <- data.frame(x = dens$x, y = dens$y) |>
+            dplyr::mutate(
+                fill = ifelse(
+                    (x >= minmax[1] & x <= minmax[2]),
+                    TRUE,
+                    FALSE
+                )
+            )
+
+        # Fill in confidence interval
+        density_plot <- density_plot + 
+            geom_ribbon(
+                data = subset(fill_values, fill),
+                aes(x = x, ymax = y),
+                ymin = 0,
+                fill = fill_col,
+                alpha = 0.5
+            )
+
+        # Print the CI
+        print(minmax)
+    }
+
+    # Add density line as final layer and theming
+    density_plot <- density_plot +
+        geom_density(trim = TRUE) +
+        theme_minimal() +
+        ylab("Density") +
+        xlab(
+            paste0(
+                "N = ",
+                dens$n,
+                "\n Bandwidth = ",
+                round(dens$bw, 2)
+            )
+        ) + 
+        theme(
+            axis.title.y = element_text(vjust = +3),
+            panel.grid.major.x = element_blank(),
+            legend.position = "bottom",
+            legend.title = element_blank(),
+            legend.margin = margin(-0.2, 0, 0, -0.2, unit = "cm"),
+            axis.line.x = element_line(size = .3),
+            axis.ticks = element_line(size = .3)
+        )
+
+    return(density_plot)
+}
+
+
+ggseqnullcqiplot <- function(
+    bcq,
+    stat,
+    type = "line",
+    quant = 0.95,
+    norm = TRUE,
+    legendpos="topright",
+    alpha=.2,
+    standardized = FALSE,
+    ...
+){
+    # Density plot
+    if(type == "density") {
+        return(
+            ggcqdensity(
+                bcq,
+                stat,
+                quant = quant,
+                norm = norm,
+                ...
+            )
+        )
+    }
+
+    # Sequence density plot
+    if(type == "seqdplot") {
+        return(
+            ggseqdplot(bcq$seqdata,  ...)
+        )
+    }
+
+    # Get cluster quality and solution number
+    cq <- bcq$clustrange
+    kvals <- cq$kvals
+
+    if(stat == "all") {
+
+        alls <- list()
+
+        for(ss in colnames(cq$stats)) {
+
+            statz <- data.frame(bcq$stats[[ss]])
+            colnames(statz) <- kvals
+            statz <- tidyr::gather(
+                statz,
+                kval,
+                index,
+                colnames(statz),
+                factor_key=TRUE
+            )
+
+            for(i in seq_along(nstat)){
+                nstat[i] <- (nstat[i]-mean(allstat[, i]))/sd(allstat[, i])
+            }
+
+            alls[[ss]] <- nstat
+        }
+
+        for(ss in colnames(cq$stats)) {
+
+            nstat <- cq$stats[, ss]
+            allstat <- rbind(nstat, bcq$stats[[ss]])
+
+            for(i in seq_along(nstat)){
+                nstat[i] <- (nstat[i]-mean(allstat[, i]))/sd(allstat[, i])
+            }
+
+            alls[[ss]] <- nstat
+        }
+		
+		plot(kvals,nstat, type="n", main="Standardized quality measure", ylab="Normalized quality measure", xlab="Number of clusters", ylim=range(unlist(alls)))
+		for(ss in seq_along(alls)){
+			lines(kvals, alls[[ss]], type="b", col=ss)
+		}
+		
+		legend(legendpos, fill=seq_along(alls), legend=names(alls))
+		return(invisible(NULL))
+    }
+    
+    origstat <- cq$stats[, stat]
+    nullstat <- bcq$stats[[stat]]
+    
+    internalplot <- function(kvals, origstat, nullstat, main, ylab, ...){
+
+        allstat <- rbind(origstat, nullstat)
+        allrange <- range(allstat)
+        alpha <- (1-quant)/2
+
+        if(type != "boxplot"){
+
+            # Initiate empty plot
+            cqi_plot <- ggplot(
+                data.frame(x = kvals),
+                aes(x = x)
+            ) +  
+                scale_x_continuous(breaks = kvals) +
+                scale_y_continuous(limits = allrange) +
+                labs(
+                    x = "Number of clusters",
+                    y = ylab,
+                    title = main
+                ) +
+                theme(
+                    axis.title.y = element_text(vjust = +3),
+                    panel.grid.major.x = element_blank(),
+                    legend.position = "bottom",
+                    legend.title = element_blank(),
+                    legend.margin = margin(-0.2, 0, 0, -0.2, unit = "cm"),
+                    axis.line.x = element_line(size = .3),
+                    axis.ticks = element_line(size = .3),
+                    plot.margin = margin(10,10,10,15),
+                    panel.border =  element_rect(colour = "black", fill = NA)
+                )
+
+            # for(i in 1:nrow(nullstat)){
+            # 	lines(kvals, nullstat[i,], col=gray(.5, alpha=alpha), lwd=1)
+            # }
+
+            if(!is.null(quant)){
+
+                # Create data frame for geom_ribbon
+                minmax <- sapply(
+                    seq_along(kvals),
+                    function(x) quantile(
+                        nullstat[, x],
+                        c(alpha, 1 - alpha)
+                    )
+                )
+
+                ribbon_data <- data.frame(
+                    x = kvals,
+                    ymin = minmax[1,],
+                    ymax = minmax[2,]
+                )
+
+                # Fill in confidence interval in plot
+                cqi_plot <- cqi_plot + 
+                    geom_ribbon(
+                        data = ribbon_data,
+                        aes(
+                            x = x,
+                            ymax = ymax,
+                            ymin = ymin
+                        ),
+                        fill = "#F4C2E1FF",
+                        alpha = 0.8
+                )
+            }
+
+        } else {
+            nn <- as.vector(nullstat)
+            kk <- rep(kvals, each=nrow(nullstat))
+            boxplot(nn~kk, ylim=allrange)
+            lines(seq_along(unique(kk)), origstat, lwd=2, col="black", type="b")
+        }
+        # Add line showing quality threshold
+        if(!is.null(quant)){
+
+            threshold <- ifelse(stat == "HC", alpha, c(1 - alpha))
+
+            if(stat == "HC") {
+
+                overallmaxq <- quantile(apply(nullstat, 1, min), threshold)
+
+            } else {
+
+                overallmaxq <- quantile(apply(nullstat, 1, max), threshold)
+
+            }
+
+            cqi_plot <- cqi_plot +
+                geom_hline(
+                    yintercept = overallmaxq,
+                    linetype = "dashed",
+                    col = "#00A862FF"
+                )
+        }
+
+         # Add origstat line
+        cqi_plot <- cqi_plot +
+            geom_line(
+                data = data.frame(x = kvals, y = origstat),
+                aes(x = x, y = y),
+                color = "#5D00BBFF"
+            ) + 
+            geom_point(
+                data = data.frame(x = kvals, y = origstat),
+                aes(x = x, y = y),
+                color = "#5D00BBFF"
+            )
+
+        return(cqi_plot)
+    }
+
+    if (standardized == FALSE) {
+        plot <- internalplot(
+            kvals,
+            origstat,
+            nullstat,
+            main = paste("Raw", stat),
+            ylab = stat
+        )
+    }
+
+    if (standardized == TRUE) {
+        # Calculate standardized values
+        normstat <- origstat
+        normnullstat <- nullstat 
+        for(i in seq_along(normstat)) {
+
+            mn <- mean(nullstat[, i])
+            sdn <- sd(nullstat[, i])
+            normstat[i] <- (origstat[i] - mn) / sdn
+            normnullstat[, i] <- (normnullstat[, i] - mn) / sdn
+        }
+
+        plot <- internalplot(
+            kvals,
+            normstat,
+            normnullstat,
+            main = paste("Standardized", stat),
+            ylab = paste("Standardized", stat)
+        )
+    }
+
+    return(plot)
+
+}
+
+
+
+normstatcqi <- function(bcq, stat, norm=TRUE){
+	
+	origstat <- bcq$clustrange$stats[, stat]
+	nullstat <- bcq$stats[[stat]]
+	
+	if(norm){
+		for(i in seq_along(origstat)){
+
+			mx <- mean(nullstat[, i])
+			sdx <- sd(nullstat[, i])
+			nullstat[ , i] <- (nullstat[, i]-mx)/sdx
+			origstat[i] <- (origstat[i]-mx)/sdx
+		}
+	}
+	alldatamax <- apply(nullstat, 1, max)
+	sumcqi <- list(origstat=origstat, nullstat=nullstat, alldatamax=alldatamax)
+	return(sumcqi)
+
+}
+
+
+confcqi <- function(nullstat, quant, n){
+	alpha <- (1-quant)/2
+	#calpha <- alpha+(alpha-1)/n
+	#print(c(calpha, alpha))
+	#minmax <- quantile(nullstat, c(calpha, 1-calpha))
+	minmax <- quantile(nullstat, c(alpha, 1 - alpha))
+	return(minmax)
 }

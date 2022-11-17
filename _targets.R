@@ -12,12 +12,13 @@ tar_option_set(
         "lubridate",
         "TraMineR",
         "cluster",
-        "WeightedCluster"
+        "WeightedCluster",
+        "ggplot2"
     )
 )
 
 list(
-    
+
     ##
     # Data processing
 
@@ -112,7 +113,7 @@ list(
             start = 0
         )
     ),
-    
+
     # Create distance matrix
     tar_target(
         family_diss,
@@ -167,79 +168,50 @@ list(
         )
     ),
 
+    # Generate CQI plots
+    tar_target(
+        p_cluster_asw,
+        cowplot::plot_grid(
+            ggseqnullcqiplot(
+                bootstrap_cqi_r100,
+                stat ="ASW",
+                type ="line"
+            ) + plot_theme(),
+            ggseqnullcqiplot(
+                bootstrap_cqi_r100,
+                stat ="ASW",
+                type ="line",
+                standardized = TRUE
+            ) + plot_theme()
+        )
+    ),
+    tar_target(
+        p_cluster_hc,
+        cowplot::plot_grid(
+            ggseqnullcqiplot(
+                bootstrap_cqi_r100,
+                stat ="HC",
+                type ="line"
+            ) + plot_theme(),
+            ggseqnullcqiplot(
+                bootstrap_cqi_r100,
+                stat ="HC",
+                type ="line",
+                standardized = TRUE
+            ) + plot_theme()
+        )
+    ),
 
-    # # Define family sequence and distance matrix for 
-    # # full, complex and random subsample
-    # tarchetypes::tar_map(
-    #     values = list(
-    #         sample = c("full_sample", "complex_sample", "random_sample"),
-    #         sample_name = c("full", "complex", "random")
-    #     ),
-    #     names = sample_name,
-
-    #     # Define family sequence
-    #     tar_target(
-    #         family_sequence,
-    #         seqdef(
-    #             final_data[get(sample) == TRUE],
-    #             var = paste0("FAMILY_STATE", 0:179),
-    #             id = final_data[get(sample) == TRUE, childID],
-    #             start = 0
-    #         )
-    #     ),
-
-    #     # Create distance matrix
-    #     tar_target(
-    #         family_om,
-    #         seqdist(
-    #             family_sequence,
-    #             method ="DHD"
-    #         )
-    #     )
-    # ),
-
-    # ##
-    # # Clustering and analysis
-    
-    # # Create clusters
-    # tarchetypes::tar_map(
-    #     values = list(
-    #         family_om = rlang::syms(
-    #             c("family_om_complex", "family_om_random")
-    #         ),
-    #         sample_name = c("complex", "random")
-    #     ),
-    #     names = sample_name,
-    #     # Cluster using Ward
-    #     tar_target(
-    #         family_clusters,
-    #         agnes(
-    #             family_om,
-    #             diss = T RUE,
-    #             method ="ward")
-    #     )
-    # ),
-
-    # # Generate sequence plots
-    # tar_target(
-    #     p_cluster_random,
-    #     joint_plot(
-    #         final_data[random_sample == TRUE],
-    #         family_sequence_random,
-    #         family_om_random,
-    #         groups = cutree(family_clusters_random, k = 6)
-    #     )
-    # ),
-
-    # tar_target(
-    #     p_cluster_complex,
-    #     joint_plot(
-    #         final_data[complex_sample == TRUE],
-    #         family_sequence_complex,
-    #         family_om_complex,
-    #         groups = cutree(family_clusters_complex, k = 7)
-    #     )
-    # ),
+    # Generate sequence plots
+    tar_target(
+        p_clusters,
+        joint_plot(
+            final_data,
+            family_sequence,
+            family_diss,
+            groups = cutree(family_clusters, k = 7)
+        )
+    ),
 
     ##
     # Descriptive statistics
