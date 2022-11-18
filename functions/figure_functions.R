@@ -3,12 +3,13 @@
 
 format_table <- function(dt){
     library(modelsummary)
+    library(kableExtra)
 
     setorder(dt, COUNTRY)
 
     # Format dates to year
     year_cols <- c("birth_ym", "IBORN_YM", "ISURVEY_YM")
-    dt[, c(year_cols) := lapply(.SD, year), .SDcols = year_cols]
+    dt[, c(year_cols) := lapply(.SD, data.table::year), .SDcols = year_cols]
 
     # Create table variables
     dt[,
@@ -38,6 +39,32 @@ format_table <- function(dt){
         )
     ])
 
+    collapsed[
+        COUNTRY == "Czech Republic GGS wave 1" |
+        COUNTRY == "France GGS wave1" |
+        COUNTRY == "Netherlands FFS" |
+        COUNTRY == "Netherlands OG 2013" |
+        COUNTRY == "Belgium GGS wave1",
+        region := "Central Europe"
+    ][
+        COUNTRY == "Bulgaria GGS wave1" |
+        COUNTRY == "Belarus GGS wave 1" |
+        COUNTRY == "Georgia GGS wave1" |
+        COUNTRY == "Hungary GGS wave1" |
+        COUNTRY == "Poland GGS wave1",
+        region := "Eastern Europe"
+    ][
+        COUNTRY == "Estonia GGS wave1" |
+        COUNTRY == "Lithuania GGS wave1" |
+        COUNTRY == "Norway GGS wave1" |
+        COUNTRY == "Sweden GGS wave 1",
+        region := "Scandinavia and Baltics" 
+    ][
+        COUNTRY == "Spain SFS 2006" |
+        COUNTRY == "Romania GGS wave1",
+        region := "Southern Europe"
+    ]
+
     # Split country and survey
     survey_components <- "(^[A-z]+)(\\sRepublic)?(\\s)(.+)"
     collapsed[,
@@ -49,7 +76,7 @@ format_table <- function(dt){
 
     # Add Total row
     total_row <- data.table(
-        "COUNTRY" = "Total",
+        "COUNTRY" = "",
         "svy_min" = collapsed[, min(svy_min)],
         "svy_max" = collapsed[, max(svy_min)],
         "mother_min" = collapsed[, min(mother_min)],
@@ -57,30 +84,82 @@ format_table <- function(dt){
         "child_min" = collapsed[, min(child_min)],
         "child_max" = collapsed[, max(child_max)],
         "n_kids" = collapsed[, sum(n_kids)],
+        "region" = "Total",
         "survey" = ""
     )
 
     collapsed <- rbindlist(list(collapsed, total_row))
 
+
+
+
     # Rename columns
     table <- collapsed[, .(
-        "{Country}" = COUNTRY,
-        "{Survey}" = survey,
-        "{Survey years}" = paste0(svy_min, " - ", svy_max),
+        "Country" = COUNTRY,
+        "Survey" = survey,
+        "Survey years" = paste0(svy_min, " - ", svy_max),
         # "{Mother cohorts}" = paste0(mother_min, " - ", mother_max),
-        "{Child cohorts}" = paste0(child_min, " - ", child_max),
-        "{N. children}" = format(n_kids)
+        "Child cohorts" = paste0(child_min, " - ", child_max),
+        "N. children" = format(n_kids),
+        region = region
         ) 
     ]
 
     # Create table
-    tab <- datasummary_df(
-        table,
-        "latex_tabular",
+    tab <- knitr::kable(
+        table[order(region)][, !"region"],
         booktabs = TRUE,
-        fmt = identity,
-        align = "llccr",
-        hrule = nrow(table)
+        format = "latex"
+    ) |> pack_rows(index = table(forcats::fct_inorder(table$region))) |>
+        row_spec(16, hline_after = T)
+
+    return(tab)
+}
+
+tab_cluster_proportions <- function(dt, clusters) {
+
+    dt <- copy(dt)
+
+    dt[grep("Netherlands", COUNTRY), COUNTRY := "Netherlands"]
+
+    # Attach clusters to data.table and label them
+    dt[, 
+        cluster := factor(
+            cutree(clusters, k = 7),
+            levels = 1:7,
+            labels = c(
+                "Intact original family",
+                "Mid-childhood stepfamily",
+                "Single mother",
+                "Late childhood separation",
+                "Early childhood separation",
+                "Early childhood stepfamily",
+                "Late childhood stepfamily"
+            )
+    )
+    ]
+
+    # Generate no. of observations per country
+    dt[, country_n := .N, by = "COUNTRY"]
+
+    dt <- unique(
+        dt[, 
+            .(proportion = round(.N / country_n, 2)), 
+            by = .(COUNTRY, cluster)
+        ]
+    )
+
+    # To wide format
+    dt <- dcast(
+        dt,
+        COUNTRY ~ cluster,
+        value.var = "proportion"
+    )
+
+    tab <- knitr::kable(
+        dt,
+        format = "latex",
+        booktabs = TRUE
     )
 
     return(tab)

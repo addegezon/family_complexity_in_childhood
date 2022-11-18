@@ -144,19 +144,6 @@ list(
 
     # Compute cluster quality measure for the null model
     tar_target(
-        bootstrap_cluster_quality,
-        seqnullcqi(
-            family_sequence,
-            cluster_quality,
-            R = 10,
-            model = c("combined"),
-            seqdist.args = list(method = "DHD"),
-            hclust.method = "ward.D2"
-        )
-    ),
-
-    # Compute cluster quality measure for the null model
-    tar_target(
         bootstrap_cqi_r100,
         seqnullcqi(
             family_sequence,
@@ -220,6 +207,12 @@ list(
     tar_target(
         table_1,
         format_table(children_filtered)
+    ),
+
+    # Proportion family types per country
+    tar_target(
+        tab_proportion_family_type,
+        tab_cluster_proportions(final_data, family_clusters)
     )
 
     # # Drops
