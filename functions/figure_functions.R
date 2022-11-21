@@ -29,6 +29,7 @@ format_table <- function(dt){
     collapsed <-  unique(dt[, 
         c(
             "COUNTRY",
+            "region",
             "svy_min",
             "svy_max",
             "mother_min",
@@ -52,6 +53,7 @@ format_table <- function(dt){
     # Add Total row
     total_row <- data.table(
         "COUNTRY" = "",
+        "region" = "Total",
         "svy_min" = collapsed[, min(svy_min)],
         "svy_max" = collapsed[, max(svy_min)],
         "mother_min" = collapsed[, min(mother_min)],
@@ -59,13 +61,10 @@ format_table <- function(dt){
         "child_min" = collapsed[, min(child_min)],
         "child_max" = collapsed[, max(child_max)],
         "n_kids" = collapsed[, sum(n_kids)],
-        "region" = "Total",
         "survey" = ""
     )
 
     collapsed <- rbindlist(list(collapsed, total_row))
-
-
 
 
     # Rename columns
@@ -91,43 +90,43 @@ format_table <- function(dt){
     return(tab)
 }
 
-tab_cluster_proportions <- function(dt, clusters) {
+tab_cluster_proportions <- function(
+    dt,
+    clusters,
+    cluster_quality,
+    aggregation
+) {
 
     dt <- copy(dt)
-
-    dt[grep("Netherlands", COUNTRY), COUNTRY := "Netherlands"]
-
     # Attach clusters to data.table and label them
     dt[, 
         cluster := factor(
-            cutree(clusters, k = 7),
-            levels = 1:7,
+            cluster_quality$clustering$cluster5[aggregation$disaggIndex],
+            levels = 1:5,
             labels = c(
                 "Intact original family",
                 "Mid-childhood stepfamily",
                 "Single mother",
                 "Late childhood separation",
-                "Early childhood separation",
-                "Early childhood stepfamily",
-                "Late childhood stepfamily"
+                "Early childhood separation"
             )
-    )
+        )
     ]
 
     # Generate no. of observations per country
-    dt[, country_n := .N, by = "COUNTRY"]
+    dt[, region_n := .N, by = "region"]
 
     dt <- unique(
         dt[, 
-            .(proportion = round(.N / country_n, 2)), 
-            by = .(COUNTRY, cluster)
+            .(proportion = round(.N / region_n, 2)), 
+            by = .(region, cluster)
         ]
     )
 
     # To wide format
     dt <- dcast(
         dt,
-        COUNTRY ~ cluster,
+        region ~ cluster,
         value.var = "proportion"
     )
 
@@ -182,15 +181,15 @@ plot_theme <- function(){
 }
 
 # Create medoid plot
-plot_medoid <- function(dt, medoids){
+plot_medoid <- function(sequence, medoids){
     library(ggplot2)
 
     # Generate data.table for medoid plot
     plot_dt = list(
         month = seq(0, 179, by = 3),
-        value = seq(0, 179, by = 3),
+        value = rep(1,60),
         state = as.matrix(
-            dt[
+            sequence[
                 medoids,
                 .SD, 
                 .SDcols = grep(
@@ -229,18 +228,24 @@ plot_medoid <- function(dt, medoids){
 }
 
 # Create three sequence plots
-triple_plot <- function(dt, sequence, medoids, groups, index){
+triple_plot <- function(sequence, medoids, groups, index, weights){
 
-    #Create medoid plot
-    medoid_plot <- plot_medoid(dt, medoids[index])
+    # Create data.table of sequence information
+    dt_sequence <- as.data.table(sequence)
+    dt_sequence[, weight := weights]
+    dt_sequence[, group := groups]
+
+
+    #C reate medoid plot
+    medoid_plot <- plot_medoid(sequence, medoids[index])
 
     # Create chronogram
-    chronogram <- ggseqdplot(sequence[groups == index,]) + 
+    chronogram <- ggseqdplot(sequence[groups == index,]) +
         ggtitle(
             paste0(
                 index,
                 " (n = ",
-                nrow(sequence[groups == index,]),
+                sum(dt_sequence[group == index, weight]),
                 ")"
             )
         ) +
@@ -280,11 +285,9 @@ triple_plot <- function(dt, sequence, medoids, groups, index){
 
 # Function for joining together the three main sequence plots
 joint_plot <- function(
-                    dt,
                     sequence,
                     diss,
                     groups,
-                    no_of_clusters = 6,
                     weights = NULL
                 ){
     library(egg)
@@ -301,32 +304,30 @@ joint_plot <- function(
         weights = weights
     )
 
-    if ("Only OP" %in% groups){
-        grp_order <- c(
-            "Only OP",
-            "Early Single",
-            "Late Step",
-            "Mid Single",
-            "Late Single",
-            "Early Step"
-        )
-    } else {
-        grp_order <- sort(unique(groups))
-    }
+    grp_order <- sort(unique(groups))
 
     # Loop over cluster groups
     p_list <- lapply(
         grp_order,
         function(index){
-            triple_plot(dt, sequence, medoids, groups, index)
+            triple_plot(
+                sequence,
+                medoids,
+                groups,
+                index,
+                weights
+            )
         }
     )
 
     # Arrange the three plots for each cluster
     arranged_list <- lapply(p_list, 
         function(list){
-            ggarrange(plots=list, heights = c(3, 1.5, 1))
-        })
+            ggarrange(
+                plots = list,
+                heights = c(3, 1.5, 1)
+            )
+        }) 
 
     # Get legend and reverse it
     legend <- get_legend(

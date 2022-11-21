@@ -75,20 +75,23 @@ format_data <- function(dt) {
         COUNTRY == "Netherlands OG 2013" |
         COUNTRY == "Belgium GGS wave1",
         region := "Central Europe"
-    ][
+    ]
+    dt[
         COUNTRY == "Bulgaria GGS wave1" |
         COUNTRY == "Belarus GGS wave 1" |
         COUNTRY == "Georgia GGS wave1" |
         COUNTRY == "Hungary GGS wave1" |
         COUNTRY == "Poland GGS wave1",
         region := "Eastern Europe"
-    ][
+    ]
+    dt[
         COUNTRY == "Estonia GGS wave1" |
         COUNTRY == "Lithuania GGS wave1" |
         COUNTRY == "Norway GGS wave1" |
         COUNTRY == "Sweden GGS wave 1",
         region := "Scandinavia and Baltics" 
-    ][
+    ]
+    dt[
         COUNTRY == "Spain SFS 2006" |
         COUNTRY == "Spain SFS 2018" |
         COUNTRY == "Romania GGS wave1",

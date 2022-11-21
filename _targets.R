@@ -176,7 +176,7 @@ list(
             family_sequence,
             cluster_quality,
             R = 50,
-            model = c("sequencing"),
+            model = c("combined"),
             seqdist.args = list(method = "DHD"),
             hclust.method = "ward.D2"
         )
@@ -202,31 +202,35 @@ list(
     ),
 
     # Generate sequence plots
-    tar_target(
-        p_clusters,
-        joint_plot(
-            final_data,
-            family_sequence,
-            family_diss,
-            groups = cutree(family_clusters, k = 5),
-            weights = final_data_agg$aggWeights
-        )
-    )
+    # tar_target(
+    #     p_clusters,
+    #     joint_plot(
+    #         family_sequence,
+    #         family_diss,
+    #         groups = cutree(family_clusters, k = 5),
+    #         weights = final_data_agg$aggWeights
+    #     )
+    # ),
 
     ##
     # Descriptive statistics
 
     # Table 1
-    # tar_target(
-    #     table_1,
-    #     format_table(children_filtered)
-    # ),
+    tar_target(
+        table_1,
+        format_table(children_filtered)
+    ),
 
     # Proportion family types per country
-    # tar_target(
-    #     tab_proportion_family_type,
-    #     tab_cluster_proportions(final_data, family_clusters)
-    # )
+    tar_target(
+        tab_proportion_family_type,
+        tab_cluster_proportions(
+            final_data,
+            family_clusters,
+            cluster_quality,
+            final_data_agg
+        )
+    )
 
     # # Drops
     # tar_target(
