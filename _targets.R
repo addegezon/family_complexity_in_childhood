@@ -103,13 +103,38 @@ list(
         format = "fst_dt"
     ),
 
+    # Aggregate similar sequences
+    tar_target(
+        final_data_agg,
+        wcAggregateCases(
+            final_data[,
+                .SD,
+                .SDcols = paste0(
+                    "FAMILY_STATE",
+                    seq(0, 179, by = 3)
+                )
+            ]
+        )
+    ),
+
+    tar_target(
+        unique_sequences,
+        final_data[
+            final_data_agg$aggIndex, 
+            .SD,
+            .SDcols = paste0(
+                "FAMILY_STATE",
+                seq(0, 179, by = 3)
+            )
+        ]
+    ),
+
     # Define family sequence
     tar_target(
         family_sequence,
         seqdef(
-            final_data[full_sample == TRUE],
-            var = paste0("FAMILY_STATE", 0:179),
-            id = final_data[full_sample == TRUE, childID],
+            unique_sequences,
+            weights = final_data_agg$aggWeights,
             start = 0
         )
     ),
@@ -128,7 +153,8 @@ list(
         family_clusters,
         hclust(
             as.dist(family_diss),
-            method = "ward.D2"
+            method = "ward.D2",
+            members = final_data_agg$aggWeights
         )
     ),
 
@@ -138,18 +164,19 @@ list(
         as.clustrange(
             family_clusters,
             diss = family_diss,
+            weights = final_data_agg$aggWeights,
             ncluster = 10
         )
     ),
 
     # Compute cluster quality measure for the null model
     tar_target(
-        bootstrap_cqi_r100,
+        bootstrap_cqi_r50,
         seqnullcqi(
             family_sequence,
             cluster_quality,
-            R = 100,
-            model = c("combined"),
+            R = 50,
+            model = c("sequencing"),
             seqdist.args = list(method = "DHD"),
             hclust.method = "ward.D2"
         )
@@ -157,33 +184,18 @@ list(
 
     # Generate CQI plots
     tar_target(
-        p_cluster_asw,
+        p_cluster_cqi,
         cowplot::plot_grid(
             ggseqnullcqiplot(
-                bootstrap_cqi_r100,
-                stat ="ASW",
-                type ="line"
-            ) + plot_theme(),
-            ggseqnullcqiplot(
-                bootstrap_cqi_r100,
-                stat ="ASW",
-                type ="line",
+                bootstrap_cqi_r50,
+                stat = "ASW",
+                type = "line",
                 standardized = TRUE
-            ) + plot_theme()
-        )
-    ),
-    tar_target(
-        p_cluster_hc,
-        cowplot::plot_grid(
-            ggseqnullcqiplot(
-                bootstrap_cqi_r100,
-                stat ="HC",
-                type ="line"
             ) + plot_theme(),
             ggseqnullcqiplot(
-                bootstrap_cqi_r100,
-                stat ="HC",
-                type ="line",
+                bootstrap_cqi_r50,
+                stat = "HC",
+                type = "line",
                 standardized = TRUE
             ) + plot_theme()
         )
@@ -196,24 +208,25 @@ list(
             final_data,
             family_sequence,
             family_diss,
-            groups = cutree(family_clusters, k = 7)
+            groups = cutree(family_clusters, k = 5),
+            weights = final_data_agg$aggWeights
         )
-    ),
+    )
 
     ##
     # Descriptive statistics
 
     # Table 1
-    tar_target(
-        table_1,
-        format_table(children_filtered)
-    ),
+    # tar_target(
+    #     table_1,
+    #     format_table(children_filtered)
+    # ),
 
     # Proportion family types per country
-    tar_target(
-        tab_proportion_family_type,
-        tab_cluster_proportions(final_data, family_clusters)
-    )
+    # tar_target(
+    #     tab_proportion_family_type,
+    #     tab_cluster_proportions(final_data, family_clusters)
+    # )
 
     # # Drops
     # tar_target(

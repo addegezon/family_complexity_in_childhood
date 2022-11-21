@@ -61,20 +61,39 @@ format_data <- function(dt) {
 
     # Drop countries
     drop_countries <- grep(
-        "^Austria|^Canada|^Germany|^Moldova|^Russia|^UK|^USA|^Uruguay|^Kazakhstan|^Spain.+2018$",
+        "^Austria|^Canada|^Germany|^Moldova|^Russia|^UK|^USA|^Uruguay|^Kazakhstan",
         levels(dt[,COUNTRY]),
         value = TRUE
     )
-    # Drop additional countries due to short union history
-    # drop_countries <- c(
-    #                     grep(
-    #                         "^Bulgaria|^Georgia|^Italy|^Netherlands.+FFS$|^Romania",
-    #                         levels(dt[,COUNTRY]),
-    #                         value = TRUE
-    #                     ),
-    #                     drop_countries
-    #                 )
     dt <- dt[!COUNTRY %in% drop_countries]
+
+    # Define regions
+    dt[
+        COUNTRY == "Czech Republic GGS wave 1" |
+        COUNTRY == "France GGS wave1" |
+        COUNTRY == "Netherlands FFS" |
+        COUNTRY == "Netherlands OG 2013" |
+        COUNTRY == "Belgium GGS wave1",
+        region := "Central Europe"
+    ][
+        COUNTRY == "Bulgaria GGS wave1" |
+        COUNTRY == "Belarus GGS wave 1" |
+        COUNTRY == "Georgia GGS wave1" |
+        COUNTRY == "Hungary GGS wave1" |
+        COUNTRY == "Poland GGS wave1",
+        region := "Eastern Europe"
+    ][
+        COUNTRY == "Estonia GGS wave1" |
+        COUNTRY == "Lithuania GGS wave1" |
+        COUNTRY == "Norway GGS wave1" |
+        COUNTRY == "Sweden GGS wave 1",
+        region := "Scandinavia and Baltics" 
+    ][
+        COUNTRY == "Spain SFS 2006" |
+        COUNTRY == "Spain SFS 2018" |
+        COUNTRY == "Romania GGS wave1",
+        region := "Southern Europe"
+    ]
 
     # Merge all year and month columns into one date column
     # For partnership history:
@@ -82,10 +101,20 @@ format_data <- function(dt) {
     # For child history:
     format_date(dt, c("KID_", "KID_D", "KID_L"), 1:16)
     # For time of interview and birth:
-    dt[, ISURVEY_YM := as.Date(
-                        paste(YEAR_S, IMONTH_S, "1"),
-                        format = "%Y %m %d"
-                    )]
+    dt[
+        COUNTRY == "Spain SFS 2018",
+        ISURVEY_YM := as.Date(
+            paste(YEAR_S, "01", "1"),
+            format = "%Y %m %d"
+        )
+    ]
+    dt[
+        COUNTRY != "Spain SFS 2018", 
+        ISURVEY_YM := as.Date(
+            paste(YEAR_S, IMONTH_S, "1"),
+            format = "%Y %m %d"
+        )    
+    ]
     dt[, IBORN_YM := as.Date(
                         paste(BORN_Y, IBORN_M, "1"),
                         format = "%Y %m %d"
@@ -442,7 +471,7 @@ gen_union_states <- function(dt){
     library(TraMineR)
     library(lubridate)
     # Cycle through each month
-    for (month in 0:179){
+    for (month in seq(0, 179, by = 3)){
         
         # Print which month is being processed for trackin progress
         print(
@@ -514,7 +543,7 @@ gen_union_states <- function(dt){
 
 gen_sibling_states <- function(dt){
 
-    for (month in 0:179){
+    for (month in seq(0, 179, by = 3)){
         print(
             paste("Processing month", month)
         )
@@ -551,94 +580,6 @@ gen_sibling_states <- function(dt){
 ##
 # Analysis functions
 
-# Define analytical groups from cluster analysis
-define_analytical_groups <- function(dt){
-
-    family_cols <- paste0("FAMILY_STATE", 0:179)
-
-    # 1. Only OP
-    dt[
-        dt[, 
-            apply(
-                .SD,
-                1,
-                function(x) {
-                    all(x == "OP")
-                }
-            ),
-            .SDcols = family_cols],
-        family_group := "Only OP"
-    ]
-    # 2. Early single
-    dt[
-        dt[, 
-            apply(
-                .SD,
-                1,
-                function(x) {
-                    match("Single", x) < 12*3
-                }
-            ),
-            .SDcols = family_cols],
-        family_group := "Early Single"
-    ]
-    # 3. Mid single
-    dt[
-        dt[, 
-            apply(
-                .SD,
-                1,
-                function(x) {
-                    match("Single", x) >= 12*3 & all(x[0:(12*3-1)] == "OP")
-                }
-            ),
-            .SDcols = family_cols],
-        family_group := "Mid Single"
-    ]
-    # 4. Late single
-    dt[
-        dt[, 
-            apply(
-                .SD,
-                1,
-                function(x) {
-                    match("Single", x) >= 12*7 & all(x[0:12*7] == "OP")
-                }
-            ),
-            .SDcols = family_cols],
-        family_group := "Late Single"
-    ]
-    # 5. Early step
-    dt[
-        dt[, 
-            apply(
-                .SD,
-                1,
-                function(x) {
-                    match("Step", x) <= 12*5
-                }
-            ),
-            .SDcols = family_cols],
-        family_group := "Early Step"
-    ]
-    # 6. Late step
-    dt[
-        dt[, 
-            apply(
-                .SD,
-                1,
-                function(x) {
-                    match("Step", x) > 12*5
-                }
-            ),
-            .SDcols = family_cols],
-        family_group := "Late Step"
-    ]
-
-    dt[is.na(family_group), family_group := "Other"]
-
-    return(dt)
-}
 # Find intact family trajectories
 define_subsamples <- function(dt, size = 10000){
 
@@ -648,7 +589,7 @@ define_subsamples <- function(dt, size = 10000){
     ]
 
     # Complex families
-    partner_cols <- paste0("FAMILY_STATE", 0:179)
+    partner_cols <- paste0("FAMILY_STATE", seq(0, 179, by = 3))
     dt[,
         complex_sample := apply(
             .SD,

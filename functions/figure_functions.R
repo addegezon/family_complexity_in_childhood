@@ -39,31 +39,6 @@ format_table <- function(dt){
         )
     ])
 
-    collapsed[
-        COUNTRY == "Czech Republic GGS wave 1" |
-        COUNTRY == "France GGS wave1" |
-        COUNTRY == "Netherlands FFS" |
-        COUNTRY == "Netherlands OG 2013" |
-        COUNTRY == "Belgium GGS wave1",
-        region := "Central Europe"
-    ][
-        COUNTRY == "Bulgaria GGS wave1" |
-        COUNTRY == "Belarus GGS wave 1" |
-        COUNTRY == "Georgia GGS wave1" |
-        COUNTRY == "Hungary GGS wave1" |
-        COUNTRY == "Poland GGS wave1",
-        region := "Eastern Europe"
-    ][
-        COUNTRY == "Estonia GGS wave1" |
-        COUNTRY == "Lithuania GGS wave1" |
-        COUNTRY == "Norway GGS wave1" |
-        COUNTRY == "Sweden GGS wave 1",
-        region := "Scandinavia and Baltics" 
-    ][
-        COUNTRY == "Spain SFS 2006" |
-        COUNTRY == "Romania GGS wave1",
-        region := "Southern Europe"
-    ]
 
     # Split country and survey
     survey_components <- "(^[A-z]+)(\\sRepublic)?(\\s)(.+)"
@@ -212,8 +187,8 @@ plot_medoid <- function(dt, medoids){
 
     # Generate data.table for medoid plot
     plot_dt = list(
-        month = 0:179,
-        value = rep(1, 180),
+        month = seq(0, 179, by = 3),
+        value = seq(0, 179, by = 3),
         state = as.matrix(
             dt[
                 medoids,
@@ -309,7 +284,8 @@ joint_plot <- function(
                     sequence,
                     diss,
                     groups,
-                    no_of_clusters = 6
+                    no_of_clusters = 6,
+                    weights = NULL
                 ){
     library(egg)
     library(cowplot)
@@ -321,7 +297,8 @@ joint_plot <- function(
     medoids <- disscenter(
         diss,
         group = groups,
-        medoids.index="first"
+        medoids.index="first",
+        weights = weights
     )
 
     if ("Only OP" %in% groups){

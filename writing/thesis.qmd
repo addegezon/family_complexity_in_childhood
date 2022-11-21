@@ -1,11 +1,12 @@
 ---
-title: "Childhood Family Structure and Sibling Composition in 15 European Countries: A Sequence Analysis Approach to Family Complexity"
+title: "Childhood Family Structure and Sibling Composition in Europe: A Sequence Analysis Approach to Family Complexity"
 author: "Andreas Gustafsson"
 date: \today
 format: 
   pdf:
     documentclass: article
-    geometry: "left=3cm, right=5cm"
+    papersize: a4
+    geometry: "left=3cm, right=5cm, bottom=3cm"
     include-in-header:
       text: |
         \usepackage{booktabs} 
@@ -28,9 +29,9 @@ format:
         \RaggedRight
         \hypersetup{linkcolor=black, urlcolor=blue}
         \tableofcontents
+        \newpage
         \listoftables
         \listoffigures
-        
     latex-engine: xelatex
 link-citations: yes
 mainfont: "Happy Times at the IKOB New Game Plus Edition"
@@ -48,6 +49,7 @@ library(fst)
 library(ggplot2)
 library(forcats)
 library(data.table)
+library(kableExtra)
 tar_config_set(store = "../_targets/")
 knitr::opts_chunk$set(
   out.width="100%",
@@ -93,9 +95,9 @@ It is important to note that there are large cross-national variations in risks 
 
 Other aspects which are important to consider when tracing children's family experiences, both in the US and in Europe, is if cohabitation is included as a measure as well as the prevalence of joint physical custody (or shared residence). Relying on the US National Survey of Family Growth,  @rally_cohabitation_2004 found that when adding family transitions into and out of cohabitation, family instability (calculated from transitions into and out of parental partnerships) increased by 30% for White children and over 100% for Black children. This highlights the importance of including cohabitation in studies on family complexity. For all countries studied, @andersson_life-table_2017 also found that experiencing a parental separation is more common for children born into cohabiting unions.
 
-Further complicating research on children's family structure over the life course is the phenomenon of joint physical custody. In a majority of European countries (as well as in the US and Israel) JPC is a fringe arrangement that only 5% or less of children experience, whilst it is quite common in Sweden (21%) and Belgium (13.5%) [@steinbach_joint_2021]. This makes it hard to examine the actual family experiences of children based on surveys where parents are the anchors or where children's experiences are not tracked after separation on both the maternal and paternal side. If the prevalence was similar across countries it would be simpler to approximate children's experiences based on parental reports. Current praxis of following children's family trajectories on the maternal side will now underreport the total experienced complexity more in countries such as Sweden and Belgium whereas it will be a good approximation in countries where JPC is uncommon. For instance, estimates of the proportion of children with half-siblings have been found to be lower if there is fertility information only on one parent [@cancian_evolution_2011]. Attempts to ameliorate this issue have been made [see @kalmijn_multi-actor_2018] but is so far uncommon. 
+Further complicating research on children's family structure over the life course is the phenomenon of joint physical custody. In a majority of European countries (as well as in the US and Israel) JPC is a fringe arrangement that only 5% or less of children experience, whilst it is quite common in Sweden (21%) and Belgium (13.5%) [@steinbach_joint_2021]. This makes it hard to examine the actual family experiences of children based on surveys where parents are the anchors or where children's experiences are not tracked after separation on both the maternal and paternal side. If the prevalence was similar across countries it would be simpler to approximate children's experiences based on parental reports. Current praxis of following children's family trajectories on the maternal side will now underreport the total experienced complexity more in countries such as Sweden and Belgium whereas it will be a good approximation in countries where JPC is uncommon. For instance, estimates of the proportion of children with half-siblings have been found to be lower if there is fertility information only on one parent [@cancian_evolution_2011]. There are findings from the UK which show that children's family complexity (measured with a compound complexity index) are similar between father's and mother's family lives over childhood [@rowold_cohort_2022], indicating that a fair share of complexity is missed when only accounting for children's experiences on the maternal side. Attempts to ameliorate this issue have been made [see @kalmijn_multi-actor_2018] but is so far uncommon. 
 
-Family instability and changes in household composition has been linked to a diverse range of outcomes such as higher levels of behavioral problems for children born to lone mothers and those whose mother's gave birth to half-siblings [@fomby_family_2017], higher risk of bullying if living in a single parent household [@laftman_national_2017], excess externalizing behavior for boys in stepfamilies [@mostafa_impact_2018] as well as decreased psychological well-being and educational attainment of children experiencing parental divorce [@gahler_parental_2015].
+Family instability and changes in household composition have further been linked to a diverse range of outcomes such as higher levels of behavioral problems for children born to lone mothers and those whose mother's gave birth to half-siblings [@fomby_family_2017], higher risk of bullying if living in a single parent household [@laftman_national_2017], excess externalizing behavior for boys in stepfamilies [@mostafa_impact_2018] as well as decreased psychological well-being and educational attainment of children experiencing parental divorce [@gahler_parental_2015].
 
 Explanations: @cavanagh_family_2019 @fomby_family_2017 @cavanagh_family_2008 @fransson_psychological_2016
 
@@ -131,11 +133,11 @@ Problems with clustering: @warren_different_2015 @han_comparing_2017 @von_luxbur
 
 ## Analytical strategy
 
-Before describing the data material and the details of the analysis, I will outline the analytical strategy of this paper and how it relates to the research question, previous studies and the strengths and weaknesses of SA. The first step consists of defining family states and generating individual family sequences. As the data does not track both original parents of a child, I will only follow the mother's partnership trajectory with the assumption that children are residing at least part time with their mother during their childhood. Thus, join physical custody is not taken into account, and the family trajectories on the father's side are not measured. This is a strategy which has been previously employed in the literature [eg. @blau_demographic_2008]. There are also findings from the UK which show that children's family complexity (measured with a compound complexity index) are similar between father's and mother's family lives over childhood [@rowold_cohort_2022]. Although an analysis solely on the mother's side is a limitation, we can proceed as long as we keep it in mind. Having constructed the parental structure sequence, I compute sequence dissimilarities and generate clusters for the full study population. The final number of clusters are selected using both cluster quality criteria and the sociological significance of the cluster division.
+Before describing the data material and the details of the analysis, I will outline the analytical strategy of this paper and how it relates to the research question, previous studies and the strengths and weaknesses of SA. The first step consists of defining family states and generating individual family sequences. As the data does not track both original parents of a child, I will only follow the mother's partnership trajectory with the assumption that children are residing at least part time with their mother during their childhood. Thus, join physical custody is not taken into account, and the family trajectories on the father's side are not measured. This will make the measures of family complexity biased downwards. A positive note is that it will avoid the problem that men tend to underreport their number of children in retrospective surveys [@juby_where_199]. So although an analysis solely on the mother's side is a limitation, we can proceed as long as we keep that limitation in mind. Having constructed the parental structure sequence, I compute sequence dissimilarities and generate clusters for the full study population. The final number of clusters are selected using both cluster quality criteria and the sociological significance of the cluster division.
 
-Although the problems of validity of clustering typologies have been recognized for a long time and methods for ameliorating this deficit have been developed within the bioinformatics literature [for an overview see @von_luxburg_clustering_2010], few SA studies within the social sciences have taken this issue to heart. In order to improve the validity of the typology, I will use a parametric bootstrap technique proposed by @hennig_flexible_2015 and implemented for sequence data by @studer_validating_2021 to aid with the selection of the final clusters.
+The problems of the validity of clustering typologies have been recognized for a long time, and methods for ameliorating this deficit have been developed within the bioinformatics literature [for an overview see @von_luxburg_clustering_2010], few SA studies within the social sciences have taken this issue to heart. In order to improve the validity of the typology, I will use a parametric bootstrap technique proposed by @hennig_flexible_2015 and implemented for sequence data by @studer_validating_2021 to aid with the selection of the final clusters.
 
-Once the family typology is in place, I will show the proportion of the different family types for each country in the study, thus providing a descriptive of how children's family trajectories vary across European countries. This will mirror the work of van Winkle [-@van_winkle_family_2018, Table A5], but from the perspective of children. I will also show how the different typologies are associated with having full- and maternal half-siblings, on a country by country basis. Apart from mapping the relationship between family trajectories and sibling composition, it will also be one of the first cross-European analyses on half-sibling prevalence. This will further contribute to the understanding of the relationship between parental union history and sibling composition as well as showing the differences and similarities between European countries.
+Once the family typology is in place, I will show the proportion of the different family types for each region in the study, thus providing a descriptive of how children's family trajectories vary across Europe. This will mirror the work of van Winkle [-@van_winkle_family_2018, Table A5], but from the perspective of children. I will also show how the different typologies are associated with having full- and maternal half-siblings, on a regional basis. Apart from mapping the relationship between family trajectories and sibling composition, it will also be one of the first cross-European analyses on half-sibling prevalence. This will further contribute to the understanding of the relationship between parental union history and sibling composition as well as showing the differences and similarities between European regions.
 
 ## Data
 
@@ -208,7 +210,8 @@ In order for the research to be both transparent and reproducible, all code for 
 
 # Results
 
-Here is a descriptive table 1:
+## Descriptives
+In @tbl-1 I show basic descriptives of the study population. We see that most children are born between 1980 and 2000, and that the total number is 40,934. We also see that all regions have quite large samples except for Southern Europe, which onluy have around 4,000 children included from just two countries. This means that we need to take the results from Southern Europe with a grain of salt in the final analysis. 
 
 ```{r table1}
 #| echo: false
@@ -219,19 +222,10 @@ Here is a descriptive table 1:
 tar_read(table_1)
 ```
 
-```{r proportions}
-#| echo: false
-#| results: "asis"
-#| label: tbl-proportion-family-type
-#| tbl-cap: "The proportion of children classified according to each family type by European region."
-
-tar_read(tab_proportion_family_type) |> 
-  landscape() |>
-  kable_styling(font_size = 7)
-```
-
-
 ## Cluster diagnostics
+
+I performed a set of 100 botstraps an
+
 ```{r}
 #| echo: false
 #| label: fig-asw
@@ -245,6 +239,22 @@ tar_read(p_cluster_asw)
 #| fig-cap: "Raw and Standardized Hubert's C for actual and bootstrapped data"
 tar_read(p_cluster_hc)
 ```
+
+
+
+```{r proportions}
+#| echo: false
+#| results: "asis"
+#| label: tbl-proportion-family-type
+#| tbl-cap: "The proportion of children classified according to each family type by European region."
+
+tar_read(tab_proportion_family_type) |> 
+  landscape() |>
+  kable_styling(font_size = 7)
+```
+
+
+
 
 ## Final clusters
 
