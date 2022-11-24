@@ -96,7 +96,8 @@ tab_cluster_proportions <- function(
     cluster_quality,
     aggregation
 ) {
-
+    library(kableExtra)
+    browser()
     dt <- copy(dt)
     # Attach clusters to data.table and label them
     dt[, 
@@ -114,27 +115,33 @@ tab_cluster_proportions <- function(
     ]
 
     # Generate no. of observations per country
-    dt[, region_n := .N, by = "region"]
+    dt[, country_n := .N, by = "COUNTRY"]
 
     dt <- unique(
         dt[, 
-            .(proportion = round(.N / region_n, 2)), 
-            by = .(region, cluster)
+            .(proportion = round(.N / country_n, 2)), 
+            by = .(COUNTRY, cluster, region)
         ]
     )
 
     # To wide format
     dt <- dcast(
         dt,
-        region ~ cluster,
+        COUNTRY + region ~ cluster,
         value.var = "proportion"
     )
 
+    setorder(dt, region, COUNTRY)
+
     tab <- knitr::kable(
-        dt,
+        dt[, !"region"],
         format = "latex",
         booktabs = TRUE
-    )
+    ) |> pack_rows(
+            index = table(
+                forcats::fct_inorder(dt$region)
+                )
+        )
 
     return(tab)
 }
@@ -160,7 +167,7 @@ plot_colors <- function(){
     clr_rotate(10) |>
     clr_alpha(alpha = 1)
 
-    named_scheme <- c("OP" = col_scheme[1], "Single" = col_scheme[2], "Step" = col_scheme[3])
+    named_scheme <- c("OP" = col_scheme[1], "Single" = col_scheme[3], "Step" = col_scheme[6])
 
     return(scale_fill_manual(values = named_scheme))
 }
@@ -191,12 +198,12 @@ plot_medoid <- function(sequence, medoids){
         state = as.matrix(
             sequence[
                 medoids,
-                .SD, 
-                .SDcols = grep(
-                    "FAMILY_STATE",
-                    colnames(dt),
-                    value = TRUE
-                )
+                # .SD, 
+                # .SDcols = grep(
+                #     "FAMILY_STATE",
+                #     colnames(dt),
+                #     value = TRUE
+                # )
             ]
         )[1,]
     )
@@ -295,7 +302,7 @@ joint_plot <- function(
     library(ggseqplot)
     library(TraMineR)
     library(cluster)
-
+   
     # Find medoids
     medoids <- disscenter(
         diss,

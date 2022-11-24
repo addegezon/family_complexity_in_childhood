@@ -202,15 +202,24 @@ list(
     ),
 
     # Generate sequence plots
-    # tar_target(
-    #     p_clusters,
-    #     joint_plot(
-    #         family_sequence,
-    #         family_diss,
-    #         groups = cutree(family_clusters, k = 5),
-    #         weights = final_data_agg$aggWeights
-    #     )
-    # ),
+    tar_target(
+        p_clusters_5,
+        joint_plot(
+            family_sequence,
+            family_diss,
+            groups = cutree(family_clusters, k = 5),
+            weights = final_data_agg$aggWeights
+        )
+    ),
+    tar_target(
+        p_clusters_8,
+        joint_plot(
+            family_sequence,
+            family_diss,
+            groups = cutree(family_clusters, k = 8),
+            weights = final_data_agg$aggWeights
+        )
+    ),
 
     ##
     # Descriptive statistics
