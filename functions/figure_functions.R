@@ -1,7 +1,7 @@
 ##
 # Tables
 
-format_table <- function(dt){
+format_table <- function(dt, format = "latex", booktabs = TRUE){
     library(modelsummary)
     library(kableExtra)
 
@@ -73,8 +73,8 @@ format_table <- function(dt){
     # Create table
     tab <- knitr::kable(
         table[order(region)][, !"region"],
-        booktabs = TRUE,
-        format = "latex"
+        booktabs = booktabs,
+        format = format
     ) |> 
         pack_rows(
             index = table(
@@ -86,7 +86,7 @@ format_table <- function(dt){
     return(tab)
 }
 
-tab_cluster_proportions <- function(dt) {
+tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
     library(kableExtra)
 
     dt <- copy(dt)
@@ -112,8 +112,8 @@ tab_cluster_proportions <- function(dt) {
 
     tab <- knitr::kable(
         dt[, !"region"],
-        format = "latex",
-        booktabs = TRUE
+        format = format,
+        booktabs = booktabs
     ) |> pack_rows(
             index = table(
                 forcats::fct_inorder(dt$region)
@@ -158,7 +158,9 @@ plot_theme <- function(){
         axis.text = element_text(family="Helvetica", colour = "#5D00BBFF"),
         panel.grid = element_blank(),
         panel.background = element_rect(fill = "white"),
-        panel.border = element_rect(color = "#5D00BBFF", fill = NA)
+        panel.border = element_rect(color = "#5D00BBFF", fill = NA),
+        strip.background = element_rect(color = "#5D00BBFF", fill = NA),
+        strip.text.y.right = element_text(angle = 0, color = "#5D00BBFF")
     )
 
     return(p_theme)

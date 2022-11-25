@@ -1,0 +1,98 @@
+---
+title: "Childhood Family Structure and Sibling Composition in 16 European Countries"
+subtitle: "A Sequence Analysis Approach to Family Complexity"
+author: "Andreas Gustafsson"
+format: revealjs
+slide-number: true
+progress: true
+touch: true
+css: "presentation_style.css"
+---
+
+
+```{r}
+#| include: false
+#| warning: false
+#| echo: false
+
+# include library and targets source
+library(targets)
+library(fst)
+library(ggplot2)
+library(forcats)
+library(data.table)
+library(kableExtra)
+tar_config_set(store = "../_targets/")
+source("../functions/figure_functions.R")
+```
+
+## Introduction
+
+## Second Demographic Transition
+
+## European differences
+
+## Family complexity
+
+## Sequence analysis
+
+---
+
+```{r table1}
+#| echo: false
+#| results: "asis"
+#| label: tbl-1
+#| tbl-cap: "Descriptive information on survey years, cohorts included and number of children from each country"
+
+format_table(
+    tar_read(children_filtered),
+    format = "html",
+    booktabs = FALSE
+) |>
+kable_minimal()
+```
+
+
+## Cluster diagnostics
+
+```{r}
+#| echo: false
+#| label: fig-cwi
+#| fig-cap: "Standardized Average Silhouette Width and Hubert's C for actual and bootstrapped data"
+
+tar_read(p_cluster_cqi)
+```
+
+## Final clusters
+
+```{r}
+#| echo: false
+tar_read(p_clusters_5)
+```
+
+## Cluster proportion
+
+
+```{r}
+#| echo: false
+#| results: asis
+tab_cluster_proportions(
+            tar_read(children_clusters),
+            format = "html",
+            booktabs = FALSE
+) |>
+kable_styling(font_size = 16) |>
+kable_minimal()
+```
+
+## Sibling proportions
+
+```{r, fig.height = 7, fig.width = 10}
+#| echo: false
+tar_read(p_sibling_proportion)
+```
+
+
+
+
+
