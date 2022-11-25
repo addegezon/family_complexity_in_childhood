@@ -12,6 +12,8 @@ format:
         \usepackage{booktabs} 
         \usepackage{xcolor} 
         \usepackage{siunitx}
+        \usepackage{lscape}
+        \usepackage{geometry}
         \usepackage{fontspec}
         \usepackage{ragged2e}
         \usepackage[british]{babel}
@@ -36,6 +38,7 @@ format:
     latex-engine: xelatex
 link-citations: true
 urlcolor: blue
+reference-location: block
 mainfont: "Happy Times at the IKOB New Game Plus Edition"
 bibliography: "https://raw.githubusercontent.com/addegezon/bibliography/main/bibliography.bib"
 ---
@@ -72,9 +75,9 @@ The objective of this thesis is to describe children's family trajectories and t
 
 ## Explaining cross European differences
 
-One of the most adopted theories in explaining the macro level changes in family patterns during the late 20^th century is the Second Demographic Transition (SDT) theory. The SDT theory starts by identifying a set of phenomena, such as rising levels of cohabitation, living apart together arrangements, higher divorce rates, fertility postponement and an increase in out-of-wedlock childbirths [@lesthaeghe_second_2014]. In the early SDT theory, the changing family dynamics were seen as a result of ideational changes in Western Europe. In particular, the rise of postmodern attitudes and norms [@van_de_kaa_postmodern_2001], tightly linked to Inglehart's concept of a post-materialist society [@inglehart_silent_1971]. In particular, ideas such as individualism and self-realization are seen to have lead to both more individualized decisions on family formation, uncoupled from previous family norms, as well as a greater acceptance for issues such as homosexuality, abortion and non-marital childbearing. 
+One of the most adopted theories in explaining the macro level changes in family patterns during the late 20^th^ century is the Second Demographic Transition (SDT) theory. The SDT theory starts by identifying a set of phenomena, such as rising levels of cohabitation, living apart together arrangements, higher divorce rates, fertility postponement and an increase in out-of-wedlock childbirths [@lesthaeghe_second_2014]. In the early SDT theory, the changing family dynamics were seen as a result of ideational changes in Western Europe. In particular, the rise of postmodern attitudes and norms [@van_de_kaa_postmodern_2001], tightly linked to Inglehart's concept of a post-materialist society [@inglehart_silent_1971]. In particular, ideas such as individualism and self-realization are seen to have lead to both more individualized decisions on family formation, uncoupled from previous family norms, as well as a greater acceptance for issues such as homosexuality, abortion and non-marital childbearing. 
 
-Ideational changes do not however, exist in a vacuum. In a recognition that also other social forces shape family decisions, Lestaeghe and Vanderhoeft proposed the conceptual model of _Ready, Willing, and Able_ [@lesthaeghe_ready_2001], adopted directly from @coale_demographic_1973. _Readiness_ (R) refers to that new forms of behavior must come with some utility to the actor and _willingness_ (W) to the acceptability of new patterns of action in relation to normative schemes, which is the aspect usually associated with the SDT. _Ability_ (A) on the other hand, refers to if condition are in place to realize these new forms of behavior. In the case of family life, ability is related to, for instance, access to contraception and legal regulations of family relationships. This conceptual model bridges the relation between ideational changes, established normative systems as well as technological and legal systems. As both norms and institutional factors differ between countries, we would expect that even if changes in individual attitudes uniformly move towards more post-materialist ideals, the degree to which these attitudes can be realized will differ between countries and the processes have, as we shall see, been very different. 
+Ideational changes do not however, exist in a vacuum. In a recognition that also other social forces shape family decisions, Lestaeghe and Vanderhoeft proposed the conceptual model of _Ready, Willing, and Able_ [@lesthaeghe_ready_2001], adopted directly from @coale_demographic_1973. _Readiness_ refers to that new forms of behavior must come with some utility to the actor and _willingness_ to the acceptability of new patterns of action in relation to normative schemes, which is the aspect usually associated with the SDT. _Ability_ on the other hand, refers to if condition are in place to realize these new forms of behavior. In the case of family life, ability is related to, for instance, access to contraception and legal regulations of family relationships. This conceptual model bridges the relation between ideational changes, established normative systems as well as technological and legal systems. As both norms and institutional factors differ between countries, we would expect that even if changes in individual attitudes uniformly move towards more post-materialist ideals, the degree to which these attitudes can be realized will differ between countries and the processes have, as we shall see, been very different. 
 
 Scandinavia has been a forerunner with regards to changing family forms. In Sweden, childbearing began to precede marriage already in the in the mid 1970's, when childbearing within cohabiting unions started to get mainstream acceptance [@thomson_partnership_2005]. At the same time, there was a drastic decrease in the level of total first marriage rates, dropping from about 0.9 in 1965 to 0.6 in 1975 [@sobotka_changing_2008]. In 2008, 60% of all children where born in non-marital cohabiting relationships [@olah_sweden_2008]. Drivers have been hypothesized to include both individualism and residential autonomy as well as institutional support also for childbearing outside of marriage [@olah_sweden_2008].
 
@@ -182,13 +185,13 @@ $$
 \textbf{S} = (s_1,s_2,s_3, \cdots, s_{60}) | s_i \in \{\textrm{Original parents, Single, Step} \}
 $${#eq-sequence-example}
 
-An example sequence of a child's first two years of life, where the mother is first partnered for 12 months (four quarters), then single for 6 (two quarters) and finally repartnered for 6 months (two quarters) is visible in @fig-state-ex.
+An example sequence of a child's first two years of life, where the mother is first partnered for 12 months (four quarters), then single for 6 (two quarters) and finally repartnered for 6 months (two quarters) is visible in @tbl-state-ex.
 
 ```{r}
 #| echo: false
 #| results: "asis"
-#| label: fig-state-ex
-#| fig-cap: "Two year union state sequence example"
+#| label: tbl-state-ex
+#| tbl-cap: "Two year union state sequence example"
 
 months <- paste0("", 1:8)
 states <- c(
@@ -227,13 +230,13 @@ The analysis is performed in R and relies on the packages **TraMineR** and  **We
 
 The Harmonized Histories data set is de-identified to protect the personal integrity of the study participants and all analysis presented are as aggregated results. In order to get access to the data I have signed a pledge of confidentiality, pledging not the share the data and only perform analysis related to the approved project. The data collection has been approved in each individual country and has been done under the oversight of the GGP Ethics Board and its Data Protection Office. 
 
-In order for the research to be both transparent and reproducible, all code for generating the results, as well as the thesis, is available as a reproduction package at GitHub.^[<https://github.com/addegezon/family_complexity_in_childhood>] 
+In order for the research to be both transparent and reproducible, all code for generating the results, as well as the thesis, is available as a reproduction package at GitHub [@gustafsson_addegezonfamily_complexity_in_childhood_2022].
 
 
 # Results
 
 ## Descriptives
-<!-- In @tbl-1 I show basic descriptives of the study population. We see that most children are born between 1980 and 2000, and that the total number is 48,163. We also see that all regions have quite large samples except for Southern Europe, which only have around 4,000 children included from just two countries. This means that we need to take the results from Southern Europe with a grain of salt in the final analysis.  -->
+ @tbl-1 shows basic descriptives of the study population.
 
 ```{r table1}
 #| echo: false
@@ -250,6 +253,7 @@ tar_read(table_1)
 #| echo: false
 #| label: fig-cwi
 #| fig-cap: "Standardized Average Silhouette Width and Hubert's C for actual and bootstrapped data"
+
 #tar_read(p_cluster_cqi)
 ```
 
@@ -261,11 +265,8 @@ tar_read(table_1)
 #| tbl-cap: "The proportion of children classified according to each family type by European region."
 
 #tar_read(tab_proportion_family_type) |> 
-#  landscape() |>
-#  kable_styling(font_size = 7)
+#  kable_styling(font_size = 8)
 ```
-
-
 
 
 ## Final clusters
@@ -275,9 +276,11 @@ tar_read(table_1)
 #| label: fig-joint-plot
 #| fig-cap: "Plot of the five cluster solution"
 #| fig-height: 8
+
 #tar_read(p_clusters_5)
 ```
 
+## Sibling composition
 
 # Discussion
 
