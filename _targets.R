@@ -176,7 +176,7 @@ list(
             family_sequence,
             cluster_quality,
             R = 50,
-            model = c("combined"),
+            model = c("sequencing"),
             seqdist.args = list(method = "DHD"),
             hclust.method = "ward.D2"
         )
@@ -211,14 +211,23 @@ list(
             weights = final_data_agg$aggWeights
         )
     ),
+
+    # Append cluster to final data
     tar_target(
-        p_clusters_8,
-        joint_plot(
-            family_sequence,
-            family_diss,
-            groups = cutree(family_clusters, k = 8),
-            weights = final_data_agg$aggWeights
+        children_clusters,
+        final_data[, 
+            cluster := factor(
+                cluster_quality$clustering$cluster5[final_data_agg$disaggIndex],
+                levels = 1:5,
+                labels = c(
+                    "Intact original family",
+                    "Mid-childhood stepfamily",
+                    "Early separation",
+                    "Early stepfamily",
+                    "Single mother"
+                )
         )
+        ]
     ),
 
     ##
@@ -234,10 +243,15 @@ list(
     tar_target(
         tab_proportion_family_type,
         tab_cluster_proportions(
-            final_data,
-            family_clusters,
-            cluster_quality,
-            final_data_agg
+            children_clusters
+        )
+    ),
+
+    # Proportion of sibling relations per region
+    tar_target(
+        p_sibling_proportion,
+        plot_sibling_proportions(
+            children_clusters
         )
     )
 

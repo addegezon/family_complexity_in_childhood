@@ -4,7 +4,7 @@
 # Remove unused variables, convert to proper date format and 
 # generate new partner variables
 format_data <- function(dt) {
-
+    
     # Define variables to keep
     keep_vars <- c(
         "RESPID",
@@ -61,40 +61,49 @@ format_data <- function(dt) {
 
     # Drop countries
     drop_countries <- grep(
-        "^Austria|^Canada|^Germany|^Moldova|^Russia|^UK|^USA|^Uruguay|^Kazakhstan",
+        "^Canada|^Germany|^Moldova|^Russia|^UK|^USA|^Uruguay|^Kazakhstan",
         levels(dt[,COUNTRY]),
         value = TRUE
     )
+
     dt <- dt[!COUNTRY %in% drop_countries]
+    
+    # Separate COUNTRY from survey
+    survey_components <- "(^[A-z]+)(\\sRepublic)?(\\s)(.+)"
+    dt[,
+        ':=' (
+                survey = gsub(survey_components, "\\4" , COUNTRY),
+                COUNTRY = gsub(survey_components, "\\1\\2", COUNTRY)
+            )
+    ]
 
     # Define regions
     dt[
-        COUNTRY == "Czech Republic GGS wave 1" |
-        COUNTRY == "France GGS wave1" |
-        COUNTRY == "Netherlands FFS" |
-        COUNTRY == "Netherlands OG 2013" |
-        COUNTRY == "Belgium GGS wave1",
+        COUNTRY == "Czech Republic" |
+        COUNTRY == "France" |
+        COUNTRY == "Netherlands" |
+        COUNTRY == "Belgium" |
+        COUNTRY == "Austria",
         region := "Central Europe"
     ]
     dt[
-        COUNTRY == "Bulgaria GGS wave1" |
-        COUNTRY == "Belarus GGS wave 1" |
-        COUNTRY == "Georgia GGS wave1" |
-        COUNTRY == "Hungary GGS wave1" |
-        COUNTRY == "Poland GGS wave1",
+        COUNTRY == "Bulgaria" |
+        COUNTRY == "Belarus" |
+        COUNTRY == "Georgia" |
+        COUNTRY == "Hungary" |
+        COUNTRY == "Romania" |
+        COUNTRY == "Poland",
         region := "Eastern Europe"
     ]
     dt[
-        COUNTRY == "Estonia GGS wave1" |
-        COUNTRY == "Lithuania GGS wave1" |
-        COUNTRY == "Norway GGS wave1" |
-        COUNTRY == "Sweden GGS wave 1",
+        COUNTRY == "Estonia" |
+        COUNTRY == "Lithuania" |
+        COUNTRY == "Norway" |
+        COUNTRY == "Sweden",
         region := "Scandinavia and Baltics" 
     ]
     dt[
-        COUNTRY == "Spain SFS 2006" |
-        COUNTRY == "Spain SFS 2018" |
-        COUNTRY == "Romania GGS wave1",
+        COUNTRY == "Spain",
         region := "Southern Europe"
     ]
 
@@ -105,14 +114,14 @@ format_data <- function(dt) {
     format_date(dt, c("KID_", "KID_D", "KID_L"), 1:16)
     # For time of interview and birth:
     dt[
-        COUNTRY == "Spain SFS 2018",
+        survey == "SFS 2018",
         ISURVEY_YM := as.Date(
             paste(YEAR_S, "01", "1"),
             format = "%Y %m %d"
         )
     ]
     dt[
-        COUNTRY != "Spain SFS 2018", 
+        survey != "SFS 2018", 
         ISURVEY_YM := as.Date(
             paste(YEAR_S, IMONTH_S, "1"),
             format = "%Y %m %d"
@@ -213,19 +222,21 @@ format_data <- function(dt) {
 }
 
 # Function for combining year and month columns into single date column
-format_date <- function(dt, columns, range){
-        for(var in columns){
+format_date <- function (dt, columns, range) {
+
+    for(var in columns){
         for (i in range) {
             year_col <- paste0(var, "Y", i)
             month_col <- paste0("I", var, "M", i)
             dt[,
-                paste0("I", var, "YM", i) := ymd(
-                                            paste(
-                                                get(year_col), 
-                                                get(month_col), 
-                                                "1"
-                                            )
-                                        )
+                paste0("I", var, "YM", i) :=
+                    ymd(
+                        paste(
+                            get(year_col),
+                            get(month_col),
+                            "1"
+                        )
+                    )
             ]
         }
     }

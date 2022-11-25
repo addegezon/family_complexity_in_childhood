@@ -22,7 +22,7 @@ format_table <- function(dt){
             svy_max = max(ISURVEY_YM),
             n_kids = .N
         ),
-        by = "COUNTRY"
+        by = .(COUNTRY, survey)
     ]
 
 
@@ -36,19 +36,10 @@ format_table <- function(dt){
             "mother_max",
             "child_min",
             "child_max",
-            "n_kids"
+            "n_kids",
+            "survey"
         )
     ])
-
-
-    # Split country and survey
-    survey_components <- "(^[A-z]+)(\\sRepublic)?(\\s)(.+)"
-    collapsed[,
-        ':=' (
-                survey = gsub(survey_components, "\\4" , COUNTRY),
-                COUNTRY = gsub(survey_components, "\\1\\2", COUNTRY)
-            )
-    ]
 
     # Add Total row
     total_row <- data.table(
@@ -84,35 +75,21 @@ format_table <- function(dt){
         table[order(region)][, !"region"],
         booktabs = TRUE,
         format = "latex"
-    ) |> pack_rows(index = table(forcats::fct_inorder(table$region))) |>
-        row_spec(16, hline_after = T)
+    ) |> 
+        pack_rows(
+            index = table(
+                forcats::fct_inorder(table$region)
+            )
+        ) |>
+        row_spec(18, hline_after = T)
 
     return(tab)
 }
 
-tab_cluster_proportions <- function(
-    dt,
-    clusters,
-    cluster_quality,
-    aggregation
-) {
+tab_cluster_proportions <- function(dt) {
     library(kableExtra)
-    browser()
+
     dt <- copy(dt)
-    # Attach clusters to data.table and label them
-    dt[, 
-        cluster := factor(
-            cluster_quality$clustering$cluster5[aggregation$disaggIndex],
-            levels = 1:5,
-            labels = c(
-                "Intact original family",
-                "Mid-childhood stepfamily",
-                "Single mother",
-                "Late childhood separation",
-                "Early childhood separation"
-            )
-        )
-    ]
 
     # Generate no. of observations per country
     dt[, country_n := .N, by = "COUNTRY"]
@@ -195,22 +172,19 @@ plot_medoid <- function(sequence, medoids){
     plot_dt = list(
         month = seq(0, 179, by = 3),
         value = rep(1,60),
-        state = as.matrix(
-            sequence[
-                medoids,
-                # .SD, 
-                # .SDcols = grep(
-                #     "FAMILY_STATE",
-                #     colnames(dt),
-                #     value = TRUE
-                # )
-            ]
-        )[1,]
+        state = as.matrix(sequence[medoids,])[1,]
     )
     setDT(plot_dt)
 
     # Create medoid plot
-    medoid_plot <- ggplot(plot_dt, aes(month, value, fill = state)) + 
+    medoid_plot <- ggplot(
+        plot_dt, 
+        aes(
+            month,
+            value,
+            fill = state
+        )
+    ) + 
         geom_raster() +
         scale_x_continuous(
             expand = c(0, 0),
@@ -307,7 +281,7 @@ joint_plot <- function(
     medoids <- disscenter(
         diss,
         group = groups,
-        medoids.index="first",
+        medoids.index = "first",
         weights = weights
     )
 
@@ -360,6 +334,85 @@ joint_plot <- function(
     return(grid_legend)
 }
 
+# Plot sibling proportions
+plot_sibling_proportions <- function (dt) {
+
+    dt <- copy(dt)
+
+    # Create sibling indicator
+    dt[
+        HALFSIBLING_STATE177 > 0,
+        has_halfsibling := 1
+    ][
+        HALFSIBLING_STATE177 == 0,
+        has_halfsibling := 0
+    ]
+
+    dt[
+        FULLSIBLING_STATE177 > 0,
+        has_fullsibling := 1
+    ][
+        FULLSIBLING_STATE177 == 0,
+        has_fullsibling := 0
+    ]
+
+    dt[,
+        has_full_and_half := has_fullsibling * has_halfsibling
+    ]
+
+    # Reshape to long, using type of sibling
+    dt <- melt(
+        dt,
+        measure.vars = c(
+            "has_halfsibling",
+            "has_fullsibling",
+            "has_full_and_half"
+        ),
+        variable.name = "sibling_type",
+        value.name = "has_sibling"
+    )
+
+    # Caclulate CI and mean
+    dt[,
+        upper_ci_sib := confint(lm(has_sibling ~ 1), level=0.95)[2],
+        by = .(region, cluster, sibling_type)
+    ]
+
+    dt[,
+        lower_ci_sib := confint(lm(has_sibling ~ 1), level=0.95)[1],
+        by = .(region, cluster, sibling_type)
+    ]
+
+    dt[,
+        mean_sib := mean(has_sibling),
+        by = .(region, cluster, sibling_type)
+    ]
+
+    # Plot it!
+    plot <- ggplot(
+        dt[sibling_type != "has_full_and_half"],
+        aes(
+            x = region,
+            y = mean_sib,
+            group = sibling_type,
+            color = sibling_type
+        )
+    ) + 
+    geom_pointrange(
+        aes(
+            ymin = lower_ci_sib,
+            ymax = upper_ci_sib
+        )
+    ) +
+    facet_grid(vars(cluster)) +
+    plot_theme() +
+    scale_colour_manual(
+      values = c("has_fullsibling" = "#5D00BBFF", "has_halfsibling" = "#00A862FF")  
+    )
+
+    return(plot)
+
+}
 
 # Plot drops during data cleaning
 plot_drops <- function(dt_par, dt_kid){
