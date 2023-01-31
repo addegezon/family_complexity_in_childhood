@@ -67,7 +67,7 @@ format_data <- function(dt) {
     )
 
     dt <- dt[!COUNTRY %in% drop_countries]
-    
+    browser()
     # Separate COUNTRY from survey
     survey_components <- "(^[A-z]+)(\\sRepublic)?(\\s)(.+)"
     dt[,
@@ -76,7 +76,7 @@ format_data <- function(dt) {
                 COUNTRY = gsub(survey_components, "\\1\\2", COUNTRY)
             )
     ]
-
+    
     # Define regions
     dt[
         COUNTRY == "Czech Republic" |
@@ -403,10 +403,10 @@ tag_parents <- function(dt) {
             ]
 
     # Mark missing birth information
-    dt <- dt[
-            is.na(IBORN_YM),
-            ':='(drop = TRUE, drop_reason = "Missing time of birth")
-        ]
+    # dt <- dt[
+    #         is.na(IBORN_YM),
+    #         ':='(drop = TRUE, drop_reason = "Missing time of birth")
+    #     ]
 
     # Mark missing partnership dates
     for (i in 1:10){

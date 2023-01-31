@@ -207,7 +207,7 @@ list(
         joint_plot(
             family_sequence,
             family_diss,
-            groups = cutree(family_clusters, k = 5),
+            groups = cutree(family_clusters, k = 6),
             weights = final_data_agg$aggWeights
         )
     ),
