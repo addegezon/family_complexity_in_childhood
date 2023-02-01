@@ -13,12 +13,17 @@ format:
         \usepackage{xcolor} 
         \usepackage{siunitx}
         \usepackage{lscape}
+        \usepackage{pdflscape}
+        \newcommand{\blandscape}{\begin{landscape}}
+        \newcommand{\elandscape}{\end{landscape}}
         \usepackage{geometry}
         \usepackage{fontspec}
         \usepackage{ragged2e}
         \usepackage[british]{babel}
         \usepackage{setspace}
         \usepackage{titling}
+        \usepackage{etoolbox}
+        \AtBeginEnvironment{table}{\sffamily}
         \pretitle{\begin{flushleft}\Large}
         \posttitle{\end{flushleft}}
         \preauthor{\begin{flushleft}}
@@ -40,6 +45,7 @@ link-citations: true
 urlcolor: blue
 reference-location: block
 mainfont: "Happy Times at the IKOB New Game Plus Edition"
+sansfont: "Karrik"
 bibliography: "https://raw.githubusercontent.com/addegezon/bibliography/main/bibliography.bib"
 ---
 
@@ -50,6 +56,7 @@ bibliography: "https://raw.githubusercontent.com/addegezon/bibliography/main/bib
 
 # include library and targets source
 library(targets)
+library(tarchetypes)
 library(fst)
 library(ggplot2)
 library(forcats)
@@ -58,42 +65,24 @@ library(kableExtra)
 tar_config_set(store = "../_targets/")
 knitr::opts_chunk$set(
   out.width="100%",
-  dev="pdf"
+  dev="png"
 )
+
+knitr::knit_hooks$set(inline = function(x) {
+  prettyNum(x, big.mark=",")
+})
+
 ```
 
 # Introduction
 
-The European family dynamics of the late 20th and early 21st century has undergone large changes as compared to previous decades. In particular through increasing family complexity. Divorce, remarriage and multipartner fertility have all increased since the "golden age" of marriage in the 1950's [@sobotka_changing_2008; @thomson_family_2014]. The result is a multitude of family forms and, in extension, uncertainties regarding the organization of family life. These processes has variously been labeled as the deinstitutionalization of marriage [@cherlin_deinstitutionalization_2004] or as the de-standardization of the life course [@bruckner_-standardization_2005]. One of the most successful explanatory frameworks describing these changes is the Second Demographic Transition Theory [@lesthaeghe_second_2014].
+The European family dynamics of the late 20th and early 21st century has undergone large changes as compared to previous decades. In particular through increasing family complexity. From the amassed family demography literature, the majority of attention has been placed on investigating the family complexity generating processes of divorce, repartnering and multipartner fertility from the adult perspective. Since it has been proposed that family transitions have a negative effect on the well-being of children [@fomby_family_2007] and because there is evidence of this effect [@hadfield_changes_2018], it is important to understand to what extent children experience these and what the trends are. As have been shown, children's exposure to divorce events do not always mirror those of adults [@kalmijn_new_2021]. Demographic studies that have been conducted on children's experience of family disruption and parental repartnering [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014] have primarily looked at the degree to which children experience particular events. Albeit important, this does not fully capture the accumulated experience of family complexity over childhood. 
 
-From the amassed family demography literature, the majority of attention has been placed on investigating the family complexity generating processes of divorce, repartnering and multipartner fertility from the adult perspective. Since it has been proposed that family transitions have a negative effect on the well-being of children [@fomby_family_2007] and because there is some evidence of this effect [@hadfield_changes_2018], it is important to understand to what extent children experience these and what the trends are. As have been shown, children's exposure to divorce events do not always mirror those of adults [@kalmijn_new_2021]. Demographic studies that have been conducted on children's experience of family disruption and parental repartnering [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014] have primarily looked at the degree to which children experience particular events. Albeit important, this does not fully capture the accumulated experience of family complexity over childhood. 
-
-The objective of this thesis is to describe children's family trajectories and to classify these trajectories according to the most common types of childhood family experiences. This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis,  I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country level. In the final step I will describe how the most common trajectories are associated with the probability of having full- and half-siblings across different European regions. Before describing the methods in greater detail, I will outline the main theoretical frameworks of this thesis as well as previous research on children's experiences of family complexity. In the end I will present the results of my analysis and put them into context in the discussion and conclusion sections.
+The objective of this thesis is to describe children's family trajectories and to classify these trajectories according to the most common types of childhood family experiences. This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis, through which I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country by country basis. In the final step I will describe how the most common trajectories are associated with the probability of having full- and half-siblings. Before describing the methods in greater detail, I will outline the main theoretical frameworks of this thesis as well as previous research on children's experiences of family complexity. In the end I will present the results of my analysis and put them into context in the discussion and conclusion sections.
 
 
 # Theory and previous research 
 
-## Explaining cross European differences
-
-One of the most adopted theories in explaining the macro level changes in family patterns during the late 20^th^ century is the Second Demographic Transition (SDT) theory. The SDT theory starts by identifying a set of phenomena, such as rising levels of cohabitation, living apart together arrangements, higher divorce rates, fertility postponement and an increase in out-of-wedlock childbirths [@lesthaeghe_second_2014]. In the early SDT theory, the changing family dynamics were seen as a result of ideational changes in Western Europe. In particular, the rise of postmodern attitudes and norms [@van_de_kaa_postmodern_2001], tightly linked to Inglehart's concept of a post-materialist society [@inglehart_silent_1971]. In particular, ideas such as individualism and self-realization are seen to have lead to both more individualized decisions on family formation, uncoupled from previous family norms, as well as a greater acceptance for issues such as homosexuality, abortion and non-marital childbearing. 
-
-Ideational changes do not however, exist in a vacuum. In a recognition that also other social forces shape family decisions, Lestaeghe and Vanderhoeft proposed the conceptual model of _Ready, Willing, and Able_ [@lesthaeghe_ready_2001], adopted directly from @coale_demographic_1973. _Readiness_ refers to that new forms of behavior must come with some utility to the actor and _willingness_ to the acceptability of new patterns of action in relation to normative schemes, which is the aspect usually associated with the SDT. _Ability_ on the other hand, refers to if condition are in place to realize these new forms of behavior. In the case of family life, ability is related to, for instance, access to contraception and legal regulations of family relationships. This conceptual model bridges the relation between ideational changes, established normative systems as well as technological and legal systems. As both norms and institutional factors differ between countries, we would expect that even if changes in individual attitudes uniformly move towards more post-materialist ideals, the degree to which these attitudes can be realized will differ between countries and the processes have, as we shall see, been very different. 
-
-Scandinavia has been a forerunner with regards to changing family forms. In Sweden, childbearing began to precede marriage already in the in the mid 1970's, when childbearing within cohabiting unions started to get mainstream acceptance [@thomson_partnership_2005]. At the same time, there was a drastic decrease in the level of total first marriage rates, dropping from about 0.9 in 1965 to 0.6 in 1975 [@sobotka_changing_2008]. In 2008, 60% of all children where born in non-marital cohabiting relationships [@olah_sweden_2008]. Drivers have been hypothesized to include both individualism and residential autonomy as well as institutional support also for childbearing outside of marriage [@olah_sweden_2008].
-
-In Western Europe the patterns have been similar. The decrease in total first marriage rate started later than in Scandinavia, but fell to an even lower level in 2005 [@sobotka_changing_2008]. In the Netherlands in 2000, 55% of the Dutch population would opt for cohabitation before marriage as their ideal relationship trajectory [@fokkema_netherlands_2008], indicating an ideational shift towards cohabitation as preferable over direct marriage. Similarly, marriage has been decreasing in France and in 2005, the number of births in non-marital cohabitation where almost the same as the number of births in marital unions [@toulemon_france_2008]. Similar patterns are also found in Austria where 2% of women born 1941-45 had their first child in a cohabiting union, compared with 18% for women born 1966-67 [@prskawetz_austria_2008]. Further, over 25% of Austrian women born 1971-81 consider marriage to be an outdated institution [@prskawetz_austria_2008].
-
-In Southern Europe, the drop in marriage rates started in the late 1970s and has not been as pronounced as in Northern and Western Europe [@sobotka_changing_2008]. Further, non-marital cohabitation is not nearly as common as in Northern and Western Europe [@de_rose_italy_2008;@delgado_spain_2008]. Does this mean that the cultural shift in values and norms did not occur in these countries? According to previous findings this does not seem to be the case for either Italy [@de_rose_italy_2008] or Spain [@delgado_spain_2008]. Rather, it seems that the economic situation of youth, coupled with a lack of active family policies is inhibiting changes in family dynamics. Thus, the young opt for staying in the parental home for longer as the option of cohabitation with a partner is not economically feasible, which in turn has led to a postponement in union formation [@baizan_political_2002]. The Southern European case seems to be a good example of where individuals display a high level of _willingness_, but lack both the resources (_readiness_) and proper support (_ability_) to change their family behaviors; which in turn gives rise to a different demographic pattern than in Northern and Western Europe.
-
-Another region where there are clear mismatches between readiness, willingness and ability is in Eastern Europe. We first see evidence of the SDT in this region after the fall of the Iron Curtain in the early 1990s, when marriage rates started to drop steeply [@sobotka_changing_2008]. There is however a different timing when examining divorce, as already in the 1950's and 1960's parts of the Soviet block registered the highest divorce rates in Europe [@sobotka_changing_2008], indicating that divorce was an acceptable phenomena already in the early phase of the SDT in parts of Eastern Europe. It has also been found that tolerance towards pre-marital sex and divorce as well as values such as self-fulfillment outside of the family became salient in countries such as Poland [@kotowska_poland_2008] and Lithuania [@stankuniene_lithuania_2008] in the early 2000s. 
-
-Tracing the developments in Eastern Europe through the Readiness-Willingness-Ability approach, @sobotka_overview_2008-1 finds mixed indications in all three dimensions. The development of a social security net and the widespread employment of women increased readiness already before the fall of the Iron Curtain, but at the same time these jobs were often low-payed and females were still expected to take care of the household. As for willingness, the anti-religiousness of the Communist ideology helped break down traditional family norms and induced an atomization of society through the breakdown of religious and civic organizations [@speder_hungary_2008]. However, these new values were often adopted selectively [@sobotka_overview_2008-1]. Legal systems often enabled some of the family changes of the SDT, but contraceptive technology was often lacking showing that the ability to adopt new family behaviors was only possible to certain degrees.
-
-Summing up the different regional patterns described above, two main pathways of the SDT have been identified and described [@sobotka_overview_2008-1]. The first path was driven by the classic SDT narrative of individualization and self-fulfillment, and primarily occurred among the affluent and highly educated. The second path arose as a response to changed structural conditions and economic crises, and primarily occurred among the less advantaged groups. Here there is also a regional divide, where the first pathway was primarily taken by countries in Northern, Western and to some degree Southern Europe, whilst countries in Eastern and South-Eastern Europe mainly took the second.
-
-Informed by this sections, I will group the countries in my data into Nordic, Central, Eastern and Southern Europe for parts of the analysis. These are regions which have seen similar trends as captured by the SDT. Using this grouping will give more numerical power to the analysis as well a better pedagogical summary of the diverse results produced. However, we need to keep in mind that this will hide some of the diversity between countries. 
-
-Up until now, I have mainly focused on the relationship between the SDT and the life course of adults, but it is not hard to envision that as adults family lives change, so do the family lives of children. Thus, we turn to the discourse on family complexity to understand how children have been affected by the processes previously outlined.
 
 ## Family complexity: predictors and consequences
 
@@ -141,6 +130,24 @@ Finally, a central idea in the life course framework is that of *linked lives*. 
 
 It is with this interdependence in mind, that I approach my object of study. Children's early family experiences are highly dependent on their parents' partnership trajectories, both in terms of vertical and horizontal family relations. At the same time, children's early family trajectories may themselves be associated with future outcomes. Thus, it is of interest to know how children's family trajectories are constituted. How to conceptualize and operationalize these trajectories is what I turn to in the next section. 
 
+## Explaining cross European differences
+
+One of the most adopted theories in explaining the macro level changes in family patterns during the late 20^th^ century is the Second Demographic Transition (SDT) theory. The SDT theory starts by identifying a set of phenomena, such as rising levels of cohabitation, living apart together arrangements, higher divorce rates, fertility postponement and an increase in out-of-wedlock childbirths [@lesthaeghe_second_2014]. In the early SDT theory, the changing family dynamics were seen as a result of ideational changes in Western Europe. In particular, the rise of postmodern attitudes and norms [@van_de_kaa_postmodern_2001], tightly linked to Inglehart's concept of a post-materialist society [@inglehart_silent_1971]. In particular, ideas such as individualism and self-realization are seen to have lead to both more individualized decisions on family formation, uncoupled from previous family norms, as well as a greater acceptance for issues such as homosexuality, abortion and non-marital childbearing. 
+
+Ideational changes do not however, exist in a vacuum. In a recognition that also other social forces shape family decisions, Lestaeghe and Vanderhoeft proposed the conceptual model of _Ready, Willing, and Able_ [@lesthaeghe_ready_2001], adopted directly from @coale_demographic_1973. _Readiness_ refers to that new forms of behavior must come with some utility to the actor and _willingness_ to the acceptability of new patterns of action in relation to normative schemes, which is the aspect usually associated with the SDT. _Ability_ on the other hand, refers to if condition are in place to realize these new forms of behavior. In the case of family life, ability is related to, for instance, access to contraception and legal regulations of family relationships. This conceptual model bridges the relation between ideational changes, established normative systems as well as technological and legal systems. As both norms and institutional factors differ between countries, we would expect that even if changes in individual attitudes uniformly move towards more post-materialist ideals, the degree to which these attitudes can be realized will differ between countries and the processes have, as we shall see, been very different. 
+
+Scandinavia has been a forerunner with regards to changing family forms. In Sweden, childbearing began to precede marriage already in the in the mid 1970's, when childbearing within cohabiting unions started to get mainstream acceptance [@thomson_partnership_2005]. At the same time, there was a drastic decrease in the level of total first marriage rates, dropping from about 0.9 in 1965 to 0.6 in 1975 [@sobotka_changing_2008]. In 2008, 60% of all children where born in non-marital cohabiting relationships [@olah_sweden_2008]. Drivers have been hypothesized to include both individualism and residential autonomy as well as institutional support also for childbearing outside of marriage [@olah_sweden_2008].
+
+In Western Europe the patterns have been similar. The decrease in total first marriage rate started later than in Scandinavia, but fell to an even lower level in 2005 [@sobotka_changing_2008]. In the Netherlands in 2000, 55% of the Dutch population would opt for cohabitation before marriage as their ideal relationship trajectory [@fokkema_netherlands_2008], indicating an ideational shift towards cohabitation as preferable over direct marriage. Similarly, marriage has been decreasing in France and in 2005, the number of births in non-marital cohabitation where almost the same as the number of births in marital unions [@toulemon_france_2008]. Similar patterns are also found in Austria where 2% of women born 1941-45 had their first child in a cohabiting union, compared with 18% for women born 1966-67 [@prskawetz_austria_2008]. Further, over 25% of Austrian women born 1971-81 consider marriage to be an outdated institution [@prskawetz_austria_2008].
+
+In Southern Europe, the drop in marriage rates started in the late 1970s and has not been as pronounced as in Northern and Western Europe [@sobotka_changing_2008]. Further, non-marital cohabitation is not nearly as common as in Northern and Western Europe [@de_rose_italy_2008;@delgado_spain_2008]. Does this mean that the cultural shift in values and norms did not occur in these countries? According to previous findings this does not seem to be the case for either Italy [@de_rose_italy_2008] or Spain [@delgado_spain_2008]. Rather, it seems that the economic situation of youth, coupled with a lack of active family policies is inhibiting changes in family dynamics. Thus, the young opt for staying in the parental home for longer as the option of cohabitation with a partner is not economically feasible, which in turn has led to a postponement in union formation [@baizan_political_2002]. The Southern European case seems to be a good example of where individuals display a high level of _willingness_, but lack both the resources (_readiness_) and proper support (_ability_) to change their family behaviors; which in turn gives rise to a different demographic pattern than in Northern and Western Europe.
+
+Another region where there are clear mismatches between readiness, willingness and ability is in Eastern Europe. We first see evidence of the SDT in this region after the fall of the Iron Curtain in the early 1990s, when marriage rates started to drop steeply [@sobotka_changing_2008]. There is however a different timing when examining divorce, as already in the 1950's and 1960's parts of the Soviet block registered the highest divorce rates in Europe [@sobotka_changing_2008], indicating that divorce was an acceptable phenomena already in the early phase of the SDT in parts of Eastern Europe. It has also been found that tolerance towards pre-marital sex and divorce as well as values such as self-fulfillment outside of the family became salient in countries such as Poland [@kotowska_poland_2008] and Lithuania [@stankuniene_lithuania_2008] in the early 2000s. 
+
+Tracing the developments in Eastern Europe through the Readiness-Willingness-Ability approach, @sobotka_overview_2008-1 finds mixed indications in all three dimensions. The development of a social security net and the widespread employment of women increased readiness already before the fall of the Iron Curtain, but at the same time these jobs were often low-payed and females were still expected to take care of the household. As for willingness, the anti-religiousness of the Communist ideology helped break down traditional family norms and induced an atomization of society through the breakdown of religious and civic organizations [@speder_hungary_2008]. However, these new values were often adopted selectively [@sobotka_overview_2008-1]. Legal systems often enabled some of the family changes of the SDT, but contraceptive technology was often lacking showing that the ability to adopt new family behaviors was only possible to certain degrees.
+
+Summing up the different regional patterns described above, two main pathways of the SDT have been identified and described [@sobotka_overview_2008-1]. The first path was driven by the classic SDT narrative of individualization and self-fulfillment, and primarily occurred among the affluent and highly educated. The second path arose as a response to changed structural conditions and economic crises, and primarily occurred among the less advantaged groups. Here there is also a regional divide, where the first pathway was primarily taken by countries in Northern, Western and to some degree Southern Europe, whilst countries in Eastern and South-Eastern Europe mainly took the second.
+
 
 ## Operationalizing family complexity over the life course
 
@@ -173,9 +180,9 @@ The data used in this study comes from the birth and union histories in the Harm
 
 I start of by excluding several countries from the data set. Germany is excluded due to its poor family history data and the UK is excluded due to oversampling respondents with low socioeconomic status. Uruguay, Kazakhstan, Canada and the U.S are removed as they are not European countries.
 
-I then have __xx__ total observations from 16 different countries. I remove all men from the sample. Next, I remove childless women and respondents with missing birth information. I remove those where there is missing information on time of union or dissolution, overlapping relationships and those where a union dissolution is reported to have occurred before the union start.
+I then have `r tar_read(parents_tagged)[,.N]` total observations from `r length(tar_read(parents_tagged)[,unique(COUNTRY)])` different countries. I remove all men from the sample. Next, I remove childless women and respondents with missing birth information. I remove those where there is missing information on time of union or dissolution, overlapping relationships and those where a union dissolution is reported to have occurred before the union start. 
 
-In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have __xx__ children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 15, I remove those in the sample who have not turned 16 at the time of interview as well as those who left home or died before their 16^th^ birthday. In order to capture the experiences of children after the advent of the SDT, I remove all children born before 1980. In total 48,163 children remained in the sample. For a visual overview of the data funnel at each step, see Figure __x__ in the Appendix. 
+In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have `r tar_read(children_tagged)[,.N]` children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 15, I remove those in the sample who have not turned 16 at the time of interview as well as those who left home or died before their 16^th^ birthday. In order to capture the experiences of children after the advent of the SDT, I remove all children born before 1980. In total `r tar_read(final_data)[,.N]` children, to `r tar_read(final_data)[unique(RESPID),.N]` mothers, remained in the sample. For a visual overview of the data funnel at each step, see Figure __x__ in the Appendix. 
 
 ## Sequence generation and sibling composition
 
@@ -239,7 +246,6 @@ In order for the research to be both transparent and reproducible, all code for 
 
 ## Descriptives
  @tbl-1 shows basic descriptives of the study population.
-
 ```{r table1}
 #| echo: false
 #| results: "asis"
@@ -256,7 +262,7 @@ tar_read(table_1)
 #| label: fig-cwi
 #| fig-cap: "Standardized Average Silhouette Width and Hubert's C for actual and bootstrapped data"
 
-#tar_read(p_cluster_cqi)
+tar_read(p_cluster_cqi)
 ```
 
 
@@ -266,8 +272,9 @@ tar_read(table_1)
 #| label: tbl-proportion-family-type
 #| tbl-cap: "The proportion of children classified according to each family type by European region."
 
-#tar_read(tab_proportion_family_type) |> 
-#  kable_styling(font_size = 8)
+tar_read(tab_proportion_family_type) |> 
+  kableExtra::kable_styling(font_size = 7) |>
+  kableExtra::column_spec(2:7, width = "2cm")
 ```
 
 
@@ -279,10 +286,31 @@ tar_read(table_1)
 #| fig-cap: "Plot of the five cluster solution"
 #| fig-height: 8
 
-#tar_read(p_clusters_5)
+tar_read(p_clusters_6) +
+  theme(
+    plot.title = element_text(size = 2),
+  )
 ```
 
 ## Sibling composition
+
+\blandscape
+```{r}
+#| echo: false
+#| label: fig-sib-proportion
+#| fig-cap: "Plot of sibling types by country and cluser"
+#| fig-width: 20
+#| fig-asp: 0.6
+#| out-width: "\\paperwidth"
+#| out-height: "\\paperheight"
+
+tar_read(p_sibling_proportion) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust=1),
+    text = element_text(size = 20)
+  ) 
+```
+\elandscape
 
 # Discussion
 

@@ -201,14 +201,27 @@ list(
         )
     ),
 
+    tar_target(
+        group_labels,
+        c(
+            "Intact original family",
+            "Mid-childhood stepfamily",
+            "Early separation",
+            "Single mother",
+            "Early stepfamily",
+            "Single mother to stepfamily"
+        )
+    ),
+
     # Generate sequence plots
     tar_target(
-        p_clusters_5,
+        p_clusters_6,
         joint_plot(
             family_sequence,
             family_diss,
             groups = cutree(family_clusters, k = 6),
-            weights = final_data_agg$aggWeights
+            weights = final_data_agg$aggWeights,
+            group_labels = group_labels
         )
     ),
 
@@ -217,15 +230,9 @@ list(
         children_clusters,
         final_data[, 
             cluster := factor(
-                cluster_quality$clustering$cluster5[final_data_agg$disaggIndex],
-                levels = 1:5,
-                labels = c(
-                    "Intact original family",
-                    "Mid-childhood stepfamily",
-                    "Early separation",
-                    "Early stepfamily",
-                    "Single mother"
-                )
+                cluster_quality$clustering$cluster6[final_data_agg$disaggIndex],
+                levels = 1:6,
+                labels = group_labels
         )
         ]
     ),
