@@ -29,7 +29,6 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
     collapsed <-  unique(dt[, 
         c(
             "COUNTRY",
-            "region",
             "svy_min",
             "svy_max",
             "mother_min",
@@ -43,8 +42,7 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
 
     # Add Total row
     total_row <- data.table(
-        "COUNTRY" = "",
-        "region" = "Total",
+        "COUNTRY" = "Total",
         "svy_min" = collapsed[, min(svy_min)],
         "svy_max" = collapsed[, max(svy_min)],
         "mother_min" = collapsed[, min(mother_min)],
@@ -65,23 +63,16 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
         "Survey years" = paste0(svy_min, " - ", svy_max),
         # "{Mother cohorts}" = paste0(mother_min, " - ", mother_max),
         "Child cohorts" = paste0(child_min, " - ", child_max),
-        "N. children" = format(n_kids),
-        region = region
-        ) 
+        "N. children" = prettyNum(n_kids, big.mark = ",")
+        )
     ]
 
     # Create table
     tab <- knitr::kable(
-        table[order(region)][, !"region"],
+        table,
         booktabs = booktabs,
         format = format
-    ) |> 
-        pack_rows(
-            index = table(
-                forcats::fct_inorder(table$region)
-            )
-        ) |>
-        row_spec(18, hline_after = T)
+    ) |> row_spec(19, hline_after = T)
 
     return(tab)
 }
@@ -97,62 +88,76 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
     dt <- unique(
         dt[, 
             .(proportion = round(.N / country_n, 2)), 
-            by = .(COUNTRY, cluster, region)
+            by = .(COUNTRY, cluster)
         ]
     )
 
     # To wide format
     dt <- dcast(
         dt,
-        COUNTRY + region ~ cluster,
+        COUNTRY ~ cluster,
         value.var = "proportion"
     )
 
-    setorder(dt, region, COUNTRY)
-
+    setorder(dt, COUNTRY)
+    setnames(dt, "COUNTRY", "Country" )
     tab <- knitr::kable(
-        dt[, !"region"],
+        dt,
         format = format,
         booktabs = booktabs
-    ) |> pack_rows(
-            index = table(
-                forcats::fct_inorder(dt$region)
-                )
-        )
-
+    ) 
     return(tab)
 }
 
 ##
 # Plots
 
-# Colors for sequence plots
-plot_colors <- function(){
+# Color scheme definition
+color_scheme <- function(index = 1:8) {
 
     library(prismatic)
 
     col_scheme <- c(
-        "#1E00BE",
-        "#8D90F5",
-        "#3CA651",
-        "#70DC69",
-        "#91289B",
-        "#F0C3E6",
-        "#FFBE2D",
-        "#FFDC82"
-    ) |> 
-    clr_rotate(10) |>
-    clr_alpha(alpha = 1)
+            "#1E00BE",
+            "#8D90F5",
+            "#3CA651",
+            "#70DC69",
+            "#91289B",
+            "#F0C3E6",
+            "#FFBE2D",
+            "#FFDC82"
+        ) |> 
+        clr_rotate(10) |>
+        clr_alpha(alpha = 1)
+    
+    return(col_scheme[index])
 
-    named_scheme <- c("OP" = col_scheme[1], "Single" = col_scheme[3], "Step" = col_scheme[6])
-
-    return(scale_fill_manual(values = named_scheme))
 }
+
+# Colors for sequence plots
+plot_colors <- function(scale_type = "fill"){
+
+    named_scheme <- c(
+        "OP" = color_scheme(1),
+        "Single" = color_scheme(3),
+        "Step" = color_scheme(6)
+    )
+
+
+    if (scale_type == "fill") {
+        return(scale_fill_manual(values = named_scheme, drop = FALSE))
+    }
+    else if (scale_type == "color") {
+        return(scale_color_manual(values = named_scheme, drop = FALSE))
+    }
+}
+    
 
 # Theme for all sequence plots
 plot_theme <- function(){
 
     library(ggplot2)
+
     p_theme = theme(
         text = element_text(family="Helvetica", colour = "#5D00BBFF"),
         axis.text = element_text(family="Helvetica", colour = "#5D00BBFF"),
@@ -196,7 +201,7 @@ plot_medoid <- function(sequence, medoids){
         ) + 
         scale_y_continuous(expand = c(0, 0)) +
         plot_theme() + 
-        plot_colors() +
+        plot_colors("fill") +
         theme(
             axis.title.y = element_blank(),
             axis.text.y = element_blank(),
@@ -211,7 +216,9 @@ plot_medoid <- function(sequence, medoids){
 }
 
 # Create three sequence plots
-triple_plot <- function(sequence, medoids, groups, index, weights){
+triple_plot <- function(sequence, medoids, groups, index, weights, group_labels){
+
+    library(ggtext)
 
     # Create data.table of sequence information
     dt_sequence <- as.data.table(sequence)
@@ -219,29 +226,20 @@ triple_plot <- function(sequence, medoids, groups, index, weights){
     dt_sequence[, group := groups]
 
 
-    #C reate medoid plot
+    #Create medoid plot
     medoid_plot <- plot_medoid(sequence, medoids[index])
 
     # Create chronogram
     chronogram <- ggseqdplot(sequence[groups == index,]) +
-        ggtitle(
-            paste0(
-                index,
-                " (n = ",
-                sum(dt_sequence[group == index, weight]),
-                ")"
-            )
-        ) +
         plot_theme() + 
         plot_colors() +
         theme(
-            title = element_text(size = 8),
             legend.position = "none",
             axis.ticks.x=element_blank(),
             axis.title.x.bottom = element_blank(),
             axis.text.x = element_blank(),
             axis.title.y = element_blank(),
-            plot.margin = margin(c(5,0,0,0))
+            plot.margin = margin(c(0,10,0,10))
         )
 
     # Create modal plot
@@ -252,7 +250,7 @@ triple_plot <- function(sequence, medoids, groups, index, weights){
             limits = c(0,1)
         ) +
         plot_theme() + 
-        plot_colors() +
+        plot_colors("fill") +
         theme(
             legend.position = "none",
             axis.ticks.x=element_blank(),
@@ -260,9 +258,34 @@ triple_plot <- function(sequence, medoids, groups, index, weights){
             axis.text.x = element_blank(),
             plot.margin = margin(c(5,10,0,10))
         )
+        
+    # Create index plot
+    index_plot <- ggseqiplot(
+        sequence[groups == index,],
+        sortv = "from.start"
+    ) +
+        ggtitle(
+                paste0(
+                    group_labels[index],
+                    "\n(n = ",
+                    sum(dt_sequence[group == index, weight]),
+                    ")"
+                )
+            ) +
+        plot_theme() +
+        plot_colors("fill") + 
+        plot_colors("color") +
+        theme(
+            plot.title = element_text(size = 8),
+            legend.position = "none",
+            axis.ticks = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text = element_blank(),
+            plot.margin = margin(c(10,0,0,0))
+        )
 
     return(
-        list(chronogram, modal, medoid_plot)
+        list(index_plot, chronogram, medoid_plot)
     )
 }
 
@@ -271,7 +294,8 @@ joint_plot <- function(
                     sequence,
                     diss,
                     groups,
-                    weights = NULL
+                    weights = NULL,
+                    group_labels
                 ){
     library(egg)
     library(cowplot)
@@ -298,7 +322,8 @@ joint_plot <- function(
                 medoids,
                 groups,
                 index,
-                weights
+                weights,
+                group_labels
             )
         }
     )
@@ -308,7 +333,7 @@ joint_plot <- function(
         function(list){
             ggarrange(
                 plots = list,
-                heights = c(3, 1.5, 1)
+                heights = c(3, 2, 1)
             )
         }) 
 
@@ -376,25 +401,31 @@ plot_sibling_proportions <- function (dt) {
 
     # Caclulate CI and mean
     dt[,
-        upper_ci_sib := confint(lm(has_sibling ~ 1), level=0.95)[2],
-        by = .(region, cluster, sibling_type)
+        upper_ci_sib := pmin(
+            confint(lm(has_sibling ~ 1), level=0.95)[2],
+            1
+        ),
+        by = .(COUNTRY, cluster, sibling_type)
     ]
 
     dt[,
-        lower_ci_sib := confint(lm(has_sibling ~ 1), level=0.95)[1],
-        by = .(region, cluster, sibling_type)
+        lower_ci_sib := pmax(
+            confint(lm(has_sibling ~ 1), level=0.95)[1],
+            0
+        ),
+        by = .(COUNTRY, cluster, sibling_type)
     ]
 
     dt[,
         mean_sib := mean(has_sibling),
-        by = .(region, cluster, sibling_type)
+        by = .(COUNTRY, cluster, sibling_type)
     ]
 
     # Plot it!
     plot <- ggplot(
         dt[sibling_type != "has_full_and_half"],
         aes(
-            x = region,
+            x = COUNTRY,
             y = mean_sib,
             group = sibling_type,
             color = sibling_type
@@ -408,8 +439,12 @@ plot_sibling_proportions <- function (dt) {
     ) +
     facet_grid(vars(cluster)) +
     plot_theme() +
+    scale_y_continuous(limits = c(-0.01,1.01)) +
     scale_colour_manual(
-      values = c("has_fullsibling" = "#5D00BBFF", "has_halfsibling" = "#00A862FF")  
+        values = c(
+            "has_fullsibling" = "#5D00BBFF",
+            "has_halfsibling" = "#00A862FF"
+        )
     )
 
     return(plot)
