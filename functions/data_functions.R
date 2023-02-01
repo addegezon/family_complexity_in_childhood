@@ -77,35 +77,35 @@ format_data <- function(dt) {
             )
     ]
     
-    # Define regions
-    dt[
-        COUNTRY == "Czech Republic" |
-        COUNTRY == "France" |
-        COUNTRY == "Netherlands" |
-        COUNTRY == "Belgium" |
-        COUNTRY == "Austria",
-        region := "Central Europe"
-    ]
-    dt[
-        COUNTRY == "Bulgaria" |
-        COUNTRY == "Belarus" |
-        COUNTRY == "Georgia" |
-        COUNTRY == "Hungary" |
-        COUNTRY == "Romania" |
-        COUNTRY == "Poland",
-        region := "Eastern Europe"
-    ]
-    dt[
-        COUNTRY == "Estonia" |
-        COUNTRY == "Lithuania" |
-        COUNTRY == "Norway" |
-        COUNTRY == "Sweden",
-        region := "Scandinavia and Baltics" 
-    ]
-    dt[
-        COUNTRY == "Spain",
-        region := "Southern Europe"
-    ]
+    # # Define regions
+    # dt[
+    #     COUNTRY == "Czech Republic" |
+    #     COUNTRY == "France" |
+    #     COUNTRY == "Netherlands" |
+    #     COUNTRY == "Belgium" |
+    #     COUNTRY == "Austria",
+    #     region := "Central Europe"
+    # ]
+    # dt[
+    #     COUNTRY == "Bulgaria" |
+    #     COUNTRY == "Belarus" |
+    #     COUNTRY == "Georgia" |
+    #     COUNTRY == "Hungary" |
+    #     COUNTRY == "Romania" |
+    #     COUNTRY == "Poland",
+    #     region := "Eastern Europe"
+    # ]
+    # dt[
+    #     COUNTRY == "Estonia" |
+    #     COUNTRY == "Lithuania" |
+    #     COUNTRY == "Norway" |
+    #     COUNTRY == "Sweden",
+    #     region := "Scandinavia and Baltics" 
+    # ]
+    # dt[
+    #     COUNTRY == "Spain",
+    #     region := "Southern Europe"
+    # ]
 
     # Merge all year and month columns into one date column
     # For partnership history:
