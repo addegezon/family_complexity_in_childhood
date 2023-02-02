@@ -176,7 +176,7 @@ list(
             family_sequence,
             cluster_quality,
             R = 50,
-            model = c("sequencing"),
+            model = c("combined"),
             seqdist.args = list(method = "DHD"),
             hclust.method = "ward.D2"
         )
@@ -205,21 +205,22 @@ list(
         group_labels,
         c(
             "Intact original family",
-            "Mid-childhood stepfamily",
+            "Original family to stepfamily",
             "Early separation",
-            "Single mother",
+            "Multiple single spells",
             "Early stepfamily",
-            "Single mother to stepfamily"
+            "Single mother to stepfamily",
+            "Single mother"
         )
     ),
 
     # Generate sequence plots
     tar_target(
-        p_clusters_6,
+        p_clusters_full,
         joint_plot(
             family_sequence,
             family_diss,
-            groups = cutree(family_clusters, k = 6),
+            groups = cutree(family_clusters, k = 7),
             weights = final_data_agg$aggWeights,
             group_labels = group_labels
         )
@@ -230,8 +231,8 @@ list(
         children_clusters,
         final_data[, 
             cluster := factor(
-                cluster_quality$clustering$cluster6[final_data_agg$disaggIndex],
-                levels = 1:6,
+                cluster_quality$clustering$cluster7[final_data_agg$disaggIndex],
+                levels = 1:7,
                 labels = group_labels
         )
         ]
@@ -250,6 +251,14 @@ list(
     tar_target(
         tab_proportion_family_type,
         tab_cluster_proportions(
+            children_clusters
+        )
+    ),
+
+    # Plot complex cluster proportions
+    tar_target(
+        p_cluster_proportions,
+        plot_cluster_proportions(
             children_clusters
         )
     ),
