@@ -78,34 +78,87 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
 }
 
 tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
-    library(kableExtra)
 
     dt <- copy(dt)
 
-    # Generate no. of observations per country
-    dt[, country_n := .N, by = "COUNTRY"]
+    # # Generate no. of observations per country
+     dt[, country_n := .N, by = "COUNTRY"]
 
+    # Sum dt by number in each cluster and number of observations by country
     dt <- unique(
         dt[, 
-            .(proportion = round(.N / country_n, 2)), 
+            .(
+                number = .N,
+                country_n = country_n
+            ), 
             by = .(COUNTRY, cluster)
         ]
     )
 
+    # Calculate mean and confidence intervals
+    dt <- dt[, 
+        .(
+            CI = prop.test(
+                    number,
+                    country_n,
+                    conf.level = .95
+            )[c('estimate','conf.int')]
+        ),
+        by = .(COUNTRY, cluster)
+    ]
+    
+    # Arrange it for tabbing
+    dt[
+        seq_len(nrow(dt)) %% 2 == 0,
+        c('lower', 'upper') := data.table::transpose(CI)
+    ]
+    dt[
+        seq_len(nrow(dt)) %% 2 == 1,
+        mean := data.table::transpose(CI)
+    ]
+    dt[,
+        mean := as.character(round(mean,2))
+    ]
+    dt[
+        is.na(mean),
+        mean := paste0(
+            "[",
+            round(lower,2),
+            ", ",
+            round(upper,2),
+            "]"
+        )
+    ]
+    
     # To wide format
-    dt <- dcast(
-        dt,
+    dt_mean <- dcast(
+        dt[seq_len(nrow(dt)) %% 2 == 1],
         COUNTRY ~ cluster,
-        value.var = "proportion"
+        value.var = "mean"
     )
 
-    setorder(dt, COUNTRY)
-    setnames(dt, "COUNTRY", "Country" )
+    dt_conf <- dcast(
+        dt[seq_len(nrow(dt)) %% 2 == 0],
+        COUNTRY ~ cluster,
+        value.var = "mean"
+    )
+
+    # Bind together the tables
+    table <- rbindlist(list(dt_mean, dt_conf))
+    setorder(table, COUNTRY, "Intact original family")
+    table[
+        seq_len(nrow(table)) %% 2 == 0,
+        COUNTRY := " "
+    ]
+
+    # Make final table
+    setnames(table, "COUNTRY", "Country")
     tab <- knitr::kable(
-        dt,
+        table,
         format = format,
-        booktabs = booktabs
-    ) 
+        booktabs = booktabs,
+        linesep = if (booktabs) c('', '\\addlinespace') else '\\hline'
+    )
     return(tab)
 }
 
@@ -438,18 +491,110 @@ plot_sibling_proportions <- function (dt) {
         )
     ) +
     facet_grid(vars(cluster)) +
+    xlab("Country") + 
+    ylab("Proportion of children with full- or half-siblings by country and cluster") +
     plot_theme() +
     scale_y_continuous(limits = c(-0.01,1.01)) +
     scale_colour_manual(
         values = c(
-            "has_fullsibling" = "#5D00BBFF",
-            "has_halfsibling" = "#00A862FF"
+            "has_fullsibling" = color_scheme(1),
+            "has_halfsibling" = color_scheme(3)
         )
     )
 
     return(plot)
 
 }
+
+# Plot cluster proportions
+plot_cluster_proportions <- function(dt) {
+    library(Rmisc)
+
+    dt <- dt[,.(COUNTRY,cluster)]
+    factors <- unique(levels(dt$cluster))
+    dt[, (factors) := lapply(factors, function(x) cluster == x)]
+    
+    # Calculate mean and confidence intervals
+    dt[, (paste0(factors, "_mean")) := lapply(.SD, mean), .SDcols = factors, by = "COUNTRY" ]
+    dt[, (paste0(factors, "_ci_upper")) := lapply(.SD, function(x) CI(x)[1]), .SDcols = factors, by = "COUNTRY" ]
+    dt[, (paste0(factors, "_ci_lower")) := lapply(.SD, function(x) CI(x)[3]), .SDcols = factors, by = "COUNTRY" ]
+
+    # Bind together to plotting table
+    plot_dt <- cbind(
+        # Mean
+        unique(
+            melt(
+                dt,
+                id.vars = c("COUNTRY", "cluster"),
+                measure.vars = c(
+                    paste0(factors, "_mean")
+                ),
+                variable.name = "statistic",
+                value.name = "mean"
+            )
+        )[
+            paste0(cluster, "_mean") == statistic
+        ][
+            order(COUNTRY, cluster)
+        ],
+        # Lower CI
+        unique(
+            melt(
+                dt,
+                id.vars = c("COUNTRY", "cluster"),
+                measure.vars = c(
+                    paste0(factors, "_ci_lower")
+                ),
+                variable.name = "statistic",
+                value.name = "ci_lower"
+            )
+        )[
+            paste0(cluster, "_ci_lower") == statistic
+        ][
+            order(COUNTRY, cluster)
+        ][, "ci_lower"],
+        unique(
+            melt(
+                dt,
+                id.vars = c("COUNTRY", "cluster"),
+                measure.vars = c(
+                    paste0(factors, "_ci_upper")
+                ),
+                variable.name = "statistic",
+                value.name = "ci_upper"
+            )
+        )[
+            paste0(cluster, "_ci_upper") == statistic
+        ][
+            order(COUNTRY, cluster)
+        ][, "ci_upper"]
+    )
+    
+    plot <- ggplot(
+        plot_dt[cluster != "Intact original family"],
+        aes(
+            x = COUNTRY,
+            y = mean
+        ),
+        color = color_scheme(1)
+    ) + 
+    geom_pointrange(
+        aes(
+            ymin = ci_lower,
+            ymax = ci_upper
+        ),
+        color = color_scheme(1),
+        size = 0.2
+    ) +
+    facet_grid(vars(cluster)) +
+    xlab("Country") + 
+    ylab("Proportion of children from country belonging to each cluster") +
+    plot_theme() +
+    theme(
+        axis.text.x = element_text(angle = 45, hjust=1)
+    )
+}
+    
 
 # Plot drops during data cleaning
 plot_drops <- function(dt_par, dt_kid){
