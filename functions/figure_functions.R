@@ -25,7 +25,6 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
         by = .(COUNTRY, survey)
     ]
 
-
     collapsed <-  unique(dt[, 
         c(
             "COUNTRY",
@@ -397,7 +396,7 @@ joint_plot <- function(
         theme(legend.position = "bottom") +
         guides(
             fill = guide_legend(
-                override.aes = list(reverse = TRUE)
+                reverse = TRUE
             )
         )
     )
@@ -474,6 +473,27 @@ plot_sibling_proportions <- function (dt) {
         by = .(COUNTRY, cluster, sibling_type)
     ]
 
+    # Get number of observations by Country*Cluster
+    dt[,
+        obs_100 := .N >= 100,
+        by = .(COUNTRY, cluster)
+    ]
+
+    # Keep only unique values
+    dt <- unique(
+        dt[,
+            .(
+                COUNTRY,
+                cluster,
+                sibling_type,
+                upper_ci_sib,
+                lower_ci_sib,
+                mean_sib,
+                obs_100
+            )
+        ]
+    )
+
     # Plot it!
     plot <- ggplot(
         dt[sibling_type != "has_full_and_half"],
@@ -481,7 +501,8 @@ plot_sibling_proportions <- function (dt) {
             x = COUNTRY,
             y = mean_sib,
             group = sibling_type,
-            color = sibling_type
+            color = sibling_type,
+            alpha = obs_100
         )
     ) + 
     geom_pointrange(
@@ -496,11 +517,24 @@ plot_sibling_proportions <- function (dt) {
     plot_theme() +
     scale_y_continuous(limits = c(-0.01,1.01)) +
     scale_colour_manual(
+        name = "Sibling type",
         values = c(
             "has_fullsibling" = color_scheme(1),
             "has_halfsibling" = color_scheme(3)
-        )
-    )
+        ),
+        labels = c(
+           "has_fullsibling" =  "At least one full-sibling",
+            "has_halfsibling" = "At least one half-sibling"
+        ),
+        guide = guide_legend(
+            reverse = TRUE,
+        ) 
+    ) +
+    scale_alpha_discrete(
+        range = c(0.20, 0.9),
+        guide = "none"
+    ) +
+    theme(legend.key = element_rect(fill = NA))
 
     return(plot)
 
@@ -515,9 +549,24 @@ plot_cluster_proportions <- function(dt) {
     dt[, (factors) := lapply(factors, function(x) cluster == x)]
     
     # Calculate mean and confidence intervals
-    dt[, (paste0(factors, "_mean")) := lapply(.SD, mean), .SDcols = factors, by = "COUNTRY" ]
-    dt[, (paste0(factors, "_ci_upper")) := lapply(.SD, function(x) CI(x)[1]), .SDcols = factors, by = "COUNTRY" ]
-    dt[, (paste0(factors, "_ci_lower")) := lapply(.SD, function(x) CI(x)[3]), .SDcols = factors, by = "COUNTRY" ]
+    dt[, 
+        (paste0(factors, "_mean")) := 
+            lapply(.SD, mean),
+        .SDcols = factors,
+        by = "COUNTRY"
+    ]
+    dt[,
+        (paste0(factors, "_ci_upper")) :=
+            lapply(.SD, function(x) CI(x)[1]),
+        .SDcols = factors,
+        by = "COUNTRY"
+    ]
+    dt[,
+        (paste0(factors, "_ci_lower")) := 
+            lapply(.SD, function(x) CI(x)[3]),
+        .SDcols = factors,
+        by = "COUNTRY"
+    ]
 
     # Bind together to plotting table
     plot_dt <- cbind(
@@ -575,8 +624,7 @@ plot_cluster_proportions <- function(dt) {
         aes(
             x = COUNTRY,
             y = mean
-        ),
-        color = color_scheme(1)
+        )
     ) + 
     geom_pointrange(
         aes(
@@ -593,6 +641,8 @@ plot_cluster_proportions <- function(dt) {
     theme(
         axis.text.x = element_text(angle = 45, hjust=1)
     )
+
+    return(plot)
 }
     
 

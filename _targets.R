@@ -226,6 +226,29 @@ list(
         )
     ),
 
+    # Alternative sequence plots for appendix
+    tar_target(
+        p_clusters_5,
+        joint_plot(
+            family_sequence,
+            family_diss,
+            groups = cutree(family_clusters, k = 5),
+            weights = final_data_agg$aggWeights,
+            group_labels = 1:5
+        )
+    ),
+
+    tar_target(
+        p_clusters_10,
+        joint_plot(
+            family_sequence,
+            family_diss,
+            groups = cutree(family_clusters, k = 10),
+            weights = final_data_agg$aggWeights,
+            group_labels = 1:10
+        )
+    ),
+
     # Append cluster to final data
     tar_target(
         children_clusters,
