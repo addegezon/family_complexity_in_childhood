@@ -1,7 +1,9 @@
 ---
 title: "Childhood Family Structure and Sibling Composition in 17 European Countries: A Sequence Analysis Approach to Family Complexity"
+subtitle: "WORK IN PROGRESS"
 author: "Andreas Gustafsson"
 date: today
+date-format: long
 format: 
   pdf:
     documentclass: article
@@ -76,7 +78,9 @@ knitr::knit_hooks$set(inline = function(x) {
 
 The European family dynamics of the late 20th and early 21st century has undergone large changes as compared to previous decades. In particular through increasing family complexity. From the amassed family demography literature, the majority of attention has been placed on investigating the family complexity generating processes of divorce, re-partnering and multipartner fertility from the adult perspective. Since it has been proposed that family transitions have a negative effect on the well-being of children [@fomby_family_2007] and because there is evidence of this effect [@hadfield_changes_2018], it is important to understand to what extent children experience family transitions and what the patterns are. Demographic studies that have been conducted on children's experience of family disruption and parental re-partnering [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014] have primarily looked at the degree to which children experience particular events. Albeit important, this does not fully capture the accumulated experience of family complexity over childhood. 
 
-The objective of this thesis is to describe children's family structure trajectories and to classify these trajectories according to the most common types of childhood family experiences. In particular I will answer the questions (1) What are the most common family trajectories among European children? (2) How are these trajectories related to the risk of having full- and half-siblings for children? This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis, through which I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country by country basis. In the final step I will describe how the most common trajectories are associated with the probability of having full- and half-siblings. Before describing the methods in greater detail, I will outline the main theoretical frameworks of this thesis as well as previous research on children's experiences of family complexity. In the end I will present the results of my analysis and put them into context in the discussion and conclusion sections.
+The objective of this thesis is to provide a descriptive analysis of children's family structure trajectories in Europe. In particular I will answer the questions (1) What are the most common family trajectories among European children, and how do they vary across countries? (2) How are these trajectories related to the risk of having full- and half-siblings for children? (3) How does the probability of experiencing a particular family trajectory differ by the mother's socioeconomic status? This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis, through which I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country by country basis. Further, I will describe how the most common trajectories are associated with the probability of having full- and half-siblings as well as the risk of experiencing a particular trajectory based on the mother's socioeconomic status. Taken together, the main contributions of this thesis will be a deepened understanding of the drivers of family complexity, and how they differ between European countries as well as the first cross-European analysis on the prevelence of half-siblings. 
+
+Before describing the methods in greater detail, I will outline the main theoretical frameworks of this thesis as well as previous research on children's experiences of family complexity. In the end I will present the results of my analysis and put them into context in the discussion and conclusion sections.
 
 
 # Theory and previous research 
@@ -109,11 +113,11 @@ Finally, there have also been seen that living in a stepfamily may be associated
 All in all, these findings suggest that both family transitions and long-term family states matter for the well-being of children in several dimensions. A consequence of this is also that studies that focus on either transitions or states will miss out the other process, indicating a need for a more holistic approach to the study of children's family lives. This has also been highlighted by @pearce_increasing_2018, who argue that to go further in our understanding of the associations between family complexity and its related outcomes, we are in need of new methods. A set of method which they suggest as a potential way forward are "profile-based" methods, such as latent class analysis and sequence analysis. A more detailed discussion of this approach will follow in later sections.
 
 
-## Taking the child perspective 
+<!-- ## Taking the child perspective 
 
 There are many reasons why one would chose to adopt a child perspective when investigating family complexity.
 
-...
+... -->
 
 <!-- @kalmijn_multi-actor_2018 -->
 
