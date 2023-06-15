@@ -67,7 +67,7 @@ format_data <- function(dt) {
     )
 
     dt <- dt[!COUNTRY %in% drop_countries]
-    browser()
+    
     # Separate COUNTRY from survey
     survey_components <- "(^[A-z]+)(\\sRepublic)?(\\s)(.+)"
     dt[,
@@ -77,35 +77,36 @@ format_data <- function(dt) {
             )
     ]
     
-    # # Define regions
-    # dt[
-    #     COUNTRY == "Czech Republic" |
-    #     COUNTRY == "France" |
-    #     COUNTRY == "Netherlands" |
-    #     COUNTRY == "Belgium" |
-    #     COUNTRY == "Austria",
-    #     region := "Central Europe"
-    # ]
-    # dt[
-    #     COUNTRY == "Bulgaria" |
-    #     COUNTRY == "Belarus" |
-    #     COUNTRY == "Georgia" |
-    #     COUNTRY == "Hungary" |
-    #     COUNTRY == "Romania" |
-    #     COUNTRY == "Poland",
-    #     region := "Eastern Europe"
-    # ]
-    # dt[
-    #     COUNTRY == "Estonia" |
-    #     COUNTRY == "Lithuania" |
-    #     COUNTRY == "Norway" |
-    #     COUNTRY == "Sweden",
-    #     region := "Scandinavia and Baltics" 
-    # ]
-    # dt[
-    #     COUNTRY == "Spain",
-    #     region := "Southern Europe"
-    # ]
+    # Define regions
+    dt[
+        COUNTRY == "France" |
+        COUNTRY == "Netherlands" |
+        COUNTRY == "Belgium" |
+        COUNTRY == "Austria",
+        region := "Western Europe"
+    ]
+    dt[
+        COUNTRY == "Bulgaria" |
+        COUNTRY == "Belarus" |
+        COUNTRY == "Czech Republic" |
+        COUNTRY == "Estonia" |
+        COUNTRY == "Lithuania" |
+        COUNTRY == "Georgia" |
+        COUNTRY == "Hungary" |
+        COUNTRY == "Romania" |
+        COUNTRY == "Poland",
+        region := "Post-socialist"
+    ]
+    dt[
+        COUNTRY == "Norway" |
+        COUNTRY == "Sweden",
+        region := "Scandinavia" 
+    ]
+    dt[
+        COUNTRY == "Spain" |
+        COUNTRY == "Italy",
+        region := "Southern Europe"
+    ]
 
     # Merge all year and month columns into one date column
     # For partnership history:
