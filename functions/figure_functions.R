@@ -4,6 +4,7 @@
 format_table <- function(dt, format = "latex", booktabs = TRUE){
     library(modelsummary)
     library(kableExtra)
+    library(forcats)
 
     setorder(dt, COUNTRY)
 
@@ -25,9 +26,18 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
         by = .(COUNTRY, survey)
     ]
 
+    # Load and match response rates
+    rr <- as.data.table(
+            read.csv(
+                file.path("data", "response_rates.csv"))
+    )
+
+    dt <- merge(dt, rr, by = c("COUNTRY", "survey"), all.x = TRUE)
+
     collapsed <-  unique(dt[, 
         c(
             "COUNTRY",
+            "region",
             "svy_min",
             "svy_max",
             "mother_min",
@@ -35,13 +45,15 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
             "child_min",
             "child_max",
             "n_kids",
-            "survey"
+            "survey",
+            "RR"
         )
     ])
 
     # Add Total row
     total_row <- data.table(
         "COUNTRY" = "Total",
+        "region" = " ",
         "svy_min" = collapsed[, min(svy_min)],
         "svy_max" = collapsed[, max(svy_min)],
         "mother_min" = collapsed[, min(mother_min)],
@@ -49,7 +61,8 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
         "child_min" = collapsed[, min(child_min)],
         "child_max" = collapsed[, max(child_max)],
         "n_kids" = collapsed[, sum(n_kids)],
-        "survey" = ""
+        "survey" = "",
+        "RR" = NA_character_
     )
 
     collapsed <- rbindlist(list(collapsed, total_row))
@@ -58,20 +71,35 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
     # Rename columns
     table <- collapsed[, .(
         "Country" = COUNTRY,
+        "Region" = region,
         "Survey" = survey,
         "Survey years" = paste0(svy_min, " - ", svy_max),
-        # "{Mother cohorts}" = paste0(mother_min, " - ", mother_max),
+        "Response rate" = lapply(
+            RR, 
+            function (x) {
+                if (!is.na(x)) {
+                    paste0(x, "%")
+                } else {
+                    " "
+                }
+
+            }
+        ),
         "Child cohorts" = paste0(child_min, " - ", child_max),
         "N. children" = prettyNum(n_kids, big.mark = ",")
         )
     ]
 
+    setorder(table,Region, Country)
+
     # Create table
     tab <- knitr::kable(
-        table,
+        table[,!'Region'],
         booktabs = booktabs,
         format = format
-    ) |> row_spec(19, hline_after = T)
+    ) |> 
+        row_spec(1, hline_after = T) |> 
+        pack_rows(index = table(fct_inorder(table$Region))) 
 
     return(tab)
 }
@@ -144,7 +172,7 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
 
     # Bind together the tables
     table <- rbindlist(list(dt_mean, dt_conf))
-    setorder(table, COUNTRY, "Intact original family")
+    setorder(table, region, COUNTRY, "Intact original family")
     table[
         seq_len(nrow(table)) %% 2 == 0,
         COUNTRY := " "
@@ -788,8 +816,8 @@ ggcqdensity <- function(
             legend.position = "bottom",
             legend.title = element_blank(),
             legend.margin = margin(-0.2, 0, 0, -0.2, unit = "cm"),
-            axis.line.x = element_line(size = .3),
-            axis.ticks = element_line(size = .3)
+            axis.line.x = element_line(linewidth = .3),
+            axis.ticks = element_line(linewidth = .3)
         )
 
     return(density_plot)
