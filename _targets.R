@@ -207,26 +207,12 @@ list(
             "Intact original family",
             "Original family to stepfamily",
             "Early separation",
-            "Multiple single spells",
-            "Early stepfamily",
-            "Single mother to stepfamily",
-            "Single mother"
+            "Single mother",
+            "Single mother to stepfamily"
         )
     ),
 
     # Generate sequence plots
-    tar_target(
-        p_clusters_full,
-        joint_plot(
-            family_sequence,
-            family_diss,
-            groups = cutree(family_clusters, k = 7),
-            weights = final_data_agg$aggWeights,
-            group_labels = group_labels
-        )
-    ),
-
-    # Alternative sequence plots for appendix
     tar_target(
         p_clusters_5,
         joint_plot(
@@ -234,7 +220,19 @@ list(
             family_diss,
             groups = cutree(family_clusters, k = 5),
             weights = final_data_agg$aggWeights,
-            group_labels = 1:5
+            group_labels = group_labels
+        )
+    ),
+
+    # Alternative sequence plots for appendix
+    tar_target(
+        p_clusters_7,
+        joint_plot(
+            family_sequence,
+            family_diss,
+            groups = cutree(family_clusters, k = 7),
+            weights = final_data_agg$aggWeights,
+            group_labels = 1:7
         )
     ),
 
@@ -254,8 +252,8 @@ list(
         children_clusters,
         final_data[, 
             cluster := factor(
-                cluster_quality$clustering$cluster7[final_data_agg$disaggIndex],
-                levels = 1:7,
+                cluster_quality$clustering$cluster5[final_data_agg$disaggIndex],
+                levels = 1:5,
                 labels = group_labels
         )
         ]
