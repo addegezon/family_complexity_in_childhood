@@ -284,14 +284,6 @@ list(
         )
     ),
 
-    # Proportion of sibling relations per region
-    tar_target(
-        p_sibling_proportion,
-        plot_sibling_proportions(
-            children_clusters
-        )
-    )
-
     # # Drops
     # tar_target(
     #     p_drops,
