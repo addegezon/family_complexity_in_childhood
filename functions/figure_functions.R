@@ -172,7 +172,7 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
 
     # Bind together the tables
     table <- rbindlist(list(dt_mean, dt_conf))
-    setorder(table, region, COUNTRY, "Intact original family")
+    setorder(table, COUNTRY, "Intact original family")
     table[
         seq_len(nrow(table)) %% 2 == 0,
         COUNTRY := " "
@@ -420,11 +420,11 @@ joint_plot <- function(
     # Get legend and reverse it
     legend <- get_legend(
         p_list[[1]][[2]] + 
-        guides(color = guide_legend(nrow = 1)) +
         theme(legend.position = "bottom") +
         guides(
             fill = guide_legend(
-                reverse = TRUE
+                reverse = TRUE,
+                nrow = 2
             )
         )
     )
@@ -570,109 +570,127 @@ plot_sibling_proportions <- function (dt) {
 
 # Plot cluster proportions
 plot_cluster_proportions <- function(dt) {
-    library(Rmisc)
 
-    dt <- dt[,.(COUNTRY,cluster)]
-    factors <- unique(levels(dt$cluster))
-    dt[, (factors) := lapply(factors, function(x) cluster == x)]
-    
-    # Calculate mean and confidence intervals
+    # We want to order by proportion intact family
     dt[, 
-        (paste0(factors, "_mean")) := 
-            lapply(.SD, mean),
-        .SDcols = factors,
+        avg_intact := mean(
+                cluster == "Intact original family"
+        ),
         by = "COUNTRY"
     ]
-    dt[,
-        (paste0(factors, "_ci_upper")) :=
-            lapply(.SD, function(x) CI(x)[1]),
-        .SDcols = factors,
-        by = "COUNTRY"
-    ]
-    dt[,
-        (paste0(factors, "_ci_lower")) := 
-            lapply(.SD, function(x) CI(x)[3]),
-        .SDcols = factors,
-        by = "COUNTRY"
+   
+    # Change country order to account for region
+    factor <- unique(dt[,.(COUNTRY, region, avg_intact)])
+    dt[, COUNTRY := as.factor(COUNTRY)]
+    dt[, 
+        COUNTRY := factor(
+            COUNTRY, 
+            levels = factor[order(region, -avg_intact)]$COUNTRY
+        )
     ]
 
-    # Bind together to plotting table
-    plot_dt <- cbind(
-        # Mean
-        unique(
-            melt(
-                dt,
-                id.vars = c("COUNTRY", "cluster"),
-                measure.vars = c(
-                    paste0(factors, "_mean")
-                ),
-                variable.name = "statistic",
-                value.name = "mean"
-            )
-        )[
-            paste0(cluster, "_mean") == statistic
-        ][
-            order(COUNTRY, cluster)
-        ],
-        # Lower CI
-        unique(
-            melt(
-                dt,
-                id.vars = c("COUNTRY", "cluster"),
-                measure.vars = c(
-                    paste0(factors, "_ci_lower")
-                ),
-                variable.name = "statistic",
-                value.name = "ci_lower"
-            )
-        )[
-            paste0(cluster, "_ci_lower") == statistic
-        ][
-            order(COUNTRY, cluster)
-        ][, "ci_lower"],
-        unique(
-            melt(
-                dt,
-                id.vars = c("COUNTRY", "cluster"),
-                measure.vars = c(
-                    paste0(factors, "_ci_upper")
-                ),
-                variable.name = "statistic",
-                value.name = "ci_upper"
-            )
-        )[
-            paste0(cluster, "_ci_upper") == statistic
-        ][
-            order(COUNTRY, cluster)
-        ][, "ci_upper"]
-    )
-    
+    # Plot it!
     plot <- ggplot(
-        plot_dt[cluster != "Intact original family"],
+        dt,
         aes(
             x = COUNTRY,
-            y = mean
+            fill = cluster
         )
-    ) + 
-    geom_pointrange(
-        aes(
-            ymin = ci_lower,
-            ymax = ci_upper
-        ),
-        color = color_scheme(1),
-        size = 0.2
     ) +
-    facet_grid(vars(cluster)) +
-    xlab("Country") + 
-    ylab("Proportion of children from country belonging to each cluster") +
-    plot_theme() +
-    theme(
-        axis.text.x = element_text(angle = 45, hjust=1)
-    )
+        geom_bar(position = "fill") +
+        labs(
+            x = "Country", 
+            y = "Proportion of family type"
+        ) + 
+        coord_flip() + 
+        facet_grid(
+            region ~ ., 
+            scales = "free", 
+            space = "free"
+        ) + 
+        plot_theme() + 
+        scale_fill_manual(
+            values = color_scheme(c(1, 2, 3, 5, 6)),
+            guide = guide_legend(reverse = TRUE)
+        ) +
+        theme(
+            legend.position = "bottom",
+            legend.box = "vertical",
+            legend.margin = margin(),
+            legend.title = element_blank()
+        ) + 
+        guides(
+            fill = guide_legend(nrow = 2)
+        )
 
     return(plot)
 }
-    
+
+# Plot cluster proportions
+plot_complex_proportions <- function(dt) {
+
+    dt <- dt[cluster != "Intact original family"]
+
+    # We want to order by single mother drive
+    dt[, 
+        avg_single := mean(
+                cluster == "Single mother" |
+                cluster == "Single mother to stepfamily"
+        ),
+        by = "COUNTRY"
+    ]
+   
+    # Change country order to account for region
+    factor <- unique(dt[,.(COUNTRY, region, avg_single)])
+    dt[, COUNTRY := as.factor(COUNTRY)]
+    dt[, 
+        COUNTRY := factor(
+            COUNTRY, 
+            levels = factor[order(region, -avg_single)]$COUNTRY
+        )
+    ]
+
+    # Plot it!
+    plot <- ggplot(
+        dt,
+        aes(
+            x = COUNTRY,
+            fill = cluster
+        )
+    ) +
+        geom_bar(position = "fill") +
+        geom_hline(
+            yintercept = 0.5,
+            linetype = "dashed",
+            color = "white"
+        ) +
+        labs(
+            x = "Country", 
+            y = "Proportion of family type"
+        ) + 
+        coord_flip() + 
+        facet_grid(
+            region ~ ., 
+            scales = "free", 
+            space = "free"
+        ) + 
+        plot_theme() + 
+        scale_fill_manual(
+            values = color_scheme(c(2, 3, 5, 6)),
+            guide = guide_legend(reverse = TRUE)
+        ) +
+        theme(
+            legend.position = "bottom",
+            legend.box = "vertical",
+            legend.margin = margin(),
+            legend.title = element_blank()
+        ) + 
+        guides(
+            fill = guide_legend(nrow = 2)
+        )
+
+    return(plot)
+}
 
 # Plot drops during data cleaning
 plot_drops <- function(dt_par, dt_kid){
@@ -932,8 +950,8 @@ ggseqnullcqiplot <- function(
                     legend.position = "bottom",
                     legend.title = element_blank(),
                     legend.margin = margin(-0.2, 0, 0, -0.2, unit = "cm"),
-                    axis.line.x = element_line(size = .3),
-                    axis.ticks = element_line(size = .3),
+                    axis.line.x = element_line(linewidth = .3),
+                    axis.ticks = element_line(linewidth = .3),
                     plot.margin = margin(10,10,10,15),
                     panel.border =  element_rect(colour = "black", fill = NA)
                 )
