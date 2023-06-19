@@ -195,7 +195,7 @@ Once the family typology is in place, I will show the proportion of the differen
 
 The data used in this study comes from the birth and union histories in the Harmonized Histories data set [@perelli-harris_harmonized_2010]. This data set is compiled from a set of national surveys, primarily the Generations and Gender Survey, but also with other nationally representative surveys on partnerships and childbearing. The data is based on individual retrospective reports on partnership and childbearing histories.
 
-__FURTHER DESCRIPTION OF SURVEY DESIGN, RESPONSE RATE ETC__
+The surveys were conducted differently in different countries. Generally, they were conducted through interviews [@fokkema_generations_2016], but self-filled web questionnaires were also used [@instituto_nacional_de_estadistica_fertility_2019]. Different sampling procedures were also used and more detailed information can be found in @fokkema_generations_2016 and @perelli-harris_harmonized_2010. Response rates are avaialble for most surveys and are presented below. 
 
 In @tbl-1 I show basic information about the study population. For all countries in the study children born between 1980 and 1988 are included. For some countries such as Belgium, Netherlands, Poland, Spain and Sweden there are also children born well into the 1990's and the early 2000's. Each country, except Austria, is well represented with over 1,000 children. Belarus, Norway, Poland and Spain all have over 3,300 children included. That over 12,000 of the `r tar_read(final_data)[,.N]` respondents come from the Catholic countries Poland and Spain, might bias the analysis towards favouring clustering solutions which works well for these particular family contexts. Which is a discussion I will return to later.
 
@@ -203,15 +203,12 @@ In @tbl-1 I show basic information about the study population. For all countries
 #| echo: false
 #| results: "asis"
 #| label: tbl-1
-#| tbl-cap: "Descriptive information on survey years, cohorts included and number of children from each country"
+#| tbl-cap: "Descriptive information on survey years, response rates, cohorts included and number of children from each country. Some response rates are missing due to the sampling procedure of the surveys."
 
 tar_read(table_1)
 ```
 
 Other than that there is a well balanced sample, with good representation from all European regions, and enough respondents to perform subgroup analyses. 
-
-<!-- not from fokkema: poland -->
-
 
 I start of by excluding several countries from the data set. Germany is excluded due to its poor family history data and the UK is excluded due to oversampling respondents with low socioeconomic status. Uruguay, Kazakhstan, Canada and the U.S are removed as they are not European countries.
 
@@ -308,7 +305,7 @@ tar_read(p_clusters_5) +
   )
 ```
 
-A first thing to note is that the "Intact original family" cluster is by far the largest one, with around `r round(tar_read(children_clusters)[cluster == "Intact original family",.N]/tar_read(children_clusters)[,.N] * 100, 0)`% of children in the full sample belonging to this cluster. On the opposite end of the spectrum we have the "Multiple single spells" cluster, which is composed of only 172 children. Before showing the distribution of these clusters by country, I would like to spend some time to discuss each cluster and what information we can derive from these joint visualizations.
+A first thing to note is that the "Intact original family" cluster is by far the largest one, with around `r round(tar_read(children_clusters)[cluster == "Intact original family",.N]/tar_read(children_clusters)[,.N] * 100, 0)`% of children in the full sample belonging to this cluster. On the opposite end of the spectrum we have the "Original family to stepfamily" cluster, which is composed of  `r round(tar_read(children_clusters)[cluster == "Original family to stepfamily",.N], 0)` children. Before showing the distribution of these clusters by country, I would like to spend some time to discuss each cluster and what information we can derive from these joint visualizations.
 
 Starting of with the "Intact original family" cluster, we see that not all individuals actually live in an intact original family throughout childhood. A fair proportion (`r tar_read(children_clusters)[cluster == "Intact original family", round(sum(FAMILY_STATE177 != "OP")/.N, 2)]`) of children actually experience parental separation at some point, but all of them experience it after the age of 6. This highlights the need to be careful when infering group characteristics from sequence clusters.
 
@@ -316,28 +313,14 @@ The cluster "Original family to stepfamily" is composed of children who are all 
 
 In the third plot, "Early separation", we observe a group of children where all are born into a parental union and the bulk experience a parental separation early on in childhood. A few experience stepfamily formation but most remain with a single mother throughout childhood. Here we can note that there is no "late separation" cluster, these have instead been classified with the "Intact original family" group.
 
-The "Multiple single spells" cluster is the smallest but also most complex. Here we see that most, but not all, children are born to a single mother, eventually experience stepfamily formation and then all do at some point live with just a single mother again. The above pattern is also found for some individuals in the "Early stepfamily" cluster, but here divorce after stepfamily formation is much more uncommon, and all children live in a stepfamily before the age of five.
+The cluster "Single mother" consists mostly of children who spend their entire childhood with a single mother, but there are som who also live in a stepfamily or with their original parents in early childhood for a brief period of time. The fifth category, "Single mother to stepfamily", seems to contain some heterogeneity within the cluster where we see two common forms of family trajectories. The dominant one, which I've named the cluster after, consists of children being born to a single mother and who then enter a stepfamily before the age of 10. There is also a small group who are born into a union but experience a divorce shortly afterwards. 
 
-The sixth category, "Single mother to stepfamily", seems to contain some heterogeneity within the cluster where we see two common forms of family trajectories. The dominant one, which I've named the cluster after, consists of children being born to a single mother and who then enter a stepfamily between the age of four and 10. There is also a small group who are born into a union but experience a divorce shortly afterwards, before entering a stepfamily around the ages 4 to 8. Finally, the cluster "Single mother" consists mostly of children who spend their entire childhood with a single mother, but there are som who also live in a stepfamily for a brief period of time.
-
-In @tbl-proportion-family-type we see the proportion of children that are in each cluster, on a country by country basis. 
-
-
-```{r}
-#| echo: false
-#| results: "asis"
-#| label: tbl-proportion-family-type
-#| tbl-cap: "The proportion of children classified according to each family type by European country, with 95% confidence intervals in square brackets. The NA values arise because there are no Georgian children in the Mutiple single spells-cluster."
-
-tar_read(tab_proportion_family_type) |> 
-  kableExtra::kable_styling(font_size = 7) |>
-  kableExtra::column_spec(2:8, width = "1.7cm") 
-```
+In @fig-cluster-proportion we see the proportion of children that are in each cluster, on a country by country basis. 
 
 ```{r}
 #| echo: false
 #| label: fig-cluster-proportion
-#| fig-cap: "Proportion of children belonging to each cluster by country, with 95% confidence intervals. The cluster 'Intact original family' have been removed for clarity of visualization."
+#| fig-cap: "Proportion of children belonging to each cluster by country, grouped by region"
 #| fig-height: 8
 
 tar_read(p_cluster_proportions) +
@@ -346,25 +329,7 @@ tar_read(p_cluster_proportions) +
   )
 ```
 
-## Sibling composition
 
-\blandscape
-```{r}
-#| echo: false
-#| label: fig-sib-proportion
-#| fig-cap: "Proportion with full- and half-sibling by country and family cluster, with 95% confidence intervals. The shaded dots represents country and cluster combinations where there are fewer than 100 observations."
-#| fig-width: 20
-#| fig-asp: 0.6
-#| out-width: "\\paperwidth"
-#| out-height: "\\paperheight"
-
-tar_read(p_sibling_proportion) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust=1),
-    text = element_text(size = 20)
-  ) 
-```
-\elandscape
 
 # Discussion
 
@@ -383,7 +348,18 @@ tar_read(p_sibling_proportion) +
 
 ```{r}
 #| echo: false
-#| label: fig-five-cluster
+#| results: "asis"
+#| label: tbl-proportion-family-type
+#| tbl-cap: "The proportion of children classified according to each family type by European country, with 95% confidence intervals in square brackets. The NA values arise because there are no Georgian children in the Mutiple single spells-cluster."
+
+tar_read(tab_proportion_family_type) |> 
+  kableExtra::kable_styling(font_size = 7) |>
+  kableExtra::column_spec(2:8, width = "1.7cm") 
+```
+
+```{r}
+#| echo: false
+#| label: fig-seven-cluster
 #| fig-cap: "5-cluster solution"
 #| fig-height: 8
 
