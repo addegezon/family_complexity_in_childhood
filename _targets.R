@@ -282,7 +282,7 @@ list(
         plot_cluster_proportions(
             children_clusters
         )
-    ),
+    )
 
     # # Drops
     # tar_target(
