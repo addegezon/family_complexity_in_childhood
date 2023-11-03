@@ -1,5 +1,5 @@
 ---
-title: "Childhood Family Trajectories in 17 European Countries"
+title: "Childhood Family Trajectories in 16 European Countries"
 subtitle: "WORK IN PROGRESS"
 author: "Andreas Gustafsson"
 date: today
@@ -80,7 +80,7 @@ The European family dynamics of the late 20th and early 21st century has undergo
 
 Further, there has been ample research on how these family demographic changes have developed in Europe, and how the processes have differed between European regions. This has often been approached through the Second Demographic Transition theory. Despite this rich flora of comparative research, very little has been done to document the implications for children's family trajectories and to what degree they differ between countries. 
 
-The objective of this thesis is to provide a descriptive analysis of children's family structure trajectories in Europe. In particular I will answer the questions (1) What are the most common family trajectories among European children, and how do they vary across countries? (2) How does the probability of experiencing a particular family trajectory differ by the mother's socioeconomic status, as measured by level of education? This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis, through which I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country by country basis. Further, I will describe how the most common trajectories are associated with the mother's socioeconomic status. 
+The objective of this thesis is to provide a descriptive analysis of children's family structure trajectories in Europe. In particular I will answer the questions (1) What are the most common family trajectories among European children, and how do they vary across European countries and regions? (2) How does the probability of experiencing a particular family trajectory differ by the mother's socioeconomic status, as measured by level of education? This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis, through which I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country by country basis. Further, I will describe how the most common trajectories are associated with the mother's socioeconomic status. 
 
 Before describing the methods in greater detail, I will outline the main theoretical frameworks of this thesis as well as previous research on children's experiences of family structure changes. In the end I will present the results of my analysis and put them into context in the discussion and conclusion sections.
 
@@ -267,9 +267,9 @@ The analysis is performed in R and relies on the packages **TraMineR** and  **We
 
 ## Ethical considerations
 
-The Harmonized Histories data set is de-identified to protect the personal integrity of the study participants and all analysis presented are as aggregated results. In order to get access to the data I have signed a pledge of confidentiality, pledging not the share the data and only perform analysis related to the approved project. The data collection has been approved in each individual country and has been done under the oversight of the GGP Ethics Board and its Data Protection Office. 
+The Harmonized Histories data set is de-identified to protect the personal integrity of the study participants and all analysis presented are as aggregated results. In order to get access to the data I have signed a pledge of confidentiality, pledging not the share the data and only perform analysis related to the approved project. The data collection has been approved in each individual country and has been done under the oversight of the GGP Ethics Board and its Data Protection Office. I do not deal with any directly sensitive personal data such as ethnicity, political opinions or union membership. 
 
-In order for the research to be both transparent and reproducible, all code for generating the results, as well as the thesis, is available as a reproduction package at GitHub [@gustafsson_addegezonfamily_complexity_in_childhood_2022].
+In order the improve both the transparancy and reproducibility of my research all code for generating the results, as well as the thesis, is available as a replication package at GitHub [@gustafsson_addegezonfamily_complexity_in_childhood_2022]. Anyone wishing the reproduce this research will have to apply for the Harmononized History dataset and then it will be possible to re-run my exact analyses using the replication package.  Using version control all changes in the project have been tracked so it is possible to follow the research process in detail. 
 
 
 # Results
@@ -315,21 +315,37 @@ In the third plot, "Early separation", we observe a group of children where all 
 
 The cluster "Single mother" consists mostly of children who spend their entire childhood with a single mother, but there are som who also live in a stepfamily or with their original parents in early childhood for a brief period of time. The fifth category, "Single mother to stepfamily", seems to contain some heterogeneity within the cluster where we see two common forms of family trajectories. The dominant one, which I've named the cluster after, consists of children being born to a single mother and who then enter a stepfamily before the age of 10. There is also a small group who are born into a union but experience a divorce shortly afterwards. 
 
-In @fig-cluster-proportion we see the proportion of children that are in each cluster, on a country by country basis. 
+In @fig-complex-proportion we see the proportion of children that are in each cluster, on a country by country basis, grouped by region. The left part of the figure shows the proportion of all children and the right hand figure shows the distrubtion over only those children who are not classified as "Intact original family". This is so that we can see in better detail how the distribution looks of these family sequence types. Countries are sorted within their respective region by the proportion of children beloning to the "Intact original family" group. 
 
 ```{r}
 #| echo: false
-#| label: fig-cluster-proportion
-#| fig-cap: "Proportion of children belonging to each cluster by country, grouped by region"
+#| label: fig-complex-proportion
+#| fig-cap: "Proportion of children cluster by country, grouped by region. The right plot shows "
 #| fig-height: 8
 
-tar_read(p_cluster_proportions) +
-  theme(
-    text = element_text(size = 9)
-  )
+tar_read(p_combined_proportions)
+
 ```
 
+```{r}
+#| echo: false
+#| label: fig-map-cluster
+#| fig-cap: "Proportion of children cluster by country, grouped by region. The right plot shows "
+#| fig-height: 10
 
+tar_read(p_map_cluster) + theme(text = element_text(size = 8))
+
+```
+
+```{r}
+#| echo: false
+#| label: fig-map-edu
+#| fig-cap: "Proportion of children cluster by country, grouped by region. The right plot shows "
+#| fig-height: 10
+
+tar_read(p_map_edu) + theme(text = element_text(size = 8))
+
+```
 
 # Discussion
 

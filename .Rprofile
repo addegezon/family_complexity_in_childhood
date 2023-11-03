@@ -1,5 +1,5 @@
 source("renv/activate.R")
 
-wc <- function() {
-    wordcountaddin::word_count("writing/thesis.qmd")
+wc <- function(text = "writing/thesis.qmd") {
+    wordcountaddin::word_count(text)
 }

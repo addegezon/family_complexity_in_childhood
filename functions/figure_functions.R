@@ -568,10 +568,9 @@ plot_sibling_proportions <- function (dt) {
 
 }
 
-# Plot cluster proportions
-plot_cluster_proportions <- function(dt) {
+sort_by_intact <- function(dt) {
 
-    # We want to order by proportion intact family
+      # We want to order by proportion intact family
     dt[, 
         avg_intact := mean(
                 cluster == "Intact original family"
@@ -588,6 +587,15 @@ plot_cluster_proportions <- function(dt) {
             levels = factor[order(region, -avg_intact)]$COUNTRY
         )
     ]
+
+    return(dt)
+
+}
+
+# Plot cluster proportions
+plot_cluster_proportions <- function(dt) {
+
+     dt <- sort_by_intact(dt)
 
     # Plot it!
     plot <- ggplot(
@@ -629,26 +637,11 @@ plot_cluster_proportions <- function(dt) {
 # Plot cluster proportions
 plot_complex_proportions <- function(dt) {
 
+    dt <- sort_by_intact(dt)
+   
+
     dt <- dt[cluster != "Intact original family"]
 
-    # We want to order by single mother drive
-    dt[, 
-        avg_single := mean(
-                cluster == "Single mother" |
-                cluster == "Single mother to stepfamily"
-        ),
-        by = "COUNTRY"
-    ]
-   
-    # Change country order to account for region
-    factor <- unique(dt[,.(COUNTRY, region, avg_single)])
-    dt[, COUNTRY := as.factor(COUNTRY)]
-    dt[, 
-        COUNTRY := factor(
-            COUNTRY, 
-            levels = factor[order(region, -avg_single)]$COUNTRY
-        )
-    ]
 
     # Plot it!
     plot <- ggplot(
@@ -688,6 +681,51 @@ plot_complex_proportions <- function(dt) {
         guides(
             fill = guide_legend(nrow = 2)
         )
+
+    return(plot)
+}
+
+combine_proportion_plots <- function(p1, p2) {
+
+    library(ggplot2)
+    library(cowplot)
+
+    p1_m <- p1 + 
+    ylab(element_blank()) +
+    theme(
+        strip.background = element_blank(), 
+        strip.text.y.right  = element_blank(),
+    )
+    p2_m <- p2 + 
+    xlab(element_blank()) + 
+    ylab(element_blank()) + 
+    theme(
+        axis.text.y = element_blank(), 
+        axis.ticks.y = element_blank(),
+        strip.text.y.right = element_text(
+        angle = 270,
+        size = 6
+        )
+    )
+
+    grid <- plot_grid(
+        p1_m + theme(legend.position = "none"),
+        p2_m + theme(legend.position = "none"),
+        rel_widths = c(1.1,1)
+    )
+
+    legend <- get_legend(
+        p1 + 
+            guides(color = guide_legend(nrow = 1)) +
+            theme(legend.position = "bottom")
+    )
+
+    plot <- plot_grid(
+        grid,
+        legend, 
+        ncol = 1, 
+        rel_heights = c(1, .1)
+    )
 
     return(plot)
 }
@@ -839,6 +877,193 @@ ggcqdensity <- function(
         )
 
     return(density_plot)
+}
+
+map_cluster_proportions <- function(dt) {
+
+    world <- map_data("world")
+
+    europe <- subset(world, region %in% c("Albania", "Andorra", "Armenia", "Austria", "Azerbaijan",
+                                        "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria",
+                                        "Croatia", "Cyprus", "Czechia","Denmark","Estonia","Finland", 
+                                        "France","Georgia", "Germany", "Greece","Hungary","Iceland", 
+                                        "Ireland", "Italy", "Kosovo", "Latvia","Liechtenstein", 
+                                        "Lithuania", "Luxembourg","Malta","Moldova","Monaco","Montenegro",
+                                        "Macedonia", "Netherlands","Norway","Poland","Portugal","Romania",
+                                        "Russia","San Marino","Serbia","Slovakia","Slovenia","Spain",
+                                        "Sweden","Switzerland","Turkey","Ukraine","UK","Vatican"))
+
+    europe <- as.data.table(europe)
+
+    europe <- europe[subregion != "Svalbard" | is.na(subregion)]
+    europe[, COUNTRY := region]
+
+    clusters <- levels(dt$cluster)
+
+    all_combinations <- CJ(
+    COUNTRY = unique(europe$COUNTRY),
+    cluster = clusters
+    )
+
+    europe <- merge(europe, all_combinations, by = "COUNTRY", allow.cartesian = TRUE )
+
+
+    dt[, prop_cluster := as.double(.N), by = .(COUNTRY, cluster)]
+    dt[, prop_cluster := prop_cluster/.N, by = .(COUNTRY)]
+
+    map_dat <- merge(
+        europe, 
+        unique(dt[,.(COUNTRY, region,cluster, prop_cluster)]), 
+        by = c("COUNTRY", "cluster"), 
+        all.x = TRUE, 
+        allow.cartesian = TRUE
+    ) 
+
+    map_dat[, prop_cluster := scale(prop_cluster), by = .(cluster)]
+
+
+
+    plot <- ggplot(
+        data = map_dat, 
+        aes(x = long, y = lat, group = group)
+    ) + 
+        geom_polygon(
+            fill = alpha("gray", 0.4),
+            color = color_scheme(1),
+            size = 0.01
+        ) +
+        geom_polygon(
+            aes(
+                fill = prop_cluster
+            ), 
+            color = color_scheme(1)
+        ) +
+        coord_fixed(
+            ratio=1.6,
+            xlim = c(-10, 32), 
+            ylim = c(36, 72)
+        ) +   
+        scale_fill_gradient2(
+            low = alpha(color_scheme(5),1),
+            high = alpha(color_scheme(3),1),
+            na.value = alpha(color_scheme(1), 0)
+        ) +
+        facet_wrap(~cluster) + 
+        plot_theme() +
+        theme(
+        axis.text=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title = element_blank(),
+        strip.text = element_text(color = color_scheme(1))
+        )
+
+
+    return(plot)
+}
+
+map_educational_representation <- function(dt) {
+
+    world <- map_data("world")
+
+    europe <- subset(world, region %in% c("Albania", "Andorra", "Armenia", "Austria", "Azerbaijan",
+                                        "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria",
+                                        "Croatia", "Cyprus", "Czechia","Denmark","Estonia","Finland", 
+                                        "France","Georgia", "Germany", "Greece","Hungary","Iceland", 
+                                        "Ireland", "Italy", "Kosovo", "Latvia","Liechtenstein", 
+                                        "Lithuania", "Luxembourg","Malta","Moldova","Monaco","Montenegro",
+                                        "Macedonia", "Netherlands","Norway","Poland","Portugal","Romania",
+                                        "Russia","San Marino","Serbia","Slovakia","Slovenia","Spain",
+                                        "Sweden","Switzerland","Turkey","Ukraine","UK","Vatican"))
+
+    europe <- as.data.table(europe)
+
+    europe <- europe[subregion != "Svalbard" | is.na(subregion)]
+    europe[, COUNTRY := region]
+
+    ## Educational standardization
+    dt <- dt[!is.na(EDU_3)]
+
+    # Group by country, educational level, and occupational sector, and count the number of individuals in each group
+    data_grouped <- dt[, .(count = .N), by = .(COUNTRY, EDU_3, cluster)]
+
+    # Calculate the total count of individuals in each educational level within each country
+    total_education_counts <- data_grouped[, .(total_count_edu = sum(count)), by = .(COUNTRY, EDU_3)]
+
+    # Calculate the total count of individuals in each occupational sector within each country
+    total_sector_counts <- data_grouped[, .(total_count_clust = sum(count)), by = .(COUNTRY, cluster)]
+
+    # Join the total counts back to the grouped data
+    data_grouped <- merge(data_grouped, total_education_counts, by = c("COUNTRY", "EDU_3"), all.x = TRUE)
+    data_grouped <- merge(data_grouped, total_sector_counts, by = c("COUNTRY", "cluster"), all.x = TRUE)
+
+    data_grouped[, total_pop := sum(count), by = "COUNTRY"]
+    data_grouped[, representation := (count/total_count_clust)/(total_count_edu/total_pop)]
+
+
+    clusters <- levels(dt$cluster)
+    EDU_3 <- levels(dt$EDU_3)
+
+    all_combinations <- CJ(
+    COUNTRY = unique(europe$COUNTRY),
+    cluster = clusters,
+    EDU_3 = EDU_3
+    )
+
+    europe <- merge(
+    europe, 
+    all_combinations, 
+    by = "COUNTRY", 
+    allow.cartesian = TRUE
+    )
+
+
+    map_dat <- merge(
+    europe,
+    data_grouped, 
+    by = c("COUNTRY", "cluster", "EDU_3"), 
+    all.x = TRUE, 
+    allow.cartesian = TRUE
+    )
+
+    map_dat[, EDU_3 := factor(EDU_3, levels = c("Low", "Medium", "High"))]
+
+    plot <- ggplot(
+        data = map_dat[cluster != "Intact original family"], 
+        aes(x = long, y = lat, group = group)
+    ) + 
+        geom_polygon(
+            fill = alpha("gray", 0.4),
+            color = color_scheme(1),
+            size = 0.01
+        ) +
+        geom_polygon(
+            aes(
+                fill = representation
+            ), 
+            color = color_scheme(1)
+        ) +
+        coord_fixed(
+            ratio=1.6,
+            xlim = c(-10, 32), 
+            ylim = c(36, 72)
+        ) +   
+        scale_fill_gradient2(
+            low = alpha(color_scheme(5),1),
+            high = alpha(color_scheme(3),1),
+            na.value = alpha("gray", 0),
+            midpoint = 1
+        ) +
+        facet_grid(cluster ~ EDU_3) + 
+        plot_theme() +
+        theme(
+        axis.text=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title = element_blank(),
+        strip.text = element_text(color = color_scheme(1)),
+        strip.text.y.right = element_text(angle = 270)
+        )
+
+    return(plot)
 }
 
 

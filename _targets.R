@@ -2,6 +2,7 @@ library(targets)
 library(tarchetypes)
 source("functions/data_functions.R")
 source("functions/figure_functions.R")
+progressr::handlers(global = TRUE)
 
 
 tar_option_set(
@@ -206,8 +207,8 @@ list(
         c(
             "Intact original family",
             "Original family to stepfamily",
-            "Early separation",
             "Single mother",
+            "Early stepfamily",
             "Single mother to stepfamily"
         )
     ),
@@ -282,6 +283,32 @@ list(
         plot_cluster_proportions(
             children_clusters
         )
+    ),
+
+    tar_target(
+        p_complex_proportions,
+            plot_complex_proportions(
+            children_clusters
+        )
+    ),
+
+    tar_target(
+        p_combined_proportions,
+        combine_proportion_plots(
+            p_cluster_proportions,
+            p_complex_proportions
+        )
+    ),
+
+    # Map cluster
+    tar_target(
+        p_map_cluster,
+        map_cluster_proportions(children_clusters)
+    ),
+
+    tar_target(
+        p_map_edu,
+        map_educational_representation(children_clusters)
     )
 
     # # Drops

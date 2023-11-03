@@ -61,7 +61,7 @@ format_data <- function(dt) {
 
     # Drop countries
     drop_countries <- grep(
-        "^Canada|^Germany|^Moldova|^Russia|^UK|^USA|^Uruguay|^Kazakhstan",
+        "^Canada|^Germany|^Moldova|^Russia|^UK|^USA|^Uruguay|^Kazakhstan|^Georgia",
         levels(dt[,COUNTRY]),
         value = TRUE
     )
@@ -91,7 +91,6 @@ format_data <- function(dt) {
         COUNTRY == "Czech Republic" |
         COUNTRY == "Estonia" |
         COUNTRY == "Lithuania" |
-        COUNTRY == "Georgia" |
         COUNTRY == "Hungary" |
         COUNTRY == "Romania" |
         COUNTRY == "Poland",
