@@ -1,9 +1,12 @@
 data/
 _targets/
-scratch.R
+scratch*.R
 .DS_Store
 .vscode/
 writing/thesis.pdf
 writing/presentation.html
 writing/presentation_files/
 writing/bibliography.bib
+Rplots.pdf
+*.log
+*fdb_latexmk
