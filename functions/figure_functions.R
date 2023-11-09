@@ -938,7 +938,7 @@ map_cluster_proportions <- function(dt) {
         geom_polygon(
             fill = alpha("gray", 0.4),
             color = color_scheme(1),
-            size = 0.01
+            linewidth = 0.005
         ) +
         geom_polygon(
             aes(
@@ -1045,7 +1045,7 @@ map_educational_representation <- function(dt) {
         geom_polygon(
             fill = alpha("gray", 0.4),
             color = color_scheme(1),
-            size = 0.01
+            linewidth = 0.005
         ) +
         geom_polygon(
             aes(
