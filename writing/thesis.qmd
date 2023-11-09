@@ -46,6 +46,7 @@ format:
 link-citations: true
 urlcolor: blue
 reference-location: block
+csl: elsevier-harvard.csl
 bibliography: "bibliography.bib"
 ---
 
@@ -65,12 +66,15 @@ library(kableExtra)
 tar_config_set(store = "../_targets/")
 knitr::opts_chunk$set(
   out.width="100%",
-  dev="png"
+  dev="png",
+  fig.dpi = 600
 )
 
 knitr::knit_hooks$set(inline = function(x) {
   prettyNum(x, big.mark=",")
 })
+
+tar_load(children_clusters)
 
 ```
 
@@ -113,7 +117,7 @@ All in all, these findings suggest that both family transitions and long-term fa
 
 The variety of childhood family structures and transition have been documented to some extent in Europe from a child-centered perspective. A general patterns that has been found is that children from socio-economically disadvantaged groups experience family disruptions to a larger degree. In Sweden, children are more likely to experience parental separation if their parents are less-educated [@kennedy_childrens_2010]. This is also echoed in @kalmijn_new_2021, where similar results were found also for Belgium, Czech Republic, Estonia, France, Hungary, Norway and the United Kingdom. They also found the this differential risk of parental divorce has been increasing since the 1980's. When it comes to stepfamily formation, @turunen_entering_2011 found no effect of parental education on the risk of entering a stepfamily after having lived with a single parent (either due to separation or being borne to a lone parent) for Swedish children. Thus, the risk of entering a complex family seems to be largely dependent on the different separation risks that children experience.
 
-It is important to note that there are large cross-national variations in risks of parental divorce and stepfamily formation in Europe. Using life-table methods, @andersson_life-table_2017 describe these risks for a large set of European countries. From their descriptive analysis we can see that the risk of parental separation by age 15 is highest in parts of the post-Socialist countries (Russia 42%, Estonia 36%, Lithuania 35% but also France 35%) while its the lowest in Southern Europe and the southern parts of post-Socialist Europe (Georgia 10%, Bulgaria 12%, Spain 12% and Italy 12%). There are no clear patterns when it comes to the proportions experiencing a stepfamily after parental separation but it varies from 14% (Georgia and Italy) up to 60% (Belgium). As for births to single mothers, who are neither in cohabitation or marriage, The Czech Republic and Russia stands out with 13% of children experiencing this. But there are also high levels in France, Estonia, Lithuania and Poland (8% of all children in these countries.) On the other side of the spectrum we have the Sweden (2%), Norway (3%), Netherlands (3%) and Georgia (3%). 
+It is important to note that there are large cross-national variations in risks of parental divorce and stepfamily formation in Europe. Using life-table methods, @andersson_life-table_2017 describe these risks for a large set of European countries. From their descriptive analysis we can see that the risk of parental separation by age 15 is highest in parts of the post-Socialist countries (Russia 42%, Estonia 36%, Lithuania 35% but also France 35%) while its the lowest in Southern Europe and the southern parts of post-Socialist Europe (Georgia 10%, Bulgaria 12%, Spain 12% and Italy 12%). There are no clear patterns when it comes to the proportions experiencing a stepfamily after parental separation but it varies from 14% (Georgia and Italy) up to 60% (Belgium). As for births to single mothers, who are neither in cohabitation or marriage, The Czech Republic and Russia stands out with 13% of children experiencing this. But there are also high levels in France, Estonia, Lithuania and Poland (8% of all children in these countries.) On the other side of the spectrum we have Sweden (2%), Norway (3%) and Netherlands (3%).
 
 Other aspects which are important to consider when tracing children's family experiences, both in the US and in Europe, is if cohabitation is included as a measure as well as the prevalence of joint physical custody and father-only households. Relying on the US National Survey of Family Growth,  @rally_cohabitation_2004 found that when adding family transitions into and out of cohabitation, family instability (calculated from transitions into and out of parental partnerships) increased by 30% for White children and over 100% for Black children. This highlights the importance of including cohabitation in studies on family complexity. For all countries studied, @andersson_life-table_2017 also found that experiencing a parental separation is more common for children born into cohabiting unions. As for joint physical custody, in a majority of European countries it is a fringe arrangement that only 5% or less of children experience, whilst it is quite common in Sweden (21%) and Belgium (13.5%) [@steinbach_joint_2021]. This makes it hard to examine the actual family experiences of children based on surveys where parents are the anchors or where children's experiences are not tracked after separation on both the maternal and paternal side. If the prevalence was similar across countries it would be simpler to approximate children's experiences based on parental reports. Current praxis of following children's family trajectories on the maternal side will now under report the total experienced complexity more in countries such as Sweden and Belgium whereas it will be a good approximation in countries where joint physical custody is uncommon. For instance, estimates of the proportion of children with half-siblings have been found to be lower if there is fertility information only on one parent [@cancian_evolution_2011]. There are findings from the UK which show that children's family complexity (measured with a compound complexity index) are similar between father's and mother's family lives over childhood [@rowold_cohort_2022], indicating that a fair share of complexity is missed when only accounting for children's experiences on the maternal side. Attempts to ameliorate this issue have been made [see @kalmijn_multi-actor_2018] but is so far uncommon. 
 
@@ -179,7 +183,7 @@ The aim of this thesis is to further our understanding of children's family live
   1. What are the most common family trajectories among European children, and how do they vary across countries? 
   2. How does the risk of experiencing a particular family trajectory differ by the mother's socioeconomic status, as measured by level of education?
 
-Given the descriptive character of this paper I will not do any formal hypothesis testing but given the theories and previous research outlined above, I have some expectations of what will be seen in the data. As for the first research question, I expect that we will see the smallest variation in Southern Europe and the southern countries in post-Socialist Europe where a large majority of children will live their entire childhood in intact families. In the norhtern Post-Socialist countries, I expect there the be a fare share of non-intact family trajectories which will consist of both children born to lone mothers and to children of divorce. In Scandinavia I expect that trajectories driven by lone mothers will be rare, but that there will be a sizable share of children of divorce. Similar patterns are expected for Western Europe, perhaps with a smaller degree of stepfamilies and somewhat larger degree of single-mother families compared to Scandinavia. As for the second research question, I expect that the proportion of children with intact family histories will increase with increasing education. In particular, I expect that the incidence of non-intact families driven by birth to single mothers will decrease with education. 
+Given the descriptive character of this paper I will not do any formal hypothesis testing but given the theories and previous research outlined above, I have some expectations of what will be seen in the data. As for the first research question, I expect that we will see the smallest variation in Southern Europe and the southern countries in post-Socialist Europe where a large majority of children will live their entire childhood in intact families. In the norhtern Post-Socialist countries, I expect there to be a fare share of non-intact family trajectories which will consist of both children born to lone mothers and to children of divorce. In Scandinavia I expect that trajectories driven by lone mothers will be rare, but that there will be a sizable share of children of divorce. Similar patterns are expected for Western Europe, perhaps with a smaller degree of stepfamilies and somewhat larger degree of single-mother families compared to Scandinavia. As for the second research question, I expect that the proportion of children with intact family histories will increase with increasing education. In particular, I expect that the incidence of non-intact families driven by birth to single mothers will decrease with education. 
 
 # Data and Methods
 
@@ -267,10 +271,9 @@ The analysis is performed in R and relies on the packages **TraMineR** and  **We
 
 ## Ethical considerations
 
-The Harmonized Histories data set is de-identified to protect the personal integrity of the study participants and all analysis presented are as aggregated results. In order to get access to the data I have signed a pledge of confidentiality, pledging not the share the data and only perform analysis related to the approved project. The data collection has been approved in each individual country and has been done under the oversight of the GGP Ethics Board and its Data Protection Office. I do not deal with any directly sensitive personal data such as ethnicity, political opinions or union membership. 
+The Harmonized Histories data set is de-identified to protect the personal integrity of the study participants and all analysis presented are as aggregated results. In order to get access to the data I have signed a pledge of confidentiality, pledging not the share the data and only perform analysis related to the approved project. The data collection has been approved in each individual country and has been done under the oversight of the GGP Ethics Board and its Data Protection Office. I do not deal with any directly sensitive personal data such as ethnicity, political opinions or union membership. Thus, this paper has small to no likelihood of harming survey participants in any way. On the other hand, we can not expect there to be any direct benefits to the survey participants either. The indirect benefits, which are shared with the rest of the European population, may come from an increased understanding of childrens family structures and how it relates to both country of residence and socioeconomic status. In the long term, this research may contribute a small piece of understanding on what drives childrens' family conditions, which is a first step to improving them.
 
-In order the improve both the transparancy and reproducibility of my research all code for generating the results, as well as the thesis, is available as a replication package at GitHub [@gustafsson_addegezonfamily_complexity_in_childhood_2022]. Anyone wishing the reproduce this research will have to apply for the Harmononized History dataset and then it will be possible to re-run my exact analyses using the replication package.  Using version control all changes in the project have been tracked so it is possible to follow the research process in detail. 
-
+In order the improve both the transparancy and reproducibility of my research all code for generating the results, as well as the thesis, is available as a replication package at GitHub [@gustafsson_addegezonfamily_complexity_in_childhood_2022]. Anyone wishing the reproduce this research will have to apply for the Harmononized History dataset and then it will be possible to re-run my exact analyses using the replication package. I have used version control for both the code and the writing of the thesis, allowing any one interested to scrutinize the research process in great detail and with full transparancy.
 
 # Results
 
@@ -286,12 +289,12 @@ The results from the cluster diagnostic bootstrap is presented in @fig-cwi. The 
 tar_read(p_cluster_cqi)
 ```
 
-We also see that the top scoring solutions for the Average Sillhoute Width are the 7- and 10-cluster solutions, and the 5- and 7-cluster solutions for Hubert's C. When examining the clusters visually as well as their size, I find that the 5-cluster solution is the most useful for this analysis. The 10-cluster solution is to large and some of the group sizes are too small for any analyses, and the same problem occurs for the 7-cluster solution. Working with five clusters still allows us to uncover heterogeneity in the complex family trajectories while still getting enough power to perform subgroup analyses (for visualisations of the 7- and 10-cluster solution consult the @fig-seven-cluster and @fig-ten-cluster in the Appendix).
+We also see that the top scoring solution for the Average Sillhoute Width is the 6-cluster solution, and Hubert's C the solutions are progressively getting better for each number of cluster above 5. Given that the Average Sillhoute Width suggests the 6-cluster solution and that this gives a solution with a fair amount of children in each cluster, I choose to use the 6-cluster solution in my analysis. Working with six clusters still allows us to uncover heterogeneity in the complex family trajectories while still getting enough power to perform subgroup analyses.
 
 
 ## Final clusters
 
-The 5-cluster solution is visualized in @fig-joint-plot. This is a compound figure which is composed of three different visualization for each cluster. The top plot is a sequence index plot, which displays all the individual sequences within a cluster as a horizontal line. For clarity, this plot is sorted by when the first state transition occurs. The middle plot, which in some cases looks quite similar, is a state distribution plot. Here the $y$-axis shows the proportion of cluster members who are in each state at time point $x$. It can be read as a series of stacked bar charts laid out over time. Finally, the bottom plot show the medoid sequence for each cluster. This is the sequence which has the shortest mean distance to all other sequences in the cluster. It can be interpreted as the most typical sequence in the set. The labels are my own qualitative descriptions of the clusters, and should be interpreted with caution and in relation to the information displayed.
+The 6-cluster solution is visualized in @fig-joint-plot. This is a compound figure which is composed of three different visualization for each cluster. The top plot is a sequence index plot, which displays all the individual sequences within a cluster as a horizontal line. For clarity, this plot is sorted by when the first state transition occurs. The middle plot, which in some cases looks quite similar, is a state distribution plot. Here the $y$-axis shows the proportion of cluster members who are in each state at time point $x$. It can be read as a series of stacked bar charts laid out over time. Finally, the bottom plot show the medoid sequence for each cluster. This is the sequence which has the shortest mean distance to all other sequences in the cluster. It can be interpreted as the most typical sequence in the set. The labels are my own qualitative descriptions of the clusters, and should be interpreted with caution and in relation to the information displayed.
 
 ```{r}
 #| echo: false
@@ -299,43 +302,55 @@ The 5-cluster solution is visualized in @fig-joint-plot. This is a compound figu
 #| fig-cap: "Compound plots of the 5-cluster solution. For each cluster the topmost plot is a sequence index plot, the middle plot a state distribution plot and the bottom plot is a visualization of the medoid sequence. Each show different distributions of the states OP (Original Parents), Single (living with a single mother) and Step (living with mother and stepfather)."
 #| fig-height: 8
 
-tar_read(p_clusters_5) +
+tar_read(p_clusters_6) +
   theme(
     plot.title = element_text(size = 2),
   )
 ```
 
-A first thing to note is that the "Intact original family" cluster is by far the largest one, with around `r round(tar_read(children_clusters)[cluster == "Intact original family",.N]/tar_read(children_clusters)[,.N] * 100, 0)`% of children in the full sample belonging to this cluster. On the opposite end of the spectrum we have the "Original family to stepfamily" cluster, which is composed of  `r round(tar_read(children_clusters)[cluster == "Original family to stepfamily",.N], 0)` children. Before showing the distribution of these clusters by country, I would like to spend some time to discuss each cluster and what information we can derive from these joint visualizations.
+A first thing to note is that the "Intact original family" cluster is by far the largest one, with around `r round(children_clusters[cluster == "Intact original family",.N]/children_clusters[,.N] * 100, 0)`% of children in the full sample belonging to this cluster. On the opposite end of the spectrum we have the "Later stepfamily" cluster, which is composed of  `r round(children_clusters[cluster == "Later stepfamily",.N], 0)` children. Before showing the distribution of these clusters by country, I would like to spend some time to discuss each cluster and what information we can derive from these joint visualizations.
 
-Starting of with the "Intact original family" cluster, we see that not all individuals actually live in an intact original family throughout childhood. A fair proportion (`r tar_read(children_clusters)[cluster == "Intact original family", round(sum(FAMILY_STATE177 != "OP")/.N, 2)]`) of children actually experience parental separation at some point, but all of them experience it after the age of 6. This highlights the need to be careful when infering group characteristics from sequence clusters.
+Starting of with the "Intact original family" cluster, we see that not all individuals actually live in an intact original family throughout childhood. A fair proportion (`r children_clusters[cluster == "Intact original family", round(sum(FAMILY_STATE177 != "OP")/.N, 2)]`) of children actually experience parental separation at some point, but all of them experience it after the age of 6. This highlights the need to be careful when infering group characteristics from sequence clusters.
 
-The cluster "Original family to stepfamily" is composed of children who are all born into a parental union and spend at least some time in it before their parents divorce and eventually ending up in a stepfamily. In the index plot we can see that most children spend quite a short time with a single mother before she repartners, which is also highlighted in the medoid plot. In both the the index and state distribution plot, we see that some children end up living with a single mother again towards the end of the observed period. 
+<!-- The cluster "Original family to stepfamily" is composed of children who are all born into a parental union and spend at least some time in it before their parents divorce and eventually ending up in a stepfamily. In the index plot we can see that most children spend quite a short time with a single mother before she repartners, which is also highlighted in the medoid plot. In both the index and state distribution plot, we see that some children end up living with a single mother again towards the end of the observed period.  -->
 
-In the third plot, "Early separation", we observe a group of children where all are born into a parental union and the bulk experience a parental separation early on in childhood. A few experience stepfamily formation but most remain with a single mother throughout childhood. Here we can note that there is no "late separation" cluster, these have instead been classified with the "Intact original family" group.
+In the third plot, "Separation", we observe a group of children where all are born into a parental union and the bulk experience a parental separation between the ages 6 and 9. A few experience stepfamily formation but most remain with a single mother throughout childhood. Here we can note that there is no "late separation" cluster, these few have instead been classified with the "Intact original family" group. The cluster "Single mother" consists mostly of children who spend their entire childhood with a single mother, but there are som who also live in a stepfamily or with their original parents in early childhood for a brief period of time. 
 
-The cluster "Single mother" consists mostly of children who spend their entire childhood with a single mother, but there are som who also live in a stepfamily or with their original parents in early childhood for a brief period of time. The fifth category, "Single mother to stepfamily", seems to contain some heterogeneity within the cluster where we see two common forms of family trajectories. The dominant one, which I've named the cluster after, consists of children being born to a single mother and who then enter a stepfamily before the age of 10. There is also a small group who are born into a union but experience a divorce shortly afterwards. 
+The fifth category, "Early stepfamily", seems to contain some heterogeneity within the cluster where we see two common forms of family trajectories. The dominant one, which I've named the cluster after, consists of children being born to a single mother and who then enter a stepfamily before the age of 10. There is also a small group who are born into a union but experience a divorce shortly afterwards. The sixth category "Later stepfamily" also contains these two types of trajectories, but here stepfamily formation occurs later in childhood. 
 
-In @fig-complex-proportion we see the proportion of children that are in each cluster, on a country by country basis, grouped by region. The left part of the figure shows the proportion of all children and the right hand figure shows the distrubtion over only those children who are not classified as "Intact original family". This is so that we can see in better detail how the distribution looks of these family sequence types. Countries are sorted within their respective region by the proportion of children beloning to the "Intact original family" group. 
+<!-- In @fig-complex-proportion we see the proportion of children that are in each cluster, on a country by country basis, grouped by region. The left part of the figure shows the proportion of all children and the right hand figure shows the distrubtion over only those children who are not classified as "Intact original family". This is so that we can see in better detail how the distribution looks of these family sequence types. Countries are sorted within their respective region by the proportion of children beloning to the "Intact original family" group.  -->
+
+In @tbl-proportion-family-type we see the percentages of children belonging to each cluster by European country. Within square brackets I also show the 95% confidence intervals. A quick glance reveals that there are large variations between countries in how common membership in particular trajectory groups are, for instance membership in the "Intact original family" groups ranges from 72% of Austrian children to 90.5% of Italian families. 
 
 ```{r}
 #| echo: false
-#| label: fig-complex-proportion
-#| fig-cap: "Proportion of children cluster by country, grouped by region. The right plot shows "
-#| fig-height: 8
+#| results: "asis"
+#| label: tbl-proportion-family-type
+#| tbl-cap: "The proportion of children classified according to each family type by European country grouped by region, with 95% confidence intervals in square brackets."
 
-tar_read(p_combined_proportions)
-
+tar_read(tab_proportion_family_type) |> 
+  kableExtra::kable_styling(font_size = 7) |>
+  kableExtra::column_spec(2:8, width = "1.7cm") 
 ```
+
+What is also evident is that there are no obvious patterns related to the regions I defined. There seems to be much variation within the regions given. In order to discover potential geographical patterns, I calculate the relative risk of belonging the each cluster in each country, as compared to the European mean risk. This is shown in @fig-map-cluster. A value close to one indicates that the risk of belonging to a particular cluster is the same in that country as the average risk in Europe. A value higher than one (green colors in the figure) indicates that the cluster is more common in that country than the European average. So a value of 2 shows that the cluster is twice is common in a given country as compared to the European average. At the other end, values lower than one (red colors) indicate that the cluster is less common than on average in Europe.
+
 
 ```{r}
 #| echo: false
 #| label: fig-map-cluster
-#| fig-cap: "Proportion of children cluster by country, grouped by region. The right plot shows "
+#| fig-cap: "Relative proportion of children in a country belonging to a cluster (as compared to the European mean). Gray countries are not included in the analysis. "
 #| fig-height: 10
 
-tar_read(p_map_cluster) + theme(text = element_text(size = 8))
+tar_read(p_map_cluster) + theme(text = element_text(size = 8))  
 
 ```
+
+Looking at these six maps, a pattern emerges that was not immediately visible in @tbl-proportion-family-type. There seems to be a general pattern that Italy, Bulgaria, Romania, Hungary and Poland always have proportions below the European mean for all clusters except for the intact family cluster. This appears to also be the case for Spain execpt for the clusters Early- and Late stepfamily. This gives us a South-South Eastern axis of similar cluster distributions. A second axis, although more diverse, is the Western to North Eastern axis comprised of the remaining countries with the exception of the Netherlands. In all of these, complex trajectories seem to be more common than in the South/South east but the proportion belonging to a particular trajectory type is not always similar. Two of the most polarizing clusters along these axis are _Original family to stepfamily_ and _Separation_, which are two clusters that are both driven by being born into a partnership and then experiencing a parental sepration. This appears to be more common along Western-North Eastern axis, and where the more Northern countries have an overrepresentation of children entering a stepfamily after sepration, whereas this seems to be less common in the other along this axis. 
+
+In terms of the clusters that are driven by birth to single mothers (or very early separations), they are all less common along the southern axis with the exception of Spain, where children are more likely than the European average to experience stepfamily formation after being born to a single mother. Among the more central and northern countries, living with a single mother throughout childhood is more common than the European average with the exception of Austria, Sweden and Norway. But it is also common for children to experience stepfamily formation after being born to a single mother. The countries were a particularily high proportion of children experience any of the single mother-driven trajectories (_Single mother_, _Early_- and _Late stepfamily_) are Belarus, Lithuania and Austria with around 15% of children being classified in any of these trajectories.
+
+As outlined in the theory section, we can expect these patterns to shift once we take the mother's socioeconomic status into account and therefore I also present the cluster distributions by maternal educational level. In @fig-map-edu this is visualized as a matrix of maps with the cluster on the x-axis and maternal educational level on the y-axis. The color of the countries is once again representing a kind of relative risk, but this time not between countries but rather between educational levels within countries. In this case, a relative risk of 1 indicates that the maternal educational level is as common among children of a particular cluster as it is in the countries population as a whole. A relative risk of 2 indicates that the particular maternal educational level is twice as common within a particular cluster in relation to the population as a whole. This illustrates if mothers of a certain socioeconomic status is over- or underrepresented within each particular cluster, for each particular country.
 
 ```{r}
 #| echo: false
@@ -362,37 +377,3 @@ tar_read(p_map_edu) + theme(text = element_text(size = 8))
 
 # Appendix
 
-```{r}
-#| echo: false
-#| results: "asis"
-#| label: tbl-proportion-family-type
-#| tbl-cap: "The proportion of children classified according to each family type by European country, with 95% confidence intervals in square brackets. The NA values arise because there are no Georgian children in the Mutiple single spells-cluster."
-
-tar_read(tab_proportion_family_type) |> 
-  kableExtra::kable_styling(font_size = 7) |>
-  kableExtra::column_spec(2:8, width = "1.7cm") 
-```
-
-```{r}
-#| echo: false
-#| label: fig-seven-cluster
-#| fig-cap: "5-cluster solution"
-#| fig-height: 8
-
-tar_read(p_clusters_7) +
-  theme(
-    plot.title = element_text(size = 2),
-  )
-```
-
-```{r}
-#| echo: false
-#| label: fig-ten-cluster
-#| fig-cap: "10-cluster solution"
-#| fig-height: 8
-
-tar_read(p_clusters_10) +
-  theme(
-    plot.title = element_text(size = 2),
-  )
-```
