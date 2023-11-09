@@ -105,18 +105,21 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
 }
 
 tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
+    library(kableExtra)
+    library(forcats)
 
     dt <- copy(dt)
 
     # # Generate no. of observations per country
-     dt[, country_n := .N, by = "COUNTRY"]
+    dt[, country_n := .N, by = "COUNTRY"]
 
     # Sum dt by number in each cluster and number of observations by country
     dt <- unique(
         dt[, 
             .(
                 number = .N,
-                country_n = country_n
+                country_n = country_n, 
+                region = region
             ), 
             by = .(COUNTRY, cluster)
         ]
@@ -131,7 +134,7 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
                     conf.level = .95
             )[c('estimate','conf.int')]
         ),
-        by = .(COUNTRY, cluster)
+        by = .(COUNTRY, cluster, region)
     ]
     
     # Arrange it for tabbing
@@ -144,15 +147,15 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
         mean := data.table::transpose(CI)
     ]
     dt[,
-        mean := as.character(round(mean,2))
+        mean := as.character(round(mean*100,1))
     ]
     dt[
         is.na(mean),
         mean := paste0(
             "[",
-            round(lower,2),
+            round(lower*100,1),
             ", ",
-            round(upper,2),
+            round(upper*100,1),
             "]"
         )
     ]
@@ -160,19 +163,19 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
     # To wide format
     dt_mean <- dcast(
         dt[seq_len(nrow(dt)) %% 2 == 1],
-        COUNTRY ~ cluster,
+        COUNTRY + region ~ cluster,
         value.var = "mean"
     )
 
     dt_conf <- dcast(
         dt[seq_len(nrow(dt)) %% 2 == 0],
-        COUNTRY ~ cluster,
+        COUNTRY + region~ cluster,
         value.var = "mean"
     )
 
     # Bind together the tables
     table <- rbindlist(list(dt_mean, dt_conf))
-    setorder(table, COUNTRY, "Intact original family")
+    setorder(table, region, COUNTRY, "Intact original family")
     table[
         seq_len(nrow(table)) %% 2 == 0,
         COUNTRY := " "
@@ -181,11 +184,11 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
     # Make final table
     setnames(table, "COUNTRY", "Country")
     tab <- knitr::kable(
-        table,
+        table[,!'region'],
         format = format,
         booktabs = booktabs,
         linesep = if (booktabs) c('', '\\addlinespace') else '\\hline'
-    )
+    ) |> pack_rows(index = table(fct_inorder(table$region)))
     return(tab)
 }
 
@@ -219,8 +222,8 @@ plot_colors <- function(scale_type = "fill"){
 
     named_scheme <- c(
         "OP" = color_scheme(1),
-        "Single" = color_scheme(3),
-        "Step" = color_scheme(6)
+        "Single" = color_scheme(6),
+        "Step" = color_scheme(3)
     )
 
 
@@ -424,7 +427,7 @@ joint_plot <- function(
         guides(
             fill = guide_legend(
                 reverse = TRUE,
-                nrow = 2
+                nrow = 1
             )
         )
     )
@@ -618,7 +621,7 @@ plot_cluster_proportions <- function(dt) {
         ) + 
         plot_theme() + 
         scale_fill_manual(
-            values = color_scheme(c(1, 2, 3, 5, 6)),
+            values = color_scheme(c(1, 2, 3, 5, 6, 7)),
             guide = guide_legend(reverse = TRUE)
         ) +
         theme(
@@ -669,7 +672,7 @@ plot_complex_proportions <- function(dt) {
         ) + 
         plot_theme() + 
         scale_fill_manual(
-            values = color_scheme(c(2, 3, 5, 6)),
+            values = color_scheme(c(2, 3, 5, 6, 7)),
             guide = guide_legend(reverse = TRUE)
         ) +
         theme(
@@ -885,7 +888,7 @@ map_cluster_proportions <- function(dt) {
 
     europe <- subset(world, region %in% c("Albania", "Andorra", "Armenia", "Austria", "Azerbaijan",
                                         "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria",
-                                        "Croatia", "Cyprus", "Czechia","Denmark","Estonia","Finland", 
+                                        "Croatia", "Cyprus", "Czech Republic","Denmark","Estonia","Finland", 
                                         "France","Georgia", "Germany", "Greece","Hungary","Iceland", 
                                         "Ireland", "Italy", "Kosovo", "Latvia","Liechtenstein", 
                                         "Lithuania", "Luxembourg","Malta","Moldova","Monaco","Montenegro",
@@ -894,7 +897,6 @@ map_cluster_proportions <- function(dt) {
                                         "Sweden","Switzerland","Turkey","Ukraine","UK","Vatican"))
 
     europe <- as.data.table(europe)
-
     europe <- europe[subregion != "Svalbard" | is.na(subregion)]
     europe[, COUNTRY := region]
 
@@ -910,17 +912,23 @@ map_cluster_proportions <- function(dt) {
 
     dt[, prop_cluster := as.double(.N), by = .(COUNTRY, cluster)]
     dt[, prop_cluster := prop_cluster/.N, by = .(COUNTRY)]
+    
+    
+    dt[, eu_mean_cluster := as.double(.N), by = .(cluster)]
+    dt[, eu_mean_cluster := eu_mean_cluster/.N, ]
+    dt[, rr_cluster := prop_cluster/eu_mean_cluster]
 
     map_dat <- merge(
         europe, 
-        unique(dt[,.(COUNTRY, region,cluster, prop_cluster)]), 
+        unique(dt[,.(COUNTRY, region,cluster, prop_cluster, rr_cluster)]), 
         by = c("COUNTRY", "cluster"), 
         all.x = TRUE, 
         allow.cartesian = TRUE
     ) 
 
-    map_dat[, prop_cluster := scale(prop_cluster), by = .(cluster)]
 
+
+    #map_dat[, prop_cluster := scale(prop_cluster), by = .(cluster)]
 
 
     plot <- ggplot(
@@ -934,7 +942,7 @@ map_cluster_proportions <- function(dt) {
         ) +
         geom_polygon(
             aes(
-                fill = prop_cluster
+                fill = rr_cluster
             ), 
             color = color_scheme(1)
         ) +
@@ -946,15 +954,17 @@ map_cluster_proportions <- function(dt) {
         scale_fill_gradient2(
             low = alpha(color_scheme(5),1),
             high = alpha(color_scheme(3),1),
-            na.value = alpha(color_scheme(1), 0)
+            na.value = alpha(color_scheme(1), 0),
+            midpoint = 1
         ) +
         facet_wrap(~cluster) + 
         plot_theme() +
         theme(
-        axis.text=element_blank(),
-        axis.ticks=element_blank(),
-        axis.title = element_blank(),
-        strip.text = element_text(color = color_scheme(1))
+            axis.text=element_blank(),
+            axis.ticks=element_blank(),
+            axis.title = element_blank(),
+            strip.text = element_text(color = color_scheme(1)),
+            legend.position="bottom"
         )
 
 
@@ -967,7 +977,7 @@ map_educational_representation <- function(dt) {
 
     europe <- subset(world, region %in% c("Albania", "Andorra", "Armenia", "Austria", "Azerbaijan",
                                         "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria",
-                                        "Croatia", "Cyprus", "Czechia","Denmark","Estonia","Finland", 
+                                        "Croatia", "Cyprus", "Czech Republic","Denmark","Estonia","Finland", 
                                         "France","Georgia", "Germany", "Greece","Hungary","Iceland", 
                                         "Ireland", "Italy", "Kosovo", "Latvia","Liechtenstein", 
                                         "Lithuania", "Luxembourg","Malta","Moldova","Monaco","Montenegro",
@@ -997,8 +1007,9 @@ map_educational_representation <- function(dt) {
     data_grouped <- merge(data_grouped, total_sector_counts, by = c("COUNTRY", "cluster"), all.x = TRUE)
 
     data_grouped[, total_pop := sum(count), by = "COUNTRY"]
-    data_grouped[, representation := (count/total_count_clust)/(total_count_edu/total_pop)]
+    #data_grouped[, relative_risk := (count/total_count_clust)/(total_count_edu/total_pop)]
 
+    data_grouped[, relative_risk := (count/total_count_edu)/(total_count_clust/total_pop)]
 
     clusters <- levels(dt$cluster)
     EDU_3 <- levels(dt$EDU_3)
@@ -1038,7 +1049,7 @@ map_educational_representation <- function(dt) {
         ) +
         geom_polygon(
             aes(
-                fill = representation
+                fill = relative_risk
             ), 
             color = color_scheme(1)
         ) +
@@ -1056,11 +1067,12 @@ map_educational_representation <- function(dt) {
         facet_grid(cluster ~ EDU_3) + 
         plot_theme() +
         theme(
-        axis.text=element_blank(),
-        axis.ticks=element_blank(),
-        axis.title = element_blank(),
-        strip.text = element_text(color = color_scheme(1)),
-        strip.text.y.right = element_text(angle = 270)
+            axis.text=element_blank(),
+            axis.ticks=element_blank(),
+            axis.title = element_blank(),
+            strip.text = element_text(color = color_scheme(1)),
+            strip.text.y.right = element_text(angle = 270),
+            legend.position="bottom"
         )
 
     return(plot)
