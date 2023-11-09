@@ -2,7 +2,6 @@ library(targets)
 library(tarchetypes)
 source("functions/data_functions.R")
 source("functions/figure_functions.R")
-progressr::handlers(global = TRUE)
 
 
 tar_option_set(
@@ -176,10 +175,11 @@ list(
         seqnullcqi(
             family_sequence,
             cluster_quality,
-            R = 50,
+            R = 75,
             model = c("combined"),
             seqdist.args = list(method = "DHD"),
-            hclust.method = "ward.D2"
+            hclust.method = "ward.D2",
+            progressbar = FALSE
         )
     ),
 
@@ -203,59 +203,41 @@ list(
     ),
 
     tar_target(
-        group_labels,
+        group_labels_6,
         c(
             "Intact original family",
             "Original family to stepfamily",
+            "Separation",
             "Single mother",
             "Early stepfamily",
-            "Single mother to stepfamily"
+            "Later stepfamily"
         )
     ),
 
     # Generate sequence plots
+
     tar_target(
-        p_clusters_5,
+        p_clusters_6,
         joint_plot(
             family_sequence,
             family_diss,
-            groups = cutree(family_clusters, k = 5),
+            groups = cutree(family_clusters, k = 6),
             weights = final_data_agg$aggWeights,
-            group_labels = group_labels
+            group_labels = group_labels_6
         )
     ),
+
 
     # Alternative sequence plots for appendix
-    tar_target(
-        p_clusters_7,
-        joint_plot(
-            family_sequence,
-            family_diss,
-            groups = cutree(family_clusters, k = 7),
-            weights = final_data_agg$aggWeights,
-            group_labels = 1:7
-        )
-    ),
-
-    tar_target(
-        p_clusters_10,
-        joint_plot(
-            family_sequence,
-            family_diss,
-            groups = cutree(family_clusters, k = 10),
-            weights = final_data_agg$aggWeights,
-            group_labels = 1:10
-        )
-    ),
 
     # Append cluster to final data
     tar_target(
         children_clusters,
         final_data[, 
             cluster := factor(
-                cluster_quality$clustering$cluster5[final_data_agg$disaggIndex],
-                levels = 1:5,
-                labels = group_labels
+                cluster_quality$clustering$cluster6[final_data_agg$disaggIndex],
+                levels = 1:6,
+                labels = group_labels_6
         )
         ]
     ),
