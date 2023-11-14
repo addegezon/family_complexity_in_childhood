@@ -227,6 +227,14 @@ list(
         )
     ),
 
+    tar_target(
+        p_index,
+        index_plot(
+            family_sequence,
+            cutree(family_clusters, k = 6),
+            group_labels_6
+        )
+    ),
 
     # Alternative sequence plots for appendix
 
@@ -286,6 +294,11 @@ list(
     tar_target(
         p_map_cluster,
         map_cluster_proportions(children_clusters)
+    ),
+
+    tar_target(
+        p_map_cluster_complex,
+        map_cluster_proportions(children_clusters[cluster != group_labels_6[1]])
     ),
 
     tar_target(

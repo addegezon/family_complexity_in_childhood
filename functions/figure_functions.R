@@ -444,6 +444,41 @@ joint_plot <- function(
     return(grid_legend)
 }
 
+index_plot <- function(sequence, groups, group_labels) {
+    library(ggseqplot)
+    names(group_labels) <- unique(groups)
+
+    group_factor <- factor(groups, levels = unique(groups), labels = group_labels)
+    
+    index_plot <- ggseqiplot(
+        sequence,
+        group = group_factor,
+        sortv = "from.start"
+    ) +
+        plot_theme() +
+        plot_colors("fill") + 
+        plot_colors("color") +
+        theme(
+            plot.title = element_text(size = 8),
+            legend.position = "bottom",
+            axis.ticks = element_blank(),
+            axis.title.y = element_blank(),
+            axis.text.y = element_blank(),
+            plot.margin = margin(c(10,0,0,0)),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            strip.background = element_blank(),
+            panel.border = element_rect(colour = color_scheme(1), fill = NA),
+            strip.text = element_text(colour = color_scheme(1), size = 7),
+            aspect.ratio = 1
+        ) +
+        scale_x_discrete(breaks = seq(from=0, to=60, by = 12), labels = seq(from=0, to=60, by = 12)/4 )
+
+    return(index_plot)
+
+}
+
+
 # Plot sibling proportions
 plot_sibling_proportions <- function (dt) {
 
@@ -1009,7 +1044,7 @@ map_educational_representation <- function(dt) {
     data_grouped[, total_pop := sum(count), by = "COUNTRY"]
     #data_grouped[, relative_risk := (count/total_count_clust)/(total_count_edu/total_pop)]
 
-    data_grouped[, relative_risk := (count/total_count_edu)/(total_count_clust/total_pop)]
+    data_grouped[, relative_risk := (count/total_count_clust)/(total_count_edu/total_pop)]
 
     clusters <- levels(dt$cluster)
     EDU_3 <- levels(dt$EDU_3)
@@ -1039,7 +1074,7 @@ map_educational_representation <- function(dt) {
     map_dat[, EDU_3 := factor(EDU_3, levels = c("Low", "Medium", "High"))]
 
     plot <- ggplot(
-        data = map_dat[cluster != "Intact original family"], 
+        data = map_dat, 
         aes(x = long, y = lat, group = group)
     ) + 
         geom_polygon(
@@ -1075,7 +1110,7 @@ map_educational_representation <- function(dt) {
             legend.position="bottom"
         )
 
-    return(plot)
+    return(list(plot, data_grouped))
 }
 
 
