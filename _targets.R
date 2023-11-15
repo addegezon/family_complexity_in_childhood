@@ -302,8 +302,18 @@ list(
     ),
 
     tar_target(
-        p_map_edu,
-        map_educational_representation(children_clusters)
+        p_map_edu_complex,
+        map_educational_representation(children_clusters, dropclusters = group_labels_6[1])
+    ),
+
+    tar_target(
+        p_map_edu_intact,
+        map_educational_representation(children_clusters, dropclusters = group_labels_6[2:6])
+    ),
+
+    tar_target(
+        tab_education_proportions,
+        tab_cluster_education(children_cluster)
     )
 
     # # Drops

@@ -192,6 +192,24 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
     return(tab)
 }
 
+tab_cluster_education <- function(dt, format = "latex", booktabs = TRUE) {
+    library(kableExtra)
+    library(forcats)
+    dt <- tar_read(children_clusters)
+
+    dt[!is.na(EDU_3), proportion := as.double(.N), by = .(COUNTRY, EDU_3)]
+    dt[!is.na(EDU_3), proportion := round((.N*100)/proportion, 1), by = .(COUNTRY, cluster, EDU_3)]
+    dt_tab <- unique(dt[!is.na(EDU_3),.(COUNTRY, EDU_3, cluster, proportion)])
+    dt_tab <- dcast(dt_tab, COUNTRY + EDU_3 ~ cluster, value.var = "proportion")
+    tab <- knitr::kable(
+        dt_tab[, !'COUNTRY'],
+        format = format,
+        booktabs = booktabs,
+        linesep = if (booktabs) c('', '\\addlinespace') else '\\hline'
+    ) |> 
+        pack_rows(index = table(fct_inorder(dt_tab$COUNTRY)))
+}
+
 ##
 # Plots
 
@@ -1006,7 +1024,7 @@ map_cluster_proportions <- function(dt) {
     return(plot)
 }
 
-map_educational_representation <- function(dt) {
+map_educational_representation <- function(dt, dropclusters = " ") {
 
     world <- map_data("world")
 
@@ -1027,6 +1045,11 @@ map_educational_representation <- function(dt) {
 
     ## Educational standardization
     dt <- dt[!is.na(EDU_3)]
+
+    dt[EDU_3 == "Low", EDU_3 := "Primary"]
+    dt[EDU_3 == "Medium", EDU_3 := "Secondary"]
+    dt[EDU_3 == "High", EDU_3 := "Tertiary"]
+
 
     # Group by country, educational level, and occupational sector, and count the number of individuals in each group
     data_grouped <- dt[, .(count = .N), by = .(COUNTRY, EDU_3, cluster)]
@@ -1071,7 +1094,12 @@ map_educational_representation <- function(dt) {
     allow.cartesian = TRUE
     )
 
-    map_dat[, EDU_3 := factor(EDU_3, levels = c("Low", "Medium", "High"))]
+    
+    map_dat[, EDU_3 := factor(EDU_3, levels = c("Primary", "Secondary", "Tertiary"))]
+    map_dat <- map_dat[!is.na(EDU_3)]
+    map_dat[, EDU_3 := droplevels(EDU_3)]
+
+    map_dat <- map_dat[!(cluster %in% dropclusters)]
 
     plot <- ggplot(
         data = map_dat, 
@@ -1107,7 +1135,8 @@ map_educational_representation <- function(dt) {
             axis.title = element_blank(),
             strip.text = element_text(color = color_scheme(1)),
             strip.text.y.right = element_text(angle = 270),
-            legend.position="bottom"
+            legend.position="bottom",
+            text = element_text(size = 8)
         )
 
     return(list(plot, data_grouped))
