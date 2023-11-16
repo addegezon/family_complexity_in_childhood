@@ -313,7 +313,7 @@ list(
 
     tar_target(
         tab_education_proportions,
-        tab_cluster_education(children_cluster)
+        tab_cluster_education(children_clusters)
     )
 
     # # Drops

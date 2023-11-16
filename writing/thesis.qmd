@@ -1,6 +1,5 @@
 ---
-title: "Childhood Family Trajectories in 16 European Countries"
-subtitle: "WORK IN PROGRESS"
+title: "Childhood Family Structure Trajectories in 16 European Countries"
 author: "Andreas Gustafsson"
 date: today
 date-format: long
@@ -80,21 +79,15 @@ tar_load(children_clusters)
 
 # Introduction
 
-The European family dynamics of the late 20th and early 21st century has undergone large changes as compared to previous decades. In particular through increasing family complexity. From the amassed family demography literature, the majority of attention has been placed on investigating the family complexity generating processes of divorce, re-partnering and multipartner fertility from the adult perspective and less is known about the family transitions of children. The demographic studies that have been carried on children's experiences of family transitions in Europe [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014], have primarily looked at the degree to which children experience particular events. Albeit important, transitions are only one part of the family experience. Increasing attention has been placed on the importance of also studying duration as well as the sequence of transitions. This has been done withing the US literature on childhood family experiences [@mitchell_pathways_2013;@johnston_two_2020] using profile based methods such as latent class analysis and sequence analysis but so far it has not been done on a representative sample of the European child population. 
+The European family dynamics of the late 20th and early 21st century has undergone large changes as compared to previous decades. In particular through increasing family complexity. From the amassed family demography literature, the majority of attention has been placed on investigating the family complexity generating processes of divorce, re-partnering and multipartner fertility from the adult perspective and less is known about the family transitions of children. Having a good picture of to what degree and when children experience different family circumstances are important as both family structure and transitions have the potential to influence child wellbeing and future outcomes [@fomby_family_2007]. There is a vast literature on both proximate and long term effects of family structure on a diverse set of outcomes. For instance, recent finding indicate that proximate effects of living in a stepfamily can range from lower test scores in primary school [@lee_family_2022] to insomnia [@nilsen_sleep_2022] to excess externalizing problems [@mostafa_impact_2018]. At the same time these effects are contested and an earlier review has found mixed support for the association between family structure and child outcomes [@hadfield_changes_2018]. 
 
-Further, there has been ample research on how these family demographic changes have developed in Europe, and how the processes have differed between European regions. This has often been approached through the Second Demographic Transition theory. Despite this rich flora of comparative research, very little has been done to document the implications for children's family trajectories and to what degree they differ between countries. Open questions that remain to be answered are to what degree children's family experience mirror adult experiences and if the same processes that drive changes in adult family trajectories also affect children in the same fashion. In terms of divorce, it seems that the increasing rate of separations among adult couples have not been mirrored among children, and that it is highly dependent on parental educational level [@kalmijn_new_2021]. In some European countries, children of highly educated parents have not experienced an increased risk of parental separation at all. 
+The demographic studies that have been carried on children's experiences of family transitions in Europe [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014], have primarily looked at the degree to which children experience particular events. Albeit important, transitions are only one part of the family experience. Increasing attention has been placed on the importance of also studying duration as well as the sequence of transitions. This has been done withing the US literature on childhood family experiences [@mitchell_pathways_2013;@johnston_two_2020] using profile based methods such as latent class analysis and sequence analysis but so far it has not been done on a representative sample of the European child population. In order to fully understand the changes in family structure changes during childhood we are in need of methodological advancements to better capture potential diversity.
 
-Understanding the family structures and transitions of children are not only important from a purely descriptive point of view, but also because both family structure and transitions have the potential to influence child wellbeing and future outcomes [@fomby_family_2007]. 
+Further, there has been ample research on how these family demographic changes have developed in Europe, and how the processes have differed between European regions. This has often been approached through the Second Demographic Transition theory. Despite this rich flora of comparative research, very little has been done to document the implications for children's family trajectories and to what degree they differ between countries. Open questions that remain to be answered are to what degree children's family experience mirror adult experiences and if the same processes that drive changes in adult family trajectories also affect children in the same fashion. In terms of divorce, it seems that the increasing rate of separations among adult couples have not been mirrored among children, and that it is highly dependent on parental educational level [@kalmijn_new_2021]. In some European countries, children of highly educated parents have not experienced an increased risk of parental separation at all [@kalmijn_new_2021]. 
 
-<!-- 
-Since it has been proposed that family transitions have a negative effect on the well-being of children [@fomby_family_2007] and because there is evidence of this effect [@hadfield_changes_2018], it is important to understand to what extent children experience family transitions and what the patterns are. Demographic studies that have been conducted on children's experience of family disruption and parental re-partnering [such as @andersson_childrens_2002;@kennedy_childrens_2010; @thomson_family_2014] have primarily looked at the degree to which children experience particular events. Albeit important, this does not fully capture the accumulated experience of family complexity over childhood. 
- -->
-
-
-The objective of this thesis is to provide a descriptive analysis of children's family structure trajectories in Europe. In particular I will answer the questions (1) What are the most common family trajectories among European children, and how do they vary across European countries and regions? (2) How does the risk of experiencing a particular family trajectory differ by the mother's socioeconomic status, as measured by level of education? This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis, through which I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country by country basis. Further, I will describe how the most common trajectories are associated with the mother's socioeconomic status. 
+The objective of this thesis is to provide a descriptive analysis of children's family structure trajectories in Europe. In particular I will answer the questions (1) What are the most common family trajectories among European children, and how do they vary across European countries and regions? (2) How does the risk of experiencing a particular family trajectory differ by the mother's socioeconomic status, as measured by level of education? This will be accomplished by generating a set of family history sequences for European children, based on the Harmonized History data set. Analysis will be performed by sequence analysis, through which I will generate clusters of the most common family trajectories of European children. I will then perform a descriptive analysis of the proportion of children who experience these trajectories on a country by country basis. Further, I will describe how the most common trajectories are associated with the mother's socioeconomic status. This will contribute to our current knowledge on children's family lives by describing how their family structure changes over time, relating it to both country of residence and socioeconomic background. Thus we will gain further knowledge on how children's family lives vary both within and between countries.
 
 Before describing the methods in greater detail, I will outline the main theoretical frameworks of this thesis as well as previous research on children's experiences of family structure changes. In the end I will present the results of my analysis and put them into context in the discussion and conclusion sections.
-
 
 # Theory and previous research 
 
@@ -106,15 +99,9 @@ One of the most well studied childhood family transition is divorce, along with 
 
 There are also consequences on school outcomes. @havermans_family_2014 found an association between divorce and less school engagement among Belgian children. Large part of the effect was mediated by the parent-child relationship, financial problems at home and parental conflict. Swedish children experiencing divorce have also been found to show decreased psychological well-being and lower educational attainments [@gahler_parental_2015]
 
-In opposition to divorce, the event of re-partnerning has also been studied, but not to the same degree. @bachman_is_2009 studied adolescent from low-income urban US families, and found that neither risks nor benefits increased as a result of maternal marriage on a wide battery of adolescent well-being indicators. Although introducing a new partner in the household increased financial resources, it was not associated with improvements in home-environment or maternal well-being, which could explain why adolescent functioning did not increase significantly. In a further US study, children's academic achievement was not found to be improved when their single mother married [@wagmiller_does_2010]. The small benefits to academic performance was also to a large degree distributed among the children to mother's with higher education. There is yet little evidence for the case that maternal re-marriages increases the life chances and well-being of their children [@hadfield_changes_2018].
+In opposition to divorce, the event of re-partnering has also been studied, but not to the same degree. @bachman_is_2009 studied adolescent from low-income urban US families, and found that neither risks nor benefits increased as a result of maternal marriage on a wide battery of adolescent well-being indicators. Although introducing a new partner in the household increased financial resources, it was not associated with improvements in home-environment or maternal well-being, which could explain why adolescent functioning did not increase significantly. In a further US study, children's academic achievement was not found to be improved when their single mother married [@wagmiller_does_2010]. The small benefits to academic performance was also to a large degree distributed among the children to mother's with higher education. There is yet little evidence for the case that maternal re-marriages increases the life chances and well-being of their children [@hadfield_changes_2018].
 
 Apart from the outcomes of family transitions, there is also a literature on the effects of the long term states of living with a single mother or in a stepfamily, contrasted with living in a nuclear family with original parents. For the case of single mother families in the U.S, @fomby_family_2017 found that children born to lone mothers showed higher levels of behavioral problems than those born into nuclear families. Youth in single mother families in Germany have also been found to experience lower well-being than those in living with their mother and father, or their mother and a stepfather [@walper_effects_2015]. There are also external factors to consider, which might influence the well-being of children in single mother families, one example comes from Sweden where living in a single parent household has been found to be associated with a higher risk of bullying for children [@laftman_national_2017].
-
-Finally, there have also been seen that living in a stepfamily may be associated with negative outcomes for children... __TO BE WRITTEN__
-
-
-<!-- excess externalizing behavior for boys in stepfamilies [@mostafa_impact_2018]  -->
-
 
 All in all, these findings suggest that both family transitions and long-term family states matter for the well-being of children in several dimensions. A consequence of this is also that studies that focus on either transitions or states will miss out the other process, indicating a need for a approaches taking both of these factors into account in the study of children's family lives. This has also been highlighted by @pearce_increasing_2018, who argue that to go further in our understanding of the associations between family complexity and its related outcomes, we are in need of new methods. A set of method which they suggest as a potential way forward are "profile-based" methods, such as latent class analysis and sequence analysis. A more detailed discussion of this approach will follow in later sections.
 
@@ -191,7 +178,7 @@ Given the descriptive character of this paper I will not do any formal hypothesi
 
 ## Analytical strategy
 
-The first step in the analysis consists of defining family states and generating individual family sequences. As the data does not track both original parents of a child, I will only follow the mother's partnership trajectory with the assumption that children are residing at least part time with their mother during their childhood. Thus, joint physical custody is not taken into account, and the family trajectories on the father's side are not measured. This will make the measures of family complexity biased downwards. A positive note is that it will avoid the problem that men tend to under report their number of children in retrospective surveys [@juby_where_1999]. So although an analysis solely on the mother's side is a limitation, we can proceed as long as we keep that limitation in mind. Having constructed the parental structure sequence, I compute sequence dissimilarities and generate clusters for the full study population. The final number of clusters are selected using both cluster quality criteria and the substantive significance of the cluster division.
+The first step in the analysis consists of defining family states and generating individual family sequences. As the data does not track both original parents of a child, I will only follow the mother's partnership trajectory with the assumption that children are residing at least part time with their mother during their childhood. This is an assumption I have to make as the data does not contain information if the child resides with the responding parent. Thus, joint physical custody and father only households are not taken into account, and the family trajectories on the father's side are not measured. This will probably make the measures of family complexity biased downwards. A positive note is that it will avoid the problem that men tend to under report their number of children in retrospective surveys [@juby_where_1999]. So although an analysis solely on the mother's side is a limitation, we can proceed as long as we keep that limitation in mind. Having constructed the parental structure sequence, I compute sequence dissimilarities and generate clusters for the full study population. The final number of clusters are selected using both cluster quality criteria and the substantive significance of the cluster division.
 
 The problems of the validity of clustering typologies have been recognized for a long time, and methods for ameliorating this deficit have been developed within the bioinformatics literature [for an overview see @von_luxburg_clustering_2010], few sequence analysis studies within the social sciences have taken this issue to heart. In order to improve the validity of the typology, I will use a parametric bootstrap technique proposed by @hennig_flexible_2015 and implemented for sequence data by @studer_validating_2021 to aid with the selection of the final clusters.
 
@@ -203,7 +190,11 @@ The data used in this study comes from the birth and union histories in the Harm
 
 The surveys were conducted differently in different countries. Generally, they were conducted through interviews [@fokkema_generations_2016], but self-filled web questionnaires were also used [@instituto_nacional_de_estadistica_fertility_2019]. Different sampling procedures were also used and more detailed information can be found in @fokkema_generations_2016 and @perelli-harris_harmonized_2010. Response rates are avaialble for most surveys and are presented below. 
 
-In @tbl-1 I show basic information about the study population. For all countries in the study children born between 1980 and 1988 are included. For some countries such as Belgium, Netherlands, Poland, Spain and Sweden there are also children born well into the 1990's and the early 2000's. Each country, except Austria, is well represented with over 1,000 children. Belarus, Norway, Poland and Spain all have over 3,300 children included. That over 12,000 of the `r tar_read(final_data)[,.N]` respondents come from the Catholic countries Poland and Spain, might bias the analysis towards favouring clustering solutions which works well for these particular family contexts. Which is a discussion I will return to later.
+To construct my analytical sample from the Harmonized History dataset, I start of by excluding countries from the data set. Germany is excluded due to its poor family history data and the UK is excluded due to oversampling respondents with low socioeconomic status. Non-European countries are also removed. I then have `r tar_read(parents_tagged)[,.N]` total observations from `r length(tar_read(parents_tagged)[,unique(COUNTRY)])` different countries. I remove all men from the sample. Next, I remove childless women and respondents with missing birth information. I remove those where there is missing information on time of union or dissolution, overlapping relationships and those where a union dissolution is reported to have occurred before the union start. 
+
+In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have `r tar_read(children_tagged)[,.N]` children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 15, I remove those in the sample who have not turned 16 at the time of interview as well as those who left home or died before their 16^th^ birthday. As I am interested in family changes after the advent of the Second Demographic Transition, I only keep those children born after 1980. In total `r tar_read(final_data)[,.N]` children, to `r tar_read(final_data)[unique(RESPID),.N]` mothers, remained in the sample. 
+
+In @tbl-1 I show basic information about the study population. For all countries in the study children born between 1980 and 1988 are included. For some countries such as Belgium, Netherlands, Poland, Spain and Sweden there are also children born well into the 1990's and the early 2000's. Each country, except Austria, is well represented with over 1,000 children. Belarus, Norway, Poland and Spain all have over 3,300 children included. That over 12,000 of the `r tar_read(final_data)[,.N]` respondents come from the Catholic countries Poland and Spain, might bias the analysis towards favouring clustering solutions which works well for these particular family contexts. Which is a discussion I will return to later. Apart from this, there is a well balanced sample with good representation from all European regions and enough respondents to perform subgroup analyses. 
 
 ```{r table1}
 #| echo: false
@@ -213,14 +204,6 @@ In @tbl-1 I show basic information about the study population. For all countries
 
 tar_read(table_1)
 ```
-
-Other than that there is a well balanced sample, with good representation from all European regions, and enough respondents to perform subgroup analyses. 
-
-I start of by excluding several countries from the data set. Germany is excluded due to its poor family history data and the UK is excluded due to oversampling respondents with low socioeconomic status. Uruguay, Kazakhstan, Canada and the U.S are removed as they are not European countries.
-
-I then have `r tar_read(parents_tagged)[,.N]` total observations from `r length(tar_read(parents_tagged)[,unique(COUNTRY)])` different countries. I remove all men from the sample. Next, I remove childless women and respondents with missing birth information. I remove those where there is missing information on time of union or dissolution, overlapping relationships and those where a union dissolution is reported to have occurred before the union start. 
-
-In order to be able to analyze the trajectories from the children's lived experience I reshape the data so that each child becomes a unit of observation. At the start I have `r tar_read(children_tagged)[,.N]` children. I remove children with missing birth month or where the birth is reported to have occurred before the mother is born. As I want to track children's' experiences until the end of age 15, I remove those in the sample who have not turned 16 at the time of interview as well as those who left home or died before their 16^th^ birthday. As I am interested in family changes after the advent of the Second Demographic Transition, I only keep those children born after 1980. In total `r tar_read(final_data)[,.N]` children, to `r tar_read(final_data)[unique(RESPID),.N]` mothers, remained in the sample. 
 
 ## Sequence generation
 
@@ -306,7 +289,12 @@ The 6-cluster solution is visualized in @fig-index-plot. This is a sequence inde
 #| fig-cap: "Sequence index plot of the 6-cluster solution. The horizontal axis represents time, spanning the entire childhood, and each line is an individual famiy trajectory. Each show different distributions of the states OP (Original Parents), Single (living with a single mother) and Step (living with mother and stepfather)."
 #| fig-height: 8
 
-tar_read(p_index)
+tar_read(p_index) + 
+  theme(
+    axis.text = element_text(size = 7),
+    strip.text = element_text(size = 7),
+    plot.margin = margin(0,3,0,0)
+  )
 ```
 
 A first thing to note is that the "Intact original family" cluster is by far the largest one, with around `r round(children_clusters[cluster == "Intact original family",.N]/children_clusters[,.N] * 100, 0)`% of children in the full sample belonging to this cluster. On the opposite end of the spectrum we have the "Later stepfamily" cluster, which is composed of  `r round(children_clusters[cluster == "Later stepfamily",.N], 0)` children. Before showing the distribution of these clusters by country, I would like to spend some time to discuss each cluster and what information we can derive from these visualizations.
@@ -334,7 +322,7 @@ tar_read(tab_proportion_family_type) |>
   kableExtra::column_spec(2:8, width = "1.7cm") 
 ```
 
-What is also evident is that there are no obvious patterns related to the regions I defined. There seems to be much variation within the regions given. In order to discover potential geographical patterns, I calculate the relative risk of belonging the each cluster in each country, as compared to the European mean risk. This is shown in @fig-map-cluster. A value close to one indicates that the risk of belonging to a particular cluster is the same in that country as the average risk in Europe. A value higher than one (green colors in the figure) indicates that the cluster is more common in that country than the European average. So a value of 2 shows that the cluster is twice is common in a given country as compared to the European average. At the other end, values lower than one (red colors) indicate that the cluster is less common than on average in Europe.
+What is also evident is that there are no obvious patterns related to the regions I defined. There seems to be much variation within the regions given. In order to discover potential geographical patterns, I calculate the relative risk of belonging the each cluster in each country, as compared to the European mean risk. This is shown in @fig-map-cluster. A value close to one indicates that the risk of belonging to a particular cluster is the same in that country as the average risk in Europe. A value higher than one (green colors in the figure) indicates that the cluster is more common in that country than the European average. So a value of 2 shows that the cluster is twice is common in a given country as compared to the European average. At the other end, values lower than one (purple colors) indicate that the cluster is less common than on average in Europe.
 
 
 ```{r}
@@ -343,7 +331,11 @@ What is also evident is that there are no obvious patterns related to the region
 #| fig-cap: "Relative proportion of children in a country belonging to a cluster (as compared to the European mean). Gray countries are not included in the analysis. "
 #| fig-height: 10
 
-tar_read(p_map_cluster) + theme(text = element_text(size = 8))  
+tar_read(p_map_cluster) + 
+  theme(
+    text = element_text(size = 8),
+    legend.title = element_blank()
+  )  
 
 ```
 
@@ -351,12 +343,12 @@ Looking at these six maps, a pattern emerges that was not immediately visible in
 
 In terms of the clusters that are driven by birth to single mothers (or very early separations), they are all less common along the southern axis with the exception of Spain, where children are more likely than the European average to experience stepfamily formation after being born to a single mother. Among the more central and northern countries, living with a single mother throughout childhood is more common than the European average with the exception of Austria, Sweden and Norway. But it is also common for children to experience stepfamily formation after being born to a single mother. The countries were a particularily high proportion of children experience any of the single mother-driven trajectories (_Single mother_, _Early_- and _Late stepfamily_) are Belarus, Lithuania and Austria with around 15% of children being classified in any of these trajectories.
 
-As outlined in the theory section, we can expect these patterns to shift once we take the mother's socioeconomic status into account and therefore I also present the cluster distributions by maternal educational level. In @fig-map-edu this is visualized as a matrix of maps with the cluster on the x-axis and maternal educational level on the y-axis. The color of the countries is once again representing a kind of relative risk, but this time not between countries but rather between educational levels within countries. In this case, a relative risk of 1 indicates that the particular cluster is as common within that maternal educational level as it is in countries population as a whole, disregarding maternal education. A relative risk of 2 indicates that the particular cluster is twice as common among children to mothers of that particular educational level, in relation to the population as a whole. This illustrates if children of particular clusters are over- or underrepresented among mothers of low, medium or high educaiton for each individual country. The cluster  _Intact original family_ has its own scale for the plot colors in order for the differences between educational levels to be visible.
+As outlined in the theory section, we can expect these patterns to shift once we take the mother's socioeconomic status into account and therefore I also present the cluster distributions by maternal educational level. In @fig-map-edu this is visualized as a matrix of maps with the cluster on the y-axis and maternal educational level on the x-axis. The color of the countries is once again representing a kind of relative risk, but this time not between countries but rather between educational levels within countries. In this case, a relative risk of 1 indicates that the particular cluster is as common within that maternal educational level as it is in countries population as a whole, disregarding maternal education. A relative risk of 2 indicates that the particular cluster is twice as common among children to mothers of that particular educational level, in relation to the population as a whole. This illustrates if children of particular clusters are over- or underrepresented among mothers of low, medium or high educaiton for each individual country. The cluster  _Intact original family_ has its own scale for the plot colors in order for the differences between educational levels to be visible. The exact proportions can be found in @tbl-edu in the Appendix. 
 
 ```{r}
 #| echo: false
 #| label: fig-map-edu
-#| fig-cap: "Proportion of children cluster by country, grouped by region. The right plot shows "
+#| fig-cap: "Relative risk of mother's having primary, secondary and tertiary education for each cluster as compared to educational distribution of the mother sample in each country. "
 #| fig-height: 10
 tar_load(p_map_edu_intact)
 tar_load(p_map_edu_complex)
@@ -372,7 +364,7 @@ cowplot::plot_grid(
 
 Among those children in the _Intact original family_ cluster, we see a clear educational gradient for most countries. Children in this cluster tend to have tertiary educated mothers to a higher degree than average. One exception to this rule is Poland, where children in this cluster tend to have mother's with a secondary education to a higher extent than the sample average. Italy and Lithuania also follow a pattern where children in this cluster are overrepresented when their mother's have a primary or tertiary education, but underrepresented among mother's with secondary education. 
 
-Moving to the _Original family to stepfamily_ cluster, we see that this cluster is overrepresented among children whose mothers have primary and secondary education among many of the Northern, Western and Central countries (Norway, Sweden, Estonia, Lithuania, Netherlands, Czech Republic, Austria and to some degree France). But for the Southern axis this cluster is underpresented among children to mothers with only primary education and is instead overrepresented among children who's mothers have secondary or tertiary education. For instance, the relative risk of children of this cluster to have a mother with secondary education in Italy is `r p_map_edu_complex[[2]][COUNTRY == "Italy" & cluster == "Original family to stepfamily" & EDU_3 == "Secondary", round(relative_risk,2)]`. The Polish case shows a similar pattern as in the case of the _Intact original family_-cluster. Also here, the cluster is overpresented among children to mothers with primary and tertiary education, but underepresented among children to mothers with medium education.
+Moving to the _Original family to stepfamily_ cluster, we see that this cluster is overrepresented among children whose mothers have primary and secondary education among many of the Northern, Western and Central countries (Norway, Sweden, Estonia, Lithuania, Netherlands, Czech Republic, Austria and to some degree France). But for the Southern axis this cluster is underpresented among children to mothers with only primary education and is instead overrepresented among children who's mothers have secondary or tertiary education. For instance, the relative risk of children of this cluster to have a mother with secondary education in Italy is `r p_map_edu_complex[[2]][COUNTRY == "Italy" & cluster == "Original family to stepfamily" & EDU_3 == "Secondary", round(relative_risk,2)]`. The Polish case shows a similar pattern as in the case of the _Intact original family_-cluster. Also here, the cluster is overpresented among children to mothers with primary and tertiary education, but underepresented among children to mothers with secondary education.
 
 For children in the _Separation_ cluster, they are generally underrepresented among mothers with only primary education, with the exception of Sweden, Hungary and Bulgaria. They are slightly overrepresented to mothers with secondary education in Spain, Italy and Norway and finally overrepresented when mother's have a tertiary education in Austria, Hungary, Romania, Spain, Sweden and Lithuania. For France, Poland and Estonia, there seem to be no to very modest effects of education. In general, there is no clear geographical or educational pattern that emereges for this cluster.
 
@@ -382,28 +374,45 @@ In sum, we see that when comparing European countries without taking socioeconom
 
 # Discussion
 
-
+\dots
 
 ## Limitations
 
+There are a set of limitations with this study which are important to keep in mind when reading and interpreting results, as well as when designing further studies on children's family demography. The first limitation, which partly comes from the data and partly by design choice, is the removal of father's partnership histories as discussed in the method section. What is needed to ameliorate this is information on where the child resides after divorce. However, it would also require a more complex methodology as both parents partnership trajectories would have to be modelled in tandem for each child. 
+
+Another set of limitations related to the data are the study period, overrepresentaiton of certain countries as well as response rates. The study period, in which I track children born between 1980 and 2003 with the bulk being born in the 1980's and early 1990's, can seem somewhat outdated and is perhaps a bit too early to really capture recent changes in family demographic behaviours. At the same time it captures an important time point when changes were on the way but perhaps had not yet fully manifested in all countries studied. In terms of overrepresentation of certain countries, this is primarily a potential issue for the cluster analysis where countries with more children represented will have a stronger weight in which clustering solutions are chosen. There is no clear way to fix this issue as using survey weights would have introduced the problem that larger countries would shape the clustering solution to a larger extent. Another cross country issue, is the one of survey response rates. Some response rates are relatively high around 70-85%, which is an indicator that the sample will be nationally representative. Other response rates, such as Italy at 19.1% or Poland at 33.%, are very low and thus the results from these countries need to be interpreted with caution in relation to their national validity. 
+
+Finally, another limitation of this study is that I do not capture the entire family context of the children that I study. Apart from the parental structure, siblings are also an important component of family life. In particular in relation to changing parental dynamics, where we can expect changes in half- and stepsibling composition occuring during the time period that I study. I intentionelly left out siblings as this would have made the family trajectories way more complex, having to constuct one parental trajectory and one sibling trajectory. However, I do think this is a very important topic and suggestions for further studies would be to focus on a smaller set of countries (or only one) but instead taking the sibling history into account.
+
 # Conclusion
+
+\dots
 
 # Acknowledgments
 
-
+\dots
 
 # References
 
 ::: {#refs}
 :::
 
-# Appendix
+\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}
 
-```{r table-edu}
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{A\arabic{figure}}
+
+# Appendix {.appendix}
+
+```{r}
 #| echo: false
 #| results: "asis"
-#| label: table-edu
-#| tbl-cap: "Descriptive information on survey years, response rates, cohorts included and number of children from each country. Some response rates are missing due to the sampling procedure of the surveys."
+#| label: tbl-edu
+#| tbl-cap: "Percentage of children in each cluster, over country by maternal level of education."
 
 tar_read(tab_education_proportions) |> 
   kableExtra::kable_styling(font_size = 7) |>

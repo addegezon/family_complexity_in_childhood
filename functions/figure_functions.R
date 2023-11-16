@@ -195,7 +195,10 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
 tab_cluster_education <- function(dt, format = "latex", booktabs = TRUE) {
     library(kableExtra)
     library(forcats)
-    dt <- tar_read(children_clusters)
+
+    dt[EDU_3 == "Low", EDU_3 := "Primary"]
+    dt[EDU_3 == "Medium", EDU_3 := "Secondary"]
+    dt[EDU_3 == "High", EDU_3 := "Tertiary"]
 
     dt[!is.na(EDU_3), proportion := as.double(.N), by = .(COUNTRY, EDU_3)]
     dt[!is.na(EDU_3), proportion := round((.N*100)/proportion, 1), by = .(COUNTRY, cluster, EDU_3)]
@@ -1094,7 +1097,7 @@ map_educational_representation <- function(dt, dropclusters = " ") {
     allow.cartesian = TRUE
     )
 
-    
+
     map_dat[, EDU_3 := factor(EDU_3, levels = c("Primary", "Secondary", "Tertiary"))]
     map_dat <- map_dat[!is.na(EDU_3)]
     map_dat[, EDU_3 := droplevels(EDU_3)]
