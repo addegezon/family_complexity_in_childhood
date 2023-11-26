@@ -83,28 +83,31 @@ format_data <- function(dt) {
         COUNTRY == "Netherlands" |
         COUNTRY == "Belgium" |
         COUNTRY == "Austria",
-        region := "Western Europe"
+        region := "Western"
     ]
     dt[
-        COUNTRY == "Bulgaria" |
         COUNTRY == "Belarus" |
         COUNTRY == "Czech Republic" |
         COUNTRY == "Estonia" |
         COUNTRY == "Lithuania" |
         COUNTRY == "Hungary" |
-        COUNTRY == "Romania" |
         COUNTRY == "Poland",
-        region := "Post-socialist"
+        region := "Central-Eastern"
+    ]
+    dt[
+        COUNTRY == "Bulgaria" |
+        COUNTRY == "Romania",
+        region := "South-Eastern"
     ]
     dt[
         COUNTRY == "Norway" |
         COUNTRY == "Sweden",
-        region := "Scandinavia" 
+        region := "Northern" 
     ]
     dt[
         COUNTRY == "Spain" |
         COUNTRY == "Italy",
-        region := "Southern Europe"
+        region := "Southern"
     ]
 
     # Merge all year and month columns into one date column
