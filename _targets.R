@@ -144,7 +144,7 @@ list(
         family_diss,
         seqdist(
             family_sequence,
-            method = "DHD"
+            method = "DHD",
         )
     ),
 
@@ -175,7 +175,7 @@ list(
         seqnullcqi(
             family_sequence,
             cluster_quality,
-            R = 75,
+            R = 50,
             model = c("combined"),
             seqdist.args = list(method = "DHD"),
             hclust.method = "ward.D2",
@@ -232,7 +232,8 @@ list(
         index_plot(
             family_sequence,
             cutree(family_clusters, k = 6),
-            group_labels_6
+            group_labels_6,
+            children_clusters
         )
     ),
 
@@ -292,13 +293,8 @@ list(
 
     # Map cluster
     tar_target(
-        p_map_cluster,
-        map_cluster_proportions(children_clusters)
-    ),
-
-    tar_target(
         p_map_cluster_complex,
-        map_cluster_proportions(children_clusters[cluster != group_labels_6[1]])
+        map_cluster_proportions(children_clusters, dropclusters = group_labels_6[1], group_labels_6)
     ),
 
     tar_target(
@@ -309,6 +305,16 @@ list(
     tar_target(
         p_map_edu_intact,
         map_educational_representation(children_clusters, dropclusters = group_labels_6[2:6])
+    ),
+
+    tar_target(
+        p_region_rr,
+        plot_region_rr(children_clusters)
+    ),
+
+    tar_target(
+        p_educational_rr,
+        plot_edu_rr(children_clusters)
     ),
 
     tar_target(

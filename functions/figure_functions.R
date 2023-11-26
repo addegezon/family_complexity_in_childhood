@@ -52,8 +52,8 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
 
     # Add Total row
     total_row <- data.table(
-        "COUNTRY" = "Total",
-        "region" = " ",
+        "COUNTRY" = "",
+        "region" = "Total",
         "svy_min" = collapsed[, min(svy_min)],
         "svy_max" = collapsed[, max(svy_min)],
         "mother_min" = collapsed[, min(mother_min)],
@@ -89,29 +89,28 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
         "N. children" = prettyNum(n_kids, big.mark = ",")
         )
     ]
-
-    setorder(table,Region, Country)
+    
+    table[, Region := factor(Region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern", "Total"))]
+    setorder(table, Region, Country)
 
     # Create table
     tab <- knitr::kable(
         table[,!'Region'],
         booktabs = booktabs,
         format = format
-    ) |> 
-        row_spec(1, hline_after = T) |> 
-        pack_rows(index = table(fct_inorder(table$Region))) 
+    ) |>
+        pack_rows(index = table(table$Region)) 
 
     return(tab)
 }
-
 tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
     library(kableExtra)
     library(forcats)
 
-    dt <- copy(dt)
-
     # # Generate no. of observations per country
     dt[, country_n := .N, by = "COUNTRY"]
+    dt[, region_n := .N, by = "region"]
+    dt[, total_n := .N]
 
     # Sum dt by number in each cluster and number of observations by country
     dt <- unique(
@@ -119,78 +118,66 @@ tab_cluster_proportions <- function(dt, format = "latex", booktabs = TRUE) {
             .(
                 number = .N,
                 country_n = country_n, 
-                region = region
+                region_n = region_n,
+                region = region,
+                total_n = total_n
             ), 
             by = .(COUNTRY, cluster)
         ]
     )
 
-    # Calculate mean and confidence intervals
-    dt <- dt[, 
-        .(
-            CI = prop.test(
-                    number,
-                    country_n,
-                    conf.level = .95
-            )[c('estimate','conf.int')]
-        ),
-        by = .(COUNTRY, cluster, region)
-    ]
-    
-    # Arrange it for tabbing
-    dt[
-        seq_len(nrow(dt)) %% 2 == 0,
-        c('lower', 'upper') := data.table::transpose(CI)
-    ]
-    dt[
-        seq_len(nrow(dt)) %% 2 == 1,
-        mean := data.table::transpose(CI)
-    ]
-    dt[,
-        mean := as.character(round(mean*100,1))
-    ]
-    dt[
-        is.na(mean),
-        mean := paste0(
-            "[",
-            round(lower*100,1),
-            ", ",
-            round(upper*100,1),
-            "]"
-        )
-    ]
-    
+    dt[, country_proportion := round((number*100)/country_n,2)]
+    dt[, region_proportion := round((sum(number)*100)/region_n,2), by = .(cluster, region)]
+    dt[, total_proportion := round((sum(number)*100)/total_n,2), by = "cluster"]
+
+
+   
     # To wide format
     dt_mean <- dcast(
-        dt[seq_len(nrow(dt)) %% 2 == 1],
+        dt,
         COUNTRY + region ~ cluster,
-        value.var = "mean"
+        value.var = "country_proportion"
     )
 
-    dt_conf <- dcast(
-        dt[seq_len(nrow(dt)) %% 2 == 0],
-        COUNTRY + region~ cluster,
-        value.var = "mean"
+    dt_region <- dcast(
+        unique(dt[,.(region, cluster, region_proportion)]),
+        region ~ cluster,
+        value.var = "region_proportion"
+    )
+
+    dt_region <- data.table(COUNTRY = rep("Total", nrow(dt_region)), dt_region)
+
+    dt_total <- unique(
+        dcast(
+            dt,
+            COUNTRY + region ~ cluster,
+            value.var = "total_proportion"
+        )[,':='(COUNTRY = " ", region = "Total") ]
     )
 
     # Bind together the tables
-    table <- rbindlist(list(dt_mean, dt_conf))
+    table <- rbindlist(list(dt_mean, dt_region, dt_total))
+    table[, region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern", "Total"))]
     setorder(table, region, COUNTRY, "Intact original family")
-    table[
-        seq_len(nrow(table)) %% 2 == 0,
-        COUNTRY := " "
-    ]
-
+    
+    
     # Make final table
     setnames(table, "COUNTRY", "Country")
     tab <- knitr::kable(
-        table[,!'region'],
+        table[,!c('region')],
         format = format,
         booktabs = booktabs,
         linesep = if (booktabs) c('', '\\addlinespace') else '\\hline'
-    ) |> pack_rows(index = table(fct_inorder(table$region)))
+    ) |> 
+        pack_rows(index = table(table$region)) |>
+        row_spec(
+            table[Country == "Total", which = TRUE], 
+            italic = TRUE
+        )
+
     return(tab)
 }
+
 
 tab_cluster_education <- function(dt, format = "latex", booktabs = TRUE) {
     library(kableExtra)
@@ -217,22 +204,41 @@ tab_cluster_education <- function(dt, format = "latex", booktabs = TRUE) {
 # Plots
 
 # Color scheme definition
+# color_scheme <- function(index = 1:8) {
+
+#     library(prismatic)
+
+#     col_scheme <- c(
+#             "#1E00BE",
+#             "#8D90F5",
+#             "#3CA651",
+#             "#70DC69",
+#             "#91289B",
+#             "#F0C3E6",
+#             "#FFBE2D",
+#             "#FFDC82"
+#         ) |> 
+#         clr_rotate(10) |>
+#         clr_alpha(alpha = 1)
+    
+#     return(col_scheme[index])
+
+# }
+
 color_scheme <- function(index = 1:8) {
 
     library(prismatic)
 
     col_scheme <- c(
-            "#1E00BE",
-            "#8D90F5",
-            "#3CA651",
-            "#70DC69",
-            "#91289B",
-            "#F0C3E6",
-            "#FFBE2D",
-            "#FFDC82"
-        ) |> 
-        clr_rotate(10) |>
-        clr_alpha(alpha = 1)
+            "#001F66",
+            "#001F6666",
+            "#99B852",
+            "#99B85266",
+            "#6a96b0",
+            "#6a96b066",
+            "#FF5900",
+            "#FF590066"
+        ) 
     
     return(col_scheme[index])
 
@@ -243,8 +249,8 @@ plot_colors <- function(scale_type = "fill"){
 
     named_scheme <- c(
         "OP" = color_scheme(1),
-        "Single" = color_scheme(6),
-        "Step" = color_scheme(3)
+        "Single" = color_scheme(3),
+        "Step" = color_scheme(7)
     )
 
 
@@ -263,13 +269,14 @@ plot_theme <- function(){
     library(ggplot2)
 
     p_theme = theme(
-        text = element_text(family="Helvetica", colour = "#5D00BBFF"),
-        axis.text = element_text(family="Helvetica", colour = "#5D00BBFF"),
+        text = element_text(family="Helvetica", colour = color_scheme(1)),
+        axis.text = element_text(family="Helvetica", colour = color_scheme(1)),
         panel.grid = element_blank(),
         panel.background = element_rect(fill = "white"),
-        panel.border = element_rect(color = "#5D00BBFF", fill = NA),
-        strip.background = element_rect(color = "#5D00BBFF", fill = NA),
-        strip.text.y.right = element_text(angle = 0, color = "#5D00BBFF")
+        panel.border = element_rect(color = color_scheme(1), fill = NA),
+        strip.background = element_rect(color = color_scheme(1), fill = NA),
+        strip.text.y.right = element_text(angle = 0, color = color_scheme(1)),
+        strip.text = element_text(color = color_scheme(1))
     )
 
     return(p_theme)
@@ -465,16 +472,24 @@ joint_plot <- function(
     return(grid_legend)
 }
 
-index_plot <- function(sequence, groups, group_labels) {
+index_plot <- function(sequence, groups, group_labels, dt) {
     library(ggseqplot)
     names(group_labels) <- unique(groups)
 
-    group_factor <- factor(groups, levels = unique(groups), labels = group_labels)
-    
+    dt[,cluster_proportion := as.double(.N)]
+    dt[,cluster_proportion := (.N*100)/cluster_proportion, by = .(cluster)]
+    group_proportions <- unique(dt[,.(cluster, cluster_proportion)])
+    group_labels2 <- paste0(group_labels, "\n (", round(group_proportions[order(match(cluster, group_labels))]$cluster_proportion,2), "%)")
+
+
+    group_factor <- factor(groups, levels = unique(groups), labels = group_labels2)
+
+   
     index_plot <- ggseqiplot(
         sequence,
         group = group_factor,
-        sortv = "from.start"
+        sortv = "from.start",
+        no.n = FALSE
     ) +
         plot_theme() +
         plot_colors("fill") + 
@@ -493,7 +508,7 @@ index_plot <- function(sequence, groups, group_labels) {
             strip.text = element_text(colour = color_scheme(1), size = 7),
             aspect.ratio = 1
         ) +
-        scale_x_discrete(breaks = seq(from=0, to=60, by = 12), labels = seq(from=0, to=60, by = 12)/4 )
+        scale_x_discrete(breaks = seq(from=0, to=60, by = 12), labels = seq(from=0, to=60, by = 12)/4)
 
     return(index_plot)
 
@@ -938,7 +953,7 @@ ggcqdensity <- function(
     return(density_plot)
 }
 
-map_cluster_proportions <- function(dt) {
+map_cluster_proportions <- function(dt, dropclusters = " ", group_labels) {
 
     world <- map_data("world")
 
@@ -955,6 +970,7 @@ map_cluster_proportions <- function(dt) {
     europe <- as.data.table(europe)
     europe <- europe[subregion != "Svalbard" | is.na(subregion)]
     europe[, COUNTRY := region]
+    europe[, region := NULL]
 
     clusters <- levels(dt$cluster)
 
@@ -966,8 +982,8 @@ map_cluster_proportions <- function(dt) {
     europe <- merge(europe, all_combinations, by = "COUNTRY", allow.cartesian = TRUE )
 
 
-    dt[, prop_cluster := as.double(.N), by = .(COUNTRY, cluster)]
-    dt[, prop_cluster := prop_cluster/.N, by = .(COUNTRY)]
+    dt[, prop_cluster := as.double(.N), by = .(region, cluster)]
+    dt[, prop_cluster := prop_cluster/.N, by = .(region)]
     
     
     dt[, eu_mean_cluster := as.double(.N), by = .(cluster)]
@@ -976,15 +992,14 @@ map_cluster_proportions <- function(dt) {
 
     map_dat <- merge(
         europe, 
-        unique(dt[,.(COUNTRY, region,cluster, prop_cluster, rr_cluster)]), 
+        unique(dt[,.(COUNTRY,region,cluster, prop_cluster, rr_cluster)]), 
         by = c("COUNTRY", "cluster"), 
         all.x = TRUE, 
         allow.cartesian = TRUE
     ) 
 
-
-
-    #map_dat[, prop_cluster := scale(prop_cluster), by = .(cluster)]
+    map_dat <- map_dat[!(cluster %in% dropclusters)]
+    map_dat[,cluster := factor(cluster, levels = c(group_labels, NA_character_))]
 
 
     plot <- ggplot(
@@ -992,7 +1007,7 @@ map_cluster_proportions <- function(dt) {
         aes(x = long, y = lat, group = group)
     ) + 
         geom_polygon(
-            fill = alpha("gray", 0.4),
+            fill = alpha("black", 0.5),
             color = color_scheme(1),
             linewidth = 0.005
         ) +
@@ -1013,7 +1028,7 @@ map_cluster_proportions <- function(dt) {
             na.value = alpha(color_scheme(1), 0),
             midpoint = 1
         ) +
-        facet_wrap(~cluster) + 
+        facet_wrap(~cluster, ncol = 2) + 
         plot_theme() +
         theme(
             axis.text=element_blank(),
@@ -1026,6 +1041,7 @@ map_cluster_proportions <- function(dt) {
 
     return(plot)
 }
+
 
 map_educational_representation <- function(dt, dropclusters = " ") {
 
@@ -1109,7 +1125,7 @@ map_educational_representation <- function(dt, dropclusters = " ") {
         aes(x = long, y = lat, group = group)
     ) + 
         geom_polygon(
-            fill = alpha("gray", 0.4),
+            fill = alpha("black", 0.5),
             color = color_scheme(1),
             linewidth = 0.005
         ) +
@@ -1143,6 +1159,151 @@ map_educational_representation <- function(dt, dropclusters = " ") {
         )
 
     return(list(plot, data_grouped))
+}
+
+plot_region_rr <- function(dt) {
+    library(forcats)
+    dt[, prop_cluster := as.double(.N), by = .(region, cluster)]
+    dt[, prop_cluster := prop_cluster/.N, by = .(region)]
+
+
+    dt[, eu_mean_cluster := as.double(.N), by = .(cluster)]
+    dt[, eu_mean_cluster := eu_mean_cluster/.N, ]
+    dt[, rr_cluster := prop_cluster/eu_mean_cluster]
+    dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
+    dt[, region := fct_rev(region)]
+
+
+    plot <- ggplot(unique(dt[,.(region, cluster, rr_cluster)])) +
+        geom_vline(
+                aes(xintercept = 1),
+                linetype = "dashed",
+                color = alpha(
+                    color_scheme(6),
+                    0.9
+                )
+            ) +
+        geom_point(
+            aes(x = rr_cluster, y = region),
+            color = color_scheme(1)
+        ) +
+        facet_wrap(~cluster) +
+        plot_theme() +
+        scale_x_continuous(name = "Relative risk") +
+        theme(
+            panel.grid.major.y = element_line(
+                color = alpha(
+                    color_scheme(1),
+                    0.4
+                ),
+                linewidth = 0.2,
+                linetype = 2
+            ),
+            axis.title.y = element_blank() 
+        )
+    return(plot)
+}
+
+plot_simple_edu_rr <- function(dt) {
+    dt <- dt[!is.na(EDU_3)]
+    dt[EDU_3 == "Low", EDU_3 := "Primary"]
+    dt[EDU_3 == "Medium", EDU_3 := "Secondary"]
+    dt[EDU_3 == "High", EDU_3 := "Tertiary"]
+
+    dt[, prop_cluster := as.double(.N), by = .(EDU_3, cluster)]
+    dt[, prop_cluster := prop_cluster/.N, by = .(EDU_3)]
+
+
+    dt[, eu_mean_cluster := as.double(.N), by = .(cluster)]
+    dt[, eu_mean_cluster := eu_mean_cluster/.N, ]
+    dt[, rr_cluster := prop_cluster/eu_mean_cluster]
+    dt[,EDU_3 := factor(EDU_3, levels = c("Primary", "Secondary", "Tertiary"))]
+
+
+    plot <- ggplot(unique(dt[,.(EDU_3, cluster, rr_cluster)])) +
+        geom_vline(
+                aes(xintercept = 1),
+                linetype = "dashed",
+                color = alpha(
+                    color_scheme(6),
+                    0.9
+                )
+            ) +
+        geom_point(
+            aes(x = rr_cluster, y = EDU_3),
+            color = color_scheme(1)
+        ) +
+        facet_wrap(~cluster) +
+        plot_theme() +
+        scale_x_continuous(name = "Relative risk") +
+        theme(
+            panel.grid.major.y = element_line(
+                color = alpha(
+                    color_scheme(1),
+                    0.4
+                ),
+                linewidth = 0.2,
+                linetype = 2
+            ),
+            axis.title.y = element_blank() 
+        )
+    return(plot)
+}
+
+plot_edu_rr <- function(dt) {
+    library(forcats)
+    dt <- dt[!is.na(EDU_3)]
+
+    dt[EDU_3 == "Low", EDU_3 := "Primary"]
+    dt[EDU_3 == "Medium", EDU_3 := "Secondary"]
+    dt[EDU_3 == "High", EDU_3 := "Tertiary"]
+
+
+    # Group by country, educational level, and occupational sector, and count the number of individuals in each group
+    data_grouped <- dt[, .(count = .N), by = .(region, EDU_3, cluster)]
+
+    # Calculate the total count of individuals in each educational level within each country
+    total_education_counts <- data_grouped[, .(total_count_edu = sum(count)), by = .(region, EDU_3)]
+
+    # Calculate the total count of individuals in each occupational sector within each country
+    total_sector_counts <- data_grouped[, .(total_count_clust = sum(count)), by = .(region, cluster)]
+
+    # Join the total counts back to the grouped data
+    data_grouped <- merge(data_grouped, total_education_counts, by = c("region", "EDU_3"), all.x = TRUE)
+    data_grouped <- merge(data_grouped, total_sector_counts, by = c("region", "cluster"), all.x = TRUE)
+
+    data_grouped[, total_pop := sum(count), by = "region"]
+
+    data_grouped[, relative_risk := (count/total_count_clust)/(total_count_edu/total_pop)]
+
+    data_grouped[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
+    data_grouped[, region := fct_rev(region)]
+
+    plot <- ggplot(data_grouped) +
+        geom_point(aes(x = relative_risk, y = region, color = EDU_3)) +
+        geom_vline(aes(xintercept = 1),linetype = "dashed", color = alpha(color_scheme(7),0.2)) +
+        facet_wrap(~cluster) +
+        plot_theme() +
+        scale_color_manual(
+            name = "Education",
+            values = color_scheme(c(1,3,5))
+        ) +
+        scale_x_continuous(
+            name = "Relative risk",
+            limits = c(0.3,2),
+            breaks = seq(from=0.2, to=1.8, by = 0.4)
+        ) +
+        theme(
+            panel.grid.major.y = element_line(
+                color = alpha(color_scheme(1),0.4),
+                linewidth = 0.2,
+                linetype = 2
+            ),
+            legend.position = "bottom",
+            legend.key=element_blank()
+        )
+
+    return(plot)
 }
 
 
