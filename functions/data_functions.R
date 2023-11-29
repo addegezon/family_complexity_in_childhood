@@ -29,7 +29,8 @@ format_data <- function(dt) {
         grep("^KID", colnames(dt), value = TRUE),
         grep("^IKID", colnames(dt), value = TRUE),
         "EDU_3",
-        "NATIVE"
+        "NATIVE",
+        "PERSWGT"
     )
 
     # Keep only selected variables
