@@ -267,10 +267,11 @@ plot_colors <- function(scale_type = "fill"){
 plot_theme <- function(){
 
     library(ggplot2)
+    library(extrafont)
 
     p_theme = theme(
-        text = element_text(family="Helvetica", colour = color_scheme(1)),
-        axis.text = element_text(family="Helvetica", colour = color_scheme(1)),
+        text = element_text(family="Verdana", colour = color_scheme(1)),
+        axis.text = element_text(family="Verdana", colour = color_scheme(1)),
         panel.grid = element_blank(),
         panel.background = element_rect(fill = "white"),
         panel.border = element_rect(color = color_scheme(1), fill = NA),
@@ -1173,23 +1174,49 @@ plot_region_rr <- function(dt) {
     dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
     dt[, region := fct_rev(region)]
 
+     # Create mock data to control scales of plots
+    dt_max_min <- rbindlist(list(
+        dt[,
+            .(rr_cluster = max(rr_cluster), type = "max"),
+            by = .(region, cluster)
+        ],
+        dt[,
+            .(rr_cluster = min(rr_cluster), type = "min"),
+            by = .(region, cluster)
+        ]
+    ))
 
-    plot <- ggplot(unique(dt[,.(region, cluster, rr_cluster)])) +
+    
+    dt_max_min[
+        cluster != "Intact original family" & type == "min", 
+        rr_cluster := 0.2
+    ]    
+    dt_max_min[
+        cluster != "Intact original family" & type == "max",
+        rr_cluster := 2.0
+    ]    
+
+
+    plot <- ggplot(
+        unique(dt[,.(region, cluster, rr_cluster)]),
+        aes(
+            x = rr_cluster,
+            y = region
+        )
+    ) +
         geom_vline(
                 aes(xintercept = 1),
                 linetype = "dashed",
-                color = alpha(
-                    color_scheme(6),
-                    0.9
-                )
+                color = alpha(color_scheme(7),0.2)
             ) +
-        geom_point(
-            aes(x = rr_cluster, y = region),
-            color = color_scheme(1)
+        geom_point(color = color_scheme(1)) +
+        geom_blank(data = dt_max_min) +
+        facet_wrap(
+            ~cluster,
+            scales = "free_x"
         ) +
-        facet_wrap(~cluster) +
         plot_theme() +
-        scale_x_continuous(name = "Relative risk") +
+        xlab("Relative likelihood") +
         theme(
             panel.grid.major.y = element_line(
                 color = alpha(
@@ -1224,10 +1251,7 @@ plot_simple_edu_rr <- function(dt) {
         geom_vline(
                 aes(xintercept = 1),
                 linetype = "dashed",
-                color = alpha(
-                    color_scheme(6),
-                    0.9
-                )
+                color = alpha(color_scheme(7),0.2)
             ) +
         geom_point(
             aes(x = rr_cluster, y = EDU_3),
@@ -1235,7 +1259,7 @@ plot_simple_edu_rr <- function(dt) {
         ) +
         facet_wrap(~cluster) +
         plot_theme() +
-        scale_x_continuous(name = "Relative risk") +
+        scale_x_continuous(name = "Relative likelihood") +
         theme(
             panel.grid.major.y = element_line(
                 color = alpha(
@@ -1259,40 +1283,60 @@ plot_edu_rr <- function(dt) {
     dt[EDU_3 == "High", EDU_3 := "Tertiary"]
 
 
-    # Group by country, educational level, and occupational sector, and count the number of individuals in each group
-    data_grouped <- dt[, .(count = .N), by = .(region, EDU_3, cluster)]
+    dt[, p_c_re := as.double(.N), by = .(cluster, EDU_3, region)][, p_c_re := p_c_re/.N, by = .(region, EDU_3)]
+    dt[, p_c_r := as.double(.N), by = .(cluster, region)][, p_c_r := p_c_r/.N, by = .(region)]
+    dt[,rl := p_c_re/p_c_r]
 
-    # Calculate the total count of individuals in each educational level within each country
-    total_education_counts <- data_grouped[, .(total_count_edu = sum(count)), by = .(region, EDU_3)]
+    dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
+    dt[, region := fct_rev(region)]
 
-    # Calculate the total count of individuals in each occupational sector within each country
-    total_sector_counts <- data_grouped[, .(total_count_clust = sum(count)), by = .(region, cluster)]
+   
+    # Create mock data to control scales of plots
+    dt_max_min <- rbindlist(list(
+        dt[,
+            .(rl = max(rl), type = "max"),
+            by = .(region, cluster)
+        ],
+        dt[,
+            .(rl = min(rl), type = "min"),
+            by = .(region, cluster)
+        ]
+    ))
 
-    # Join the total counts back to the grouped data
-    data_grouped <- merge(data_grouped, total_education_counts, by = c("region", "EDU_3"), all.x = TRUE)
-    data_grouped <- merge(data_grouped, total_sector_counts, by = c("region", "cluster"), all.x = TRUE)
+    
+    dt_max_min[
+        cluster != "Intact original family" & type == "min", 
+        rl := 0.2
+    ]    
+    dt_max_min[
+        cluster != "Intact original family" & type == "max",
+        rl := 2.0
+    ]    
 
-    data_grouped[, total_pop := sum(count), by = "region"]
-
-    data_grouped[, relative_risk := (count/total_count_clust)/(total_count_edu/total_pop)]
-
-    data_grouped[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
-    data_grouped[, region := fct_rev(region)]
-
-    plot <- ggplot(data_grouped) +
-        geom_point(aes(x = relative_risk, y = region, color = EDU_3)) +
-        geom_vline(aes(xintercept = 1),linetype = "dashed", color = alpha(color_scheme(7),0.2)) +
-        facet_wrap(~cluster) +
+    # Plot it
+    plot <- ggplot(dt, aes(
+                x = rl,
+                y = region
+            )) +
+        geom_point(aes( color = EDU_3, 
+                shape = EDU_3) ) +
+        geom_blank(data = dt_max_min) +
+        geom_vline(
+            aes(xintercept = 1),
+            linetype = "dashed", 
+            color = alpha(color_scheme(7),0.2)
+        ) +
+        facet_wrap(~cluster, scale = "free_x") +
         plot_theme() +
         scale_color_manual(
-            name = "Education",
+            name = "Maternal education",
             values = color_scheme(c(1,3,5))
         ) +
-        scale_x_continuous(
-            name = "Relative risk",
-            limits = c(0.3,2),
-            breaks = seq(from=0.2, to=1.8, by = 0.4)
+        scale_shape_manual(
+            name = "Maternal education",
+            values = c(16,15,17)
         ) +
+        xlab("Relative likelihood") +
         theme(
             panel.grid.major.y = element_line(
                 color = alpha(color_scheme(1),0.4),
@@ -1451,7 +1495,7 @@ ggseqnullcqiplot <- function(
                             ymax = ymax,
                             ymin = ymin
                         ),
-                        fill = "#F4C2E1FF",
+                        fill = color_scheme(5),
                         alpha = 0.8
                 )
             }
@@ -1481,7 +1525,7 @@ ggseqnullcqiplot <- function(
                 geom_hline(
                     yintercept = overallmaxq,
                     linetype = "dashed",
-                    col = "#00A862FF"
+                    col =color_scheme(3)
                 )
         }
 
@@ -1490,12 +1534,12 @@ ggseqnullcqiplot <- function(
             geom_line(
                 data = data.frame(x = kvals, y = origstat),
                 aes(x = x, y = y),
-                color = "#5D00BBFF"
+                color = color_scheme(1)
             ) + 
             geom_point(
                 data = data.frame(x = kvals, y = origstat),
                 aes(x = x, y = y),
-                color = "#5D00BBFF"
+                color = color_scheme(1)
             )
 
         return(cqi_plot)
