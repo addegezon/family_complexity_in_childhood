@@ -269,43 +269,43 @@ list(
     ),
 
     # Plot complex cluster proportions
-    tar_target(
-        p_cluster_proportions,
-        plot_cluster_proportions(
-            children_clusters
-        )
-    ),
+    # tar_target(
+    #     p_cluster_proportions,
+    #     plot_cluster_proportions(
+    #         children_clusters
+    #     )
+    # ),
 
-    tar_target(
-        p_complex_proportions,
-            plot_complex_proportions(
-            children_clusters
-        )
-    ),
+    # tar_target(
+    #     p_complex_proportions,
+    #         plot_complex_proportions(
+    #         children_clusters
+    #     )
+    # ),
 
-    tar_target(
-        p_combined_proportions,
-        combine_proportion_plots(
-            p_cluster_proportions,
-            p_complex_proportions
-        )
-    ),
+    # tar_target(
+    #     p_combined_proportions,
+    #     combine_proportion_plots(
+    #         p_cluster_proportions,
+    #         p_complex_proportions
+    #     )
+    # ),
 
     # Map cluster
-    tar_target(
-        p_map_cluster_complex,
-        map_cluster_proportions(children_clusters, dropclusters = group_labels_6[1], group_labels_6)
-    ),
+    # tar_target(
+    #     p_map_cluster_complex,
+    #     map_cluster_proportions(children_clusters, dropclusters = group_labels_6[1], group_labels_6)
+    # ),
 
-    tar_target(
-        p_map_edu_complex,
-        map_educational_representation(children_clusters, dropclusters = group_labels_6[1])
-    ),
+    # tar_target(
+    #     p_map_edu_complex,
+    #     map_educational_representation(children_clusters, dropclusters = group_labels_6[1])
+    # ),
 
-    tar_target(
-        p_map_edu_intact,
-        map_educational_representation(children_clusters, dropclusters = group_labels_6[2:6])
-    ),
+    # tar_target(
+    #     p_map_edu_intact,
+    #     map_educational_representation(children_clusters, dropclusters = group_labels_6[2:6])
+    # ),
 
     tar_target(
         p_region_rr,
@@ -313,8 +313,18 @@ list(
     ),
 
     tar_target(
+        p_region_p,
+        plot_region_p(children_clusters)
+    ),
+
+    tar_target(
         p_educational_rr,
         plot_edu_rr(children_clusters)
+    ),
+
+    tar_target(
+        p_educational_p,
+        plot_edu_p(children_clusters)
     ),
 
     tar_target(

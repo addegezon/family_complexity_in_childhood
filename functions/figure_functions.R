@@ -1164,24 +1164,22 @@ map_educational_representation <- function(dt, dropclusters = " ") {
 
 plot_region_rr <- function(dt) {
     library(forcats)
-    dt[, prop_cluster := as.double(.N), by = .(region, cluster)]
-    dt[, prop_cluster := prop_cluster/.N, by = .(region)]
 
-
-    dt[, eu_mean_cluster := as.double(.N), by = .(cluster)]
-    dt[, eu_mean_cluster := eu_mean_cluster/.N, ]
-    dt[, rr_cluster := prop_cluster/eu_mean_cluster]
+    dt[, p_c_r := as.double(.N), by = .(cluster, region)][, p_c_r := p_c_r/.N, by = .(region)]
+    dt <- unique(dt[,.(region, cluster, p_c_r)])
+    dt <- dt[dt[region == "Western"], on = .(cluster)]
+    dt[, rl := p_c_r/i.p_c_r]
     dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
     dt[, region := fct_rev(region)]
 
      # Create mock data to control scales of plots
     dt_max_min <- rbindlist(list(
         dt[,
-            .(rr_cluster = max(rr_cluster), type = "max"),
+            .(rl = max(rl), type = "max"),
             by = .(region, cluster)
         ],
         dt[,
-            .(rr_cluster = min(rr_cluster), type = "min"),
+            .(rl = min(rl), type = "min"),
             by = .(region, cluster)
         ]
     ))
@@ -1189,18 +1187,18 @@ plot_region_rr <- function(dt) {
     
     dt_max_min[
         cluster != "Intact original family" & type == "min", 
-        rr_cluster := 0.2
+        rl := 0.2
     ]    
     dt_max_min[
         cluster != "Intact original family" & type == "max",
-        rr_cluster := 2.0
+        rl := 2.0
     ]    
 
 
     plot <- ggplot(
-        unique(dt[,.(region, cluster, rr_cluster)]),
+        unique(dt[,.(region, cluster, rl)]),
         aes(
-            x = rr_cluster,
+            x = rl,
             y = region
         )
     ) +
@@ -1229,37 +1227,32 @@ plot_region_rr <- function(dt) {
             axis.title.y = element_blank() 
         )
     return(plot)
+    
 }
 
-plot_simple_edu_rr <- function(dt) {
-    dt <- dt[!is.na(EDU_3)]
-    dt[EDU_3 == "Low", EDU_3 := "Primary"]
-    dt[EDU_3 == "Medium", EDU_3 := "Secondary"]
-    dt[EDU_3 == "High", EDU_3 := "Tertiary"]
+plot_region_p <- function(dt) {
+    library(forcats)
 
-    dt[, prop_cluster := as.double(.N), by = .(EDU_3, cluster)]
-    dt[, prop_cluster := prop_cluster/.N, by = .(EDU_3)]
+    dt[, p_c_r := as.double(.N), by = .(cluster, region)][, p_c_r := p_c_r/.N, by = .(region)]
+    dt <- unique(dt[,.(region, cluster, p_c_r)])
+    dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
+    dt[, region := fct_rev(region)]
 
-
-    dt[, eu_mean_cluster := as.double(.N), by = .(cluster)]
-    dt[, eu_mean_cluster := eu_mean_cluster/.N, ]
-    dt[, rr_cluster := prop_cluster/eu_mean_cluster]
-    dt[,EDU_3 := factor(EDU_3, levels = c("Primary", "Secondary", "Tertiary"))]
-
-
-    plot <- ggplot(unique(dt[,.(EDU_3, cluster, rr_cluster)])) +
-        geom_vline(
-                aes(xintercept = 1),
-                linetype = "dashed",
-                color = alpha(color_scheme(7),0.2)
-            ) +
-        geom_point(
-            aes(x = rr_cluster, y = EDU_3),
-            color = color_scheme(1)
+    plot <- ggplot(
+        unique(dt[,.(region, cluster, p_c_r)]),
+        aes(
+            x = p_c_r,
+            y = region
+        )
+    ) +
+        geom_point(color = color_scheme(1)) +
+        scale_x_continuous(labels = scales::percent) +
+        facet_wrap(
+            ~cluster,
+            scales = "free_x"
         ) +
-        facet_wrap(~cluster) +
         plot_theme() +
-        scale_x_continuous(name = "Relative likelihood") +
+        xlab("Proportion") +
         theme(
             panel.grid.major.y = element_line(
                 color = alpha(
@@ -1272,6 +1265,7 @@ plot_simple_edu_rr <- function(dt) {
             axis.title.y = element_blank() 
         )
     return(plot)
+    
 }
 
 plot_edu_rr <- function(dt) {
@@ -1284,8 +1278,11 @@ plot_edu_rr <- function(dt) {
 
 
     dt[, p_c_re := as.double(.N), by = .(cluster, EDU_3, region)][, p_c_re := p_c_re/.N, by = .(region, EDU_3)]
-    dt[, p_c_r := as.double(.N), by = .(cluster, region)][, p_c_r := p_c_r/.N, by = .(region)]
-    dt[,rl := p_c_re/p_c_r]
+
+
+    dt <- unique(dt[,.(region, EDU_3, cluster, p_c_re)])
+    dt <- dt[dt[EDU_3 == "Secondary"], on = .(region, cluster)]
+    dt[, rl := p_c_re/i.p_c_re]
 
     dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
     dt[, region := fct_rev(region)]
@@ -1350,6 +1347,63 @@ plot_edu_rr <- function(dt) {
     return(plot)
 }
 
+
+
+plot_edu_p <- function(dt) {
+    library(forcats)
+    dt <- dt[!is.na(EDU_3)]
+
+    dt[EDU_3 == "Low", EDU_3 := "Primary"]
+    dt[EDU_3 == "Medium", EDU_3 := "Secondary"]
+    dt[EDU_3 == "High", EDU_3 := "Tertiary"]
+
+
+    dt[, p_c_re := as.double(.N), by = .(cluster, EDU_3, region)][, p_c_re := p_c_re/.N, by = .(region, EDU_3)]
+
+
+    dt <- unique(dt[,.(region, EDU_3, cluster, p_c_re)])
+  
+
+    dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
+    dt[, region := fct_rev(region)]
+
+  
+
+    # Plot it
+    plot <- ggplot(dt, aes(
+                x = p_c_re,
+                y = region
+            )) +
+        geom_point(aes( color = EDU_3, 
+                shape = EDU_3) ) +
+        scale_x_continuous(labels = scales::percent) +
+        facet_wrap(
+            ~cluster, 
+            scale = "free_x",
+            ncol = 2
+        ) +
+        plot_theme() +
+        scale_color_manual(
+            name = "Maternal education",
+            values = color_scheme(c(1,3,5))
+        ) +
+        scale_shape_manual(
+            name = "Maternal education",
+            values = c(16,15,17)
+        ) +
+        xlab("Percentage") +
+        theme(
+            panel.grid.major.y = element_line(
+                color = alpha(color_scheme(1),0.4),
+                linewidth = 0.2,
+                linetype = 2
+            ),
+            legend.position = "bottom",
+            legend.key=element_blank()
+        )
+
+    return(plot)
+}
 
 ggseqnullcqiplot <- function(
     bcq,
