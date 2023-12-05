@@ -490,7 +490,7 @@ index_plot <- function(sequence, groups, group_labels, dt) {
         sequence,
         group = group_factor,
         sortv = "from.start",
-        no.n = FALSE
+        no.n = TRUE
     ) +
         plot_theme() +
         plot_colors("fill") + 
@@ -1238,6 +1238,33 @@ plot_region_p <- function(dt) {
     dt[,region := factor(region, levels = c("Northern", "Western", "Southern", "Central-Eastern", "South-Eastern"))]
     dt[, region := fct_rev(region)]
 
+
+    dt_max_min <- rbindlist(list(
+        dt[,
+            .(rl = max(p_c_r), type = "max"),
+            by = .(region, cluster)
+        ],
+        dt[,
+            .(rl = min(p_c_r), type = "min"),
+            by = .(region, cluster)
+        ]
+    ))
+    
+    dt_max_min[
+        (cluster == "Separation" | 
+        cluster == "Early stepfamily" |
+        cluster == "Later stepfamily") &
+        type == "min", 
+        p_c_r := 0
+    ]    
+    dt_max_min[
+        (cluster == "Separation" | 
+        cluster == "Early stepfamily" |
+        cluster == "Later stepfamily") &
+        type == "max", 
+        p_c_r := 0.039
+    ]    
+
     plot <- ggplot(
         unique(dt[,.(region, cluster, p_c_r)]),
         aes(
@@ -1246,6 +1273,7 @@ plot_region_p <- function(dt) {
         )
     ) +
         geom_point(color = color_scheme(1)) +
+        geom_blank(data = dt_max_min) +
         scale_x_continuous(labels = scales::percent) +
         facet_wrap(
             ~cluster,
