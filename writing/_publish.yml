@@ -1,0 +1,4 @@
+- source: presentation.qmd
+  quarto-pub:
+    - id: d1626b0f-8ca5-4680-a6d9-8574dde68342
+      url: 'https://addegezon.quarto.pub/childhood-family-structure-in-16-european-countries'

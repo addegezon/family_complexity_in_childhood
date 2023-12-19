@@ -1,11 +1,16 @@
 ---
-title: "Childhood Family Structure and Sibling Composition in 16 European Countries"
-subtitle: "A Sequence Analysis Approach to Family Complexity"
+title: "Childhood family structure in 16 European countries"
 author: "Andreas Gustafsson"
-format: revealjs
+institute: "Stockholm University"
+format: 
+  revealjs:
+    embed-resources: true
 slide-number: true
 progress: true
 touch: true
+reference-location: margin
+reference-links: TRUE
+bibliography: bibliography.bib
 css: "presentation_style.css"
 ---
 
@@ -28,71 +33,88 @@ source("../functions/figure_functions.R")
 
 ## Introduction
 
-## Second Demographic Transition
+::: {.incremental}
+* The late 20^th^ and early 21^st^ century brought about large changes in family dynamics
+* From nuclear families to a diversity of family forms
+* Large differences between European countries and by socioeconomic status
+:::
 
-## European differences
+## Research questions
 
-## Family complexity
+1. What are the most common family structures among European children, and how do they vary across European countries and regions?
+2. How does the risk of experiencing a particular family structure differ by the mother's socioeconomic status, as measured by level of education?
 
-## Sequence analysis
+## Previous research {.smaller}
 
----
+::: {.incremental}
+* European differences [@andersson_life-table_2017]:
+    * Intact families more common in Southern and South-Eastern Europe
+    * Single-mother births are the most common in Central-Eastern Europe
+    * Experiencing parental separation is the least common in Southern and South-Eastern Europe. But also among certain Western European countries (Germany & Netherlands)
+* Parental education is associated with certain processes [@kalmijn_new_2021], but unclear connection to others [@turunen_entering_2011;@dahlberg_pathways_2018;@jalovaara_disparities_2018]
+:::
 
-```{r table1}
+
+## Data
+
+:::: {.columns}
+
+::: {.column width="40%"}
+* Harmonized Histories
+* Child histories from maternal partnership and childbearing history
+:::
+
+::: {.column width="60%"}
+```{r}
 #| echo: false
-#| results: "asis"
-#| label: tbl-1
-#| tbl-cap: "Descriptive information on survey years, cohorts included and number of children from each country"
 
 format_table(
     tar_read(children_filtered),
     format = "html",
-    booktabs = FALSE
-) |>
-kable_minimal()
+    response_rates = file.path("..","data", "response_rates.csv")
+) |>   kable_styling(font_size = 12)
+
 ```
+:::
 
+::::
 
-## Cluster diagnostics
+## Methods
 
-```{r}
-#| echo: false
-#| label: fig-cwi
-#| fig-cap: "Standardized Average Silhouette Width and Hubert's C for actual and bootstrapped data"
+::: {.incremental}
+1. Create maternal partnership trajectory from birth until age 15
+2. Calculate sequence dissimilarities
+3. Cluster data
+4. Cluster diagnostics
+5. Show cluster distributions
+:::
 
-tar_read(p_cluster_cqi)
-```
 
 ## Final clusters
 
 ```{r}
 #| echo: false
-tar_read(p_clusters_5)
+tar_read(p_index)
 ```
 
-## Cluster proportion
-
+## Regional proportions
 
 ```{r}
 #| echo: false
-#| results: asis
-tab_cluster_proportions(
-            tar_read(children_clusters),
-            format = "html",
-            booktabs = FALSE
-) |>
-kable_styling(font_size = 16) |>
-kable_minimal()
+tar_read(p_region_p)
 ```
 
-## Sibling proportions
+## Educational associations
 
-```{r, fig.height = 7, fig.width = 10}
+```{r}
 #| echo: false
-tar_read(p_sibling_proportion)
+tar_read(p_educational_p) + theme(axis.title.y = element_blank(), aspect.ratio = 0.35)
 ```
 
+## Conclusions
 
+* South/North divide
+* Stratification by maternal education
+* Important to follow children across multiple transitions
 
-
-
+## References

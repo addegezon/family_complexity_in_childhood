@@ -1,11 +1,17 @@
 .title {
     font-size: 50px !important;
+    text-align: left;
+    margin-bottom: 2em !important;
   }
   
-  .author {
-    font-size: 30px;
-  }
+.author {
+  font-size: 30px;
+}
+
+
 
 #tbl-1 {
     font-size: 15px;
 }
+
+

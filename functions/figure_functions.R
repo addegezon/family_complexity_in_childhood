@@ -1,7 +1,12 @@
 ##
 # Tables
 
-format_table <- function(dt, format = "latex", booktabs = TRUE){
+format_table <- function(
+    dt, 
+    format = "latex",
+    booktabs = TRUE, 
+    response_rates = file.path("data", "response_rates.csv")
+){
     library(modelsummary)
     library(kableExtra)
     library(forcats)
@@ -29,7 +34,7 @@ format_table <- function(dt, format = "latex", booktabs = TRUE){
     # Load and match response rates
     rr <- as.data.table(
             read.csv(
-                file.path("data", "response_rates.csv"))
+                response_rates)
     )
 
     dt <- merge(dt, rr, by = c("COUNTRY", "survey"), all.x = TRUE)
