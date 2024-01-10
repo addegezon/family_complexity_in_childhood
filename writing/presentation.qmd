@@ -71,9 +71,10 @@ source("../functions/figure_functions.R")
 format_table(
     tar_read(children_filtered),
     format = "html",
+    booktabs = TRUE,
     response_rates = file.path("..","data", "response_rates.csv")
-) |>   kable_styling(font_size = 12)
-
+) |>   
+    kable_styling(font_size = 12) 
 ```
 :::
 
